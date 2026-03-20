@@ -20,7 +20,7 @@ function createMockReq(method = 'GET', url = '/', headers = {}) {
   const req = new IncomingMessage(socket);
   req.method = method;
   req.url = url;
-  req.headers = {'host': 'localhost', 'accept': 'application/json', ...headers};
+  req.headers = {host: 'localhost', accept: 'application/json', ...headers};
   return req;
 }
 
@@ -43,7 +43,7 @@ async function bench(name, fn) {
   return {
     name,
     unit: 'us/op',
-    value: Math.round((elapsed / ITERATIONS) * 1000) / 1000,
+    value: Math.round((elapsed / ITERATIONS) * 1000) / 1000
   };
 }
 
@@ -52,46 +52,42 @@ async function run() {
 
   const negotiation = compose(
     [cors(), [], 'cors'],
-    [accepts({types: ['application/json']}), [], 'accepts'],
+    [accepts({types: ['application/json']}), [], 'accepts']
   );
 
   results.push(
     await bench('compose: negotiation (cors + accepts)', async () => {
       const req = createMockReq('GET', '/test', {
         origin: 'https://example.com',
-        accept: 'application/json',
+        accept: 'application/json'
       });
       const res = createMockRes();
       await negotiation(req, res, {});
-    }),
+    })
   );
 
-  const authPipeline = compose(
-    [
-      authorization({
-        strategies: [
-          {
-            type: 'bearer',
-            authorizer: (_, token) =>
-              token === 'test'
-                ? {authorized: true, info: {uid: 1}}
-                : {authorized: false},
-          },
-        ],
-      }),
-      [],
-      'auth',
-    ],
-  );
+  const authPipeline = compose([
+    authorization({
+      strategies: [
+        {
+          type: 'bearer',
+          authorizer: (_, token) =>
+            token === 'test' ? {authorized: true, info: {uid: 1}} : {authorized: false}
+        }
+      ]
+    }),
+    [],
+    'auth'
+  ]);
 
   results.push(
     await bench('compose: authorization (bearer)', async () => {
       const req = createMockReq('GET', '/test', {
-        authorization: 'Bearer test',
+        authorization: 'Bearer test'
       });
       const res = createMockRes();
       await authPipeline(req, res, {});
-    }),
+    })
   );
 
   const fullPipeline = compose(
@@ -103,16 +99,14 @@ async function run() {
           {
             type: 'bearer',
             authorizer: (_, token) =>
-              token === 'test'
-                ? {authorized: true, info: {uid: 1}}
-                : {authorized: false},
-          },
-        ],
+              token === 'test' ? {authorized: true, info: {uid: 1}} : {authorized: false}
+          }
+        ]
       }),
       [],
-      'auth',
+      'auth'
     ],
-    (_req, _res, _acc) => ({body: {ok: true}}),
+    (_req, _res, _acc) => ({body: {ok: true}})
   );
 
   results.push(
@@ -120,11 +114,11 @@ async function run() {
       const req = createMockReq('GET', '/test', {
         origin: 'https://example.com',
         accept: 'application/json',
-        authorization: 'Bearer test',
+        authorization: 'Bearer test'
       });
       const res = createMockRes();
       await fullPipeline(req, res, {});
-    }),
+    })
   );
 
   console.log(JSON.stringify(results, null, 2));
