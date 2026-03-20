@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774030734728,
+  "lastUpdate": 1774042550730,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -307,6 +307,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "a2c39e3e30254399ac8f8eed9d0b575a14c0fcb9",
+          "message": "build(deps): Bump github/codeql-action from 4.33.0 to 4.34.1",
+          "timestamp": "2026-03-20T18:18:41Z",
+          "url": "https://github.com/CentralPing/ergo/pull/7/commits/a2c39e3e30254399ac8f8eed9d0b575a14c0fcb9"
+        },
+        "date": 1774042549898,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
