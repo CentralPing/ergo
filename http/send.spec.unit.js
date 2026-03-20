@@ -158,18 +158,39 @@ describe('[Module] http/send', () => {
     assert.equal(res._headers['content-type'], 'application/octet-stream');
   });
 
-  it('pipes a Readable stream body to the response', async () => {
+  it('pipes a Readable stream body to the response with correct payload', async () => {
     const req = createMockReq();
     const res = createMockRes();
-    const piped = await new Promise(resolve => {
+    const chunks = [];
+    const done = new Promise(resolve => {
       res.write = chunk => {
-        resolve(chunk);
+        chunks.push(chunk);
+        return true;
       };
-      res.end = () => {};
-      const readable = Readable.from(['hello']);
-      send(req, res, {statusCode: 200, body: readable});
+      res.end = () => resolve();
     });
-    assert.ok(piped !== undefined, 'stream should have been piped');
+    const readable = Readable.from(['hello', ' ', 'world']);
+    send(req, res, {statusCode: 200, body: readable});
+    await done;
+    const payload = chunks.map(c => (typeof c === 'string' ? c : c.toString())).join('');
+    assert.equal(payload, 'hello world');
+  });
+
+  it('emits error on response when stream pipeline fails', async () => {
+    const req = createMockReq();
+    const res = createMockRes();
+    const errorReceived = new Promise(resolve => {
+      res.on('error', err => resolve(err));
+    });
+    const failStream = new Readable({
+      read() {
+        this.destroy(new Error('stream failure'));
+      }
+    });
+    send(req, res, {statusCode: 200, body: failStream});
+    const err = await errorReceived;
+    assert.ok(err, 'error should have been emitted on res');
+    assert.equal(err.message, 'stream failure');
   });
 
   describe('Last-Modified / date-based conditionals', () => {

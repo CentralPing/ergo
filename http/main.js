@@ -110,6 +110,7 @@ export {
   validate
 };
 
+// Default export mirrors the named exports above — keep both in sync.
 /** @type {object} */
 export default {
   compose,

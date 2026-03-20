@@ -31,6 +31,7 @@
  */
 import zlib from 'node:zlib';
 import Negotiator from 'negotiator';
+import appendVary from '../lib/vary.js';
 
 const NO_COMPRESS_STATUSES = new Set([204, 304]);
 const COMPRESSIBLE_RE = /^(text\/|application\/(json|javascript|xml|x-www-form-urlencoded))/;
@@ -81,10 +82,7 @@ export default ({threshold = 1024, encodings = ['br', 'gzip', 'deflate']} = {}) 
       origSetHeader('Content-Encoding', encoding);
       res.removeHeader('Content-Length');
 
-      const existing = res.getHeader('Vary');
-      if (!existing || !String(existing).toLowerCase().includes('accept-encoding')) {
-        origSetHeader('Vary', existing ? `${existing}, Accept-Encoding` : 'Accept-Encoding');
-      }
+      appendVary(res, 'Accept-Encoding');
 
       headersSent = true;
 

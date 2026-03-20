@@ -18,17 +18,17 @@ describe('[Boundary] utils/get', () => {
     assert.equal(get({a: 1}, 'b'), undefined);
   });
 
-  it('invokes function values at each step by default (invoke:true)', () => {
+  it('does NOT invoke function values by default (invoke:false)', () => {
+    const fn = () => 'result';
+    const obj = {a: {b: fn}};
+    assert.equal(get(obj, 'a.b'), fn);
+  });
+
+  it('invokes function values when invoke:true', () => {
     const obj = {
       a: () => ({b: 99})
     };
-    assert.equal(get(obj, 'a.b'), 99);
-  });
-
-  it('does NOT invoke function values when invoke:false', () => {
-    const fn = () => 'result';
-    const obj = {a: {b: fn}};
-    assert.equal(get(obj, 'a.b', {invoke: false}), fn);
+    assert.equal(get(obj, 'a.b', {invoke: true}), 99);
   });
 
   it('breaks early and returns undefined when safe:true and a path step is undefined', () => {
