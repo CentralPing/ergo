@@ -2,7 +2,7 @@
  * @fileoverview Deep property getter with dot-notation path support.
  *
  * Traverses a nested object using a dot-delimited path string. Optionally:
- * - Invokes function values at each step (`invoke: true`, default)
+ * - Optionally invokes function values at each step (`invoke: false`, default)
  * - Returns `undefined` gracefully when a step is missing (`safe: true`)
  *
  * @module utils/get
@@ -21,10 +21,10 @@
  * @param {string} [path=''] - Dot-delimited property path
  * @param {object} [options] - Traversal options
  * @param {boolean} [options.safe=false] - Return undefined instead of throwing on missing paths
- * @param {boolean} [options.invoke=true] - Call function values at each path step
+ * @param {boolean} [options.invoke=false] - Call function values at each path step
  * @returns {*} - Value at the path, or undefined in safe mode
  */
-export default (obj = {}, path = '', {safe = false, invoke = true} = {}) => {
+export default (obj = {}, path = '', {safe = false, invoke = false} = {}) => {
   let val = obj;
 
   for (const subPath of path.split('.')) {

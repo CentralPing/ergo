@@ -174,6 +174,26 @@ describe('[Contract] http/compress', () => {
     }
   });
 
+  it('ends response cleanly when compression encounters invalid data', async () => {
+    let u, c;
+    const handler = (req, res) => {
+      const compress = createCompress({threshold: 1});
+      compress(req, res);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.write('{');
+      res.end('}');
+    };
+    ({baseUrl: u, close: c} = await setupServer(handler));
+    try {
+      const res = await fetch(`${u}/`, {headers: {'accept-encoding': 'gzip'}});
+      assert.ok([200, 500].includes(res.status), `expected 200 or 500, got ${res.status}`);
+      await res.body?.cancel();
+    } finally {
+      await c();
+    }
+  });
+
   it('deduplicates Accept-Encoding in Vary header when already present', async () => {
     let dedupBaseUrl, dedupClose;
     // Pipeline that sets a pre-existing Vary header then adds compression

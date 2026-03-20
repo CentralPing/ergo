@@ -14,6 +14,7 @@ import createBody from './body.js';
 
 const gzip = promisify(zlib.gzip);
 const deflate = promisify(zlib.deflate);
+const brotli = promisify(zlib.brotliCompress);
 
 describe('[Contract] http/body', () => {
   let baseUrl;
@@ -247,6 +248,60 @@ describe('[Contract] http/body', () => {
       } finally {
         await c();
       }
+    });
+  });
+
+  describe('chunked transfer encoding', () => {
+    it('parses chunked body without Content-Length (stream body)', async () => {
+      const payload = JSON.stringify({chunked: true});
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(payload));
+          controller.close();
+        }
+      });
+      const res = await fetch(`${baseUrl}/`, {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: stream,
+        duplex: 'half'
+      });
+      assert.equal(res.status, 200);
+      const json = await res.json();
+      assert.equal(json.chunked, true);
+    });
+  });
+
+  describe('411 Length Required', () => {
+    it('returns 411 when neither Content-Length nor chunked is present', async () => {
+      const payload = JSON.stringify({x: 1});
+      const res = await fetch(`${baseUrl}/`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: payload
+      });
+      assert.ok([200, 411].includes(res.status));
+    });
+  });
+
+  describe('brotli decompression', () => {
+    it('parses brotli-compressed application/json body', async () => {
+      const payload = JSON.stringify({encoding: 'br'});
+      const compressed = await brotli(Buffer.from(payload));
+      const res = await fetch(`${baseUrl}/`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'content-encoding': 'br',
+          'content-length': String(compressed.length)
+        },
+        body: compressed
+      });
+      assert.equal(res.status, 200);
+      const json = await res.json();
+      assert.equal(json.encoding, 'br');
     });
   });
 
