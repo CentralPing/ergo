@@ -1,0 +1,20 @@
+node_modules
+coverage
+npm-debug.log
+package-lock.json
+.DS_Store
+
+# Agent/editor local files
+DECISIONS.md
+.cursor/
+.vscode/
+
+# Benchmark suite (environment-specific; only ci-bench.js is committed)
+benchmarks/README.md
+benchmarks/report/
+benchmarks/run.sh
+benchmarks/scenarios/
+benchmarks/servers/
+benchmarks/results/
+benchmarks/results-before/
+benchmarks/.ergo-build-ctx/
