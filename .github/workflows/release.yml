@@ -17,6 +17,4 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm install --ignore-scripts
       - run: npm test
-      - run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish
