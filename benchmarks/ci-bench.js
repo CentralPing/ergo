@@ -8,7 +8,7 @@
  * Usage: node benchmarks/ci-bench.js
  */
 
-import {compose, send, body, authorization, cors, accepts, logger} from '../http/index.js';
+import {compose, authorization, cors, accepts} from '../http/index.js';
 import {IncomingMessage, ServerResponse} from 'node:http';
 import {Socket} from 'node:net';
 
@@ -112,7 +112,7 @@ async function run() {
       [],
       'auth',
     ],
-    (req, res, acc) => ({body: {ok: true}}),
+    (_req, _res, _acc) => ({body: {ok: true}}),
   );
 
   results.push(

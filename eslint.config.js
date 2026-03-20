@@ -28,6 +28,7 @@ export default [
       }
     },
     rules: {
+      'no-unused-vars': ['error', {argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_'}],
       'no-use-before-define': ['error', {functions: false}],
       'no-param-reassign': ['error', {props: false}],
       'no-console': 'warn',
@@ -36,9 +37,9 @@ export default [
     }
   },
 
-  // Benchmark servers & report scripts -- console is intentional
+  // Benchmark scripts -- console is intentional
   {
-    files: ['benchmarks/servers/**/*.js', 'benchmarks/report/**/*.js'],
+    files: ['benchmarks/**/*.js'],
     rules: {
       'no-console': 'off'
     }
