@@ -49,7 +49,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/CentralPing/ergo"
+    "url": "git+https://github.com/CentralPing/ergo.git"
   },
   "keywords": [
     "fast-fail",
