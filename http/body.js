@@ -114,8 +114,8 @@ const decompressors = new Proxy(
  * Creates a request body parsing middleware.
  *
  * @param {object} [options] - Body parser configuration
- * @param {number} [options.limit=1048576] - Maximum body size in bytes (default 1 MiB)
- * @param {number} [options.decompressedLimit] - Maximum decompressed body size in bytes (default 10 * limit, hard cap 10 MiB)
+ * @param {number} [options.limit=DEFAULT_LIMIT] - Maximum body size in bytes (default 1 MiB)
+ * @param {number} [options.decompressedLimit] - Maximum decompressed body size (default 10 * limit, capped at MAX_DECOMPRESSED)
  * @param {string[]} [options.types] - Allowed Content-Type MIME types
  * @param {string} [options.charset='utf-8'] - Default character encoding
  * @returns {function} - Async middleware `(req) => {type, charset, encoding, length, received, boundary, raw, parsed}`
@@ -124,10 +124,11 @@ const decompressors = new Proxy(
  * @throws {Error} 413 Payload Too Large when body exceeds the configured limit
  * @throws {Error} 415 Unsupported Media Type when Content-Type or Content-Encoding is not recognized
  */
-const MAX_DECOMPRESSED = 10 * (1 << 20); // 10 MiB hard cap
+const DEFAULT_LIMIT = 1 << 20; // 1 MiB
+const MAX_DECOMPRESSED = 10 * DEFAULT_LIMIT; // 10 MiB hard cap
 
 export default ({
-    limit = 1 << 20,
+    limit = DEFAULT_LIMIT,
     decompressedLimit = Math.min(10 * limit, MAX_DECOMPRESSED),
     types = [
       'application/vnd.api+json',
@@ -279,7 +280,6 @@ async function readReqStream(
   const wireMeter = meter({limit, expected});
   const inflatedMeter = meter({limit: decompressedLimit});
   const w = writer();
-  // TODO: allow multiple decompressors
   const decompressor = decompressors[type];
 
   try {

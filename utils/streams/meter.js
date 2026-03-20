@@ -55,17 +55,25 @@ function transform(chunk, encoding, cb) {
   this.bytesRead += Buffer.byteLength(chunk);
   const err =
     this.bytesRead > this.limit
-      ? Object.assign(new Error('Body exceeded size limit'), {
-          type: 'TooLarge',
-          limit: this.limit,
-          length: this.bytesRead
-        })
+      ? Object.assign(
+          new Error(`Body exceeded size limit: [${this.limit}]; received: [${this.bytesRead}]`),
+          {
+            type: 'TooLarge',
+            limit: this.limit,
+            length: this.bytesRead
+          }
+        )
       : this.expected !== undefined && this.bytesRead > this.expected
-        ? Object.assign(new Error('Body exceeds Content-Length'), {
-            type: 'InvalidLength',
-            length: this.expected,
-            received: this.bytesRead
-          })
+        ? Object.assign(
+            new Error(
+              `Body exceeds Content-Length: [${this.expected}]; received: [${this.bytesRead}]`
+            ),
+            {
+              type: 'InvalidLength',
+              length: this.expected,
+              received: this.bytesRead
+            }
+          )
         : null;
 
   cb(err, chunk);

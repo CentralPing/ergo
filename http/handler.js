@@ -30,6 +30,7 @@
  */
 import attempt from '../utils/attempt.js';
 import compose from '../utils/compose-with.js';
+import attachInstance from '../lib/attach-instance.js';
 
 const statusCode = 500;
 
@@ -62,12 +63,7 @@ export default (tryFn, catchFn, {setPath} = {}) => {
 function formatError(req, res, err) {
   err.statusCode ??= statusCode;
   err.status ??= err.statusCode;
-
-  // Auto-populate RFC 9457 instance from request ID (set by ergo-router transport or logger)
-  if (err.instance === undefined) {
-    const requestId = res.getHeader?.('x-request-id');
-    if (requestId) err.instance = `urn:uuid:${requestId}`;
-  }
+  attachInstance(err, res);
 
   // Emit error on response for any listeners (only if there are listeners to prevent
   // the EventEmitter default behavior of throwing when no 'error' listener exists)

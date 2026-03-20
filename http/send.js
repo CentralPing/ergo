@@ -56,6 +56,7 @@ import {Stream, pipeline} from 'node:stream';
 import {STATUS_CODES} from 'node:http';
 import generateETag from 'etag';
 import httpErrors from '../utils/http-errors.js';
+import appendVary from '../lib/vary.js';
 
 const isHTML = /<[a-z][^>]*>/i;
 
@@ -397,30 +398,4 @@ function endWithProblem(res, statusCode) {
   const body = JSON.stringify(httpErrors(statusCode));
   res.setHeader('Content-Length', Buffer.byteLength(body));
   res.end(body);
-}
-
-/**
- * Append a pre-computed Vary value to the response, avoiding duplicates.
- * @param {import('node:http').ServerResponse} res - HTTP response object
- * @param {string} value - Pre-joined header value (e.g. "Accept, Accept-Encoding")
- */
-function appendVary(res, value) {
-  const existing = res.getHeader('Vary');
-
-  if (!existing) {
-    res.setHeader('Vary', value);
-    return;
-  }
-
-  const tokens = new Set(
-    String(existing)
-      .toLowerCase()
-      .split(/,\s*/)
-      .map(s => s.trim())
-  );
-  const toAdd = value.split(', ').filter(t => !tokens.has(t.toLowerCase()));
-
-  if (toAdd.length) {
-    res.setHeader('Vary', `${existing}, ${toAdd.join(', ')}`);
-  }
 }

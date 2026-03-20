@@ -18,7 +18,7 @@ describe('[Boundary] utils/set', () => {
     assert.equal(obj.a.b.c, 99);
   });
 
-  it('reuses an existing intermediate object (L26: hasOwn short-circuit)', () => {
+  it('reuses an existing intermediate object when property already exists', () => {
     const inner = {existing: true};
     const obj = {a: inner};
     set(obj, 'a.b', 'new');
