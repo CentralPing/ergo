@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774003772433,
+  "lastUpdate": 1774005868028,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -72,6 +72,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jason.cust@gmail.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "jason.cust@gmail.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "distinct": true,
+          "id": "c56fe2f3e8258b3ec8258ca6a3c18b7f8e79ff52",
+          "message": "docs: add logo assets and wordmark to README",
+          "timestamp": "2026-03-20T07:23:59-04:00",
+          "tree_id": "be5dba9938b27ebec4d7d79271bcfcb099c40747",
+          "url": "https://github.com/CentralPing/ergo/commit/c56fe2f3e8258b3ec8258ca6a3c18b7f8e79ff52"
+        },
+        "date": 1774005867594,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
