@@ -1,4 +1,10 @@
-# ergo
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-wordmark-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo-wordmark-light.svg">
+    <img alt="ergo" src="assets/logo-wordmark-light.svg" width="240">
+  </picture>
+</p>
 
 [![CI](https://github.com/CentralPing/ergo/actions/workflows/ci.yml/badge.svg)](https://github.com/CentralPing/ergo/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/CentralPing/ergo/branch/main/graph/badge.svg)](https://codecov.io/gh/CentralPing/ergo)
