@@ -7,11 +7,11 @@
  * - `multipart/form-data` — parsed via the RFC 7578 streaming multipart parser
  *
  * Handles both `Content-Length` and `Transfer-Encoding: chunked` requests. Enforces
- * a configurable byte limit (default 1 MiB). Throws appropriate HTTP errors:
+ * a configurable byte limit (default 1 MiB). Returns `{response: {statusCode, detail}}` for:
  * - `411 Length Required` if neither Content-Length nor chunked encoding is present
  * - `413 Payload Too Large` if the body exceeds the limit
  * - `415 Unsupported Media Type` for unrecognized content types
- * - `400 Bad Request` if Content-Length doesn't match received bytes
+ * - `400 Bad Request` if Content-Length doesn't match received bytes or the body is malformed
  *
  * Contains a fast path for identity-encoded `application/json` that bypasses the
  * 3-stream pipeline for reduced per-request overhead.
@@ -32,7 +32,7 @@
  * import {compose, body} from 'ergo';
  *
  * const pipeline = compose(
- *   [body({limit: 2 * 1024 * 1024}), [], 'body'],
+ *   [body({limit: 2 * 1024 * 1024}), 'body'],
  *   // acc.body => {type, charset, encoding, length, received, raw, parsed}
  *   // For JSON types, acc.body.parsed is the decoded object
  * );
@@ -118,11 +118,7 @@ const decompressors = new Proxy(
  * @param {number} [options.decompressedLimit] - Maximum decompressed body size (default 10 * limit, capped at MAX_DECOMPRESSED)
  * @param {string[]} [options.types] - Allowed Content-Type MIME types
  * @param {string} [options.charset='utf-8'] - Default character encoding
- * @returns {function} - Async middleware `(req) => {type, charset, encoding, length, received, boundary, raw, parsed}`
- * @throws {Error} 400 Bad Request when body is malformed or Content-Length does not match received bytes
- * @throws {Error} 411 Length Required when neither Content-Length nor chunked encoding is present
- * @throws {Error} 413 Payload Too Large when body exceeds the configured limit
- * @throws {Error} 415 Unsupported Media Type when Content-Type or Content-Encoding is not recognized
+ * @returns {function} - Async middleware `(req) => {type, charset, encoding, length, received, boundary, raw, parsed}` on success; on error `{response: {statusCode: 400|411|413|415, detail: string}}`. Errors without `statusCode` are rethrown.
  */
 const DEFAULT_LIMIT = 1 << 20; // 1 MiB
 const MAX_DECOMPRESSED = 10 * DEFAULT_LIMIT; // 10 MiB hard cap

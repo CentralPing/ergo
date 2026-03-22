@@ -23,10 +23,10 @@ describe('[Contract] http/csrf', () => {
   before(async () => {
     ({baseUrl, close} = await setupServer((req, res) => {
       const cookies = createCookieMw()(req);
+      const acc = {cookies};
 
       if (req.method === 'GET') {
-        // Issue CSRF tokens
-        csrf.issue(req, res, cookies);
+        csrf.issue(req, res, acc);
         res.setHeader('Set-Cookie', cookies.toHeader());
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -34,17 +34,18 @@ describe('[Contract] http/csrf', () => {
         return;
       }
 
-      // Verify CSRF on POST
-      try {
-        csrf.verify(req, res, cookies);
-        res.statusCode = 200;
+      const result = csrf.verify(req, res, acc);
+
+      if (result?.response?.statusCode) {
+        res.statusCode = result.response.statusCode;
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({verified: true}));
-      } catch (err) {
-        res.statusCode = err.statusCode ?? 403;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({error: err.message}));
+        res.end(JSON.stringify({error: result.response.detail}));
+        return;
       }
+
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({verified: true}));
     }));
   });
 

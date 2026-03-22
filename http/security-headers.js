@@ -17,7 +17,7 @@
  *
  * // Use defaults
  * const pipeline = compose(
- *   [securityHeaders(), [], 'security'],
+ *   [securityHeaders(), 'security'],
  *   // ...
  * );
  *
@@ -27,7 +27,7 @@
  *     xFrameOptions: 'SAMEORIGIN',
  *     permissionsPolicy: 'camera=(), microphone=()',
  *     xXssProtection: false  // disable
- *   }), [], 'security'],
+ *   }), 'security'],
  * );
  *
  * @see {@link https://www.rfc-editor.org/rfc/rfc6797 RFC 6797 - HTTP Strict Transport Security}

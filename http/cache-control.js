@@ -14,13 +14,13 @@
  *
  * // String shorthand
  * const pipeline = compose(
- *   [cacheControl({directives: 'public, max-age=3600'}), [], 'cache'],
+ *   [cacheControl({directives: 'public, max-age=3600'}), 'cache'],
  *   // ...
  * );
  *
  * // Structured options
  * const pipeline = compose(
- *   [cacheControl({private: true, maxAge: 0, mustRevalidate: true}), [], 'cache'],
+ *   [cacheControl({private: true, maxAge: 0, mustRevalidate: true}), 'cache'],
  *   // ...
  * );
  *

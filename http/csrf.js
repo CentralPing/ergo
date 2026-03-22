@@ -23,14 +23,14 @@
  *
  * // Issue a token on GET (e.g. page load)
  * const issuePipeline = compose(
- *   [cookie(), [], 'cookies'],
- *   [csrfMiddleware.issue, 'cookies', 'csrf'],
+ *   [cookie(), 'cookies'],
+ *   [csrfMiddleware.issue, 'csrf'],
  * );
  *
  * // Verify on state-mutating requests
  * const verifyPipeline = compose(
- *   [cookie(), [], 'cookies'],
- *   [csrfMiddleware.verify, 'cookies', 'csrf'],
+ *   [cookie(), 'cookies'],
+ *   [csrfMiddleware.verify, 'csrf'],
  * );
  *
  * @see {@link https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html OWASP CSRF Prevention Cheat Sheet}
@@ -47,8 +47,8 @@ import {issue, verify} from '../lib/csrf.js';
  * @param {string} options.secret - HMAC secret for token signing
  * @param {string} [options.encoding] - Token encoding (default: base64)
  * @param {object} [options.cookieOptions={}] - Cookie directives passed to the cookie factory
- * @returns {object} - Object with `issue(req, res, ...rest)` and `verify(req, res, ...rest)` methods
- * @throws {Error} 403 Forbidden when CSRF token verification fails (from `verify`)
+ * @returns {object} - Object with `issue(req, res, ...rest)` and `verify(req, res, ...rest)` methods;
+ *   `verify` returns `{response: {statusCode: 403}}` when CSRF token verification fails
  */
 export default ({
   cookieTokenName = 'CSRF-TOKEN',

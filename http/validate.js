@@ -4,7 +4,7 @@
  * Validates properties from the accumulator (body, url, params) against provided JSON
  * Schemas using AJV. Schemas are compiled once at middleware creation time for performance.
  *
- * Throws `422 Unprocessable Entity` with structured error details on validation failure.
+ * Returns `{response: {statusCode: 422, detail: ...}}` with structured error details on validation failure.
  * Must be placed after `body()` and/or `url()` in the pipeline so accumulator values
  * are populated before validation runs.
  *
@@ -17,8 +17,8 @@
  * import {compose, body, url, validate} from 'ergo';
  *
  * const pipeline = compose(
- *   [body(), [], 'body'],
- *   [url(), [], 'url'],
+ *   [body(), 'body'],
+ *   [url(), 'url'],
  *   [validate({
  *     body: {
  *       type: 'object',
@@ -29,7 +29,7 @@
  *       type: 'object',
  *       properties: {page: {type: 'string', pattern: '^[0-9]+$'}}
  *     }
- *   }), ['body', 'url'], 'validation'],
+ *   }), 'validation'],
  * );
  */
 import createValidator from '../lib/validate.js';
@@ -42,8 +42,8 @@ import createValidator from '../lib/validate.js';
  * @param {object} [schemas.query] - JSON Schema for parsed query parameters
  * @param {object} [schemas.params] - JSON Schema for route path parameters
  * @param {object} [options] - AJV options forwarded to each compiled validator
- * @returns {function} - Ergo middleware `(req, res, acc) => void` that throws 422 on failure
- * @throws {Error} 422 Unprocessable Entity when schema validation fails
+ * @returns {function} - Ergo middleware `(req, res, acc) => void` that returns `{response: {statusCode: 422}}`
+ *   (with `detail` and `details` from AJV) on validation failure
  */
 export default (schemas = {}, options = {}) => {
   const validators = {};

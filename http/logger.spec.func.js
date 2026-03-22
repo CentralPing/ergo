@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
 import {setupServer, fetch} from '../test/helpers.js';
 import createLogger from './logger.js';
-import createSend from './send.js';
 import compose from '../utils/compose-with.js';
 import createHandler from './handler.js';
 
@@ -17,14 +16,12 @@ describe('[Contract] http/logger', () => {
         log: entry => logEntries.push(entry),
         error: () => {}
       }),
-      [],
       'log'
     ],
-    () => ({statusCode: 200, body: {ok: true}}),
-    createSend()
+    () => ({response: {body: {ok: true}}})
   );
 
-  const handler = createHandler(pipeline, createSend());
+  const handler = createHandler(pipeline);
 
   before(async () => {
     ({baseUrl, close} = await setupServer(handler));
@@ -54,14 +51,12 @@ describe('[Contract] http/logger', () => {
           log: entry => logEntries.push(entry),
           error: () => {}
         }),
-        [],
         'log'
       ],
-      () => ({statusCode: 200, body: {ok: true}}),
-      createSend()
+      () => ({response: {body: {ok: true}}})
     );
 
-    const transportHandler = createHandler(transportPipeline, createSend());
+    const transportHandler = createHandler(transportPipeline);
     const {baseUrl: tUrl, close: tClose} = await setupServer(transportHandler);
 
     try {

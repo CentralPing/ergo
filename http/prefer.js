@@ -13,12 +13,11 @@
  * @requires ../lib/prefer.js
  *
  * @example
- * import {compose, prefer, send} from 'ergo';
+ * import {compose, prefer} from 'ergo';
  *
  * const pipeline = compose(
- *   [prefer(), [], 'prefer'],
- *   (req, res, acc) => ({statusCode: 200, body: {id: 1, name: 'item'}}),
- *   send({preferKey: 'prefer'})
+ *   [prefer(), 'prefer'],
+ *   (req, res, acc) => ({response: {body: {id: 1, name: 'item'}}}),
  * );
  * // Client sends: Prefer: return=minimal
  * // Response: 204 No Content + Preference-Applied: return=minimal

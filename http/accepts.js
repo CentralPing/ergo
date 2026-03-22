@@ -5,7 +5,7 @@
  * `Accept-Charset`, and `Accept-Encoding` request headers and determine the best
  * matching content type, language, charset, and encoding for the response.
  *
- * When `throwIfFail` is true, a `406 Not Acceptable` error is thrown for any
+ * When `throwIfFail` is true, returns `{response: {statusCode: 406, detail}}` for any
  * header that cannot be satisfied, enforcing strict content negotiation in the
  * Fast Fail pipeline.
  *
@@ -19,7 +19,7 @@
  * import {compose, accepts} from 'ergo';
  *
  * const pipeline = compose(
- *   [accepts({types: ['application/json']}), [], 'accepts'],
+ *   [accepts({types: ['application/json']}), 'accepts'],
  *   // acc.accepts => {type: 'application/json', language: 'en', charset: 'utf-8', encoding: 'identity'}
  * );
  *
@@ -38,13 +38,12 @@ const headerMap = {
  * Creates a content negotiation middleware.
  *
  * @param {object} [options] - Negotiation configuration
- * @param {boolean} [options.throwIfFail=false] - Throw 406 if any negotiation key is undefined
+ * @param {boolean} [options.throwIfFail=false] - Return `{response: {statusCode: 406, detail}}` if any negotiation key is undefined
  * @param {string[]} [options.types] - Acceptable media types
  * @param {string[]} [options.languages] - Acceptable languages
  * @param {string[]} [options.charsets] - Acceptable character sets
  * @param {string[]} [options.encodings] - Acceptable content encodings
- * @returns {function} - Middleware `(req) => {type, language, charset, encoding}`
- * @throws {Error} 406 Not Acceptable when `throwIfFail` is true and any negotiation value is undefined
+ * @returns {function} - Middleware `(req) => {type, language, charset, encoding}` on success, or `{response: {statusCode: 406, detail: string}}` when `throwIfFail` is true and any negotiation value is undefined
  */
 export default ({throwIfFail = false, ...options} = {}) => {
   const acceptor = accepts(options);

@@ -5,7 +5,8 @@
  * enforcing correct use of `filter`, `sort`, `fields`, `include`, and `page` parameters.
  *
  * Delegates validation to the vendored `lib/json-api-query` module (AJV 8, JSON Schema 2020-12).
- * On validation failure, throws `400 Bad Request` with the AJV error details attached.
+ * On validation failure, returns `{response: {statusCode: 400, detail: ...}}` (RFC 9457 body
+ * formatted by `send()` after the pipeline).
  *
  * Must be placed after `url()` in the pipeline so that `acc.url` is populated.
  *
@@ -19,9 +20,9 @@
  * import {compose, url, jsonApiQuery} from 'ergo';
  *
  * const pipeline = compose(
- *   [url(), [], 'url'],
- *   [jsonApiQuery(), 'url.query', 'jsonApiQuery'],
- *   // Throws 400 if query params are not JSON:API compliant
+ *   [url(), 'url'],
+ *   [jsonApiQuery(), 'jsonApiQuery'],
+ *   // Returns 400 response if query params are not JSON:API compliant
  * );
  */
 import {validate} from '../lib/json-api-query/index.js';
@@ -30,8 +31,8 @@ import {validate} from '../lib/json-api-query/index.js';
  * Creates a JSON:API query validation middleware.
  *
  * @param {...*} options - Options forwarded to the underlying JSON:API validator
- * @returns {function} - Ergo middleware `(req, res, ...acc) => void` that throws 400 on failure
- * @throws {Error} 400 Bad Request when JSON:API query parameters fail validation
+ * @returns {function} - Ergo middleware `(req, res, acc) => void`; returns
+ *   `{response: {statusCode: 400}}` when JSON:API query parameters fail validation
  */
 export default (...options) => {
   const validator = validate(...options);
