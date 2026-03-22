@@ -17,7 +17,7 @@
  *
  * // Use defaults
  * const pipeline = compose(
- *   [securityHeaders(), [], 'security'],
+ *   [securityHeaders(), 'security'],
  *   // ...
  * );
  *
@@ -27,7 +27,7 @@
  *     xFrameOptions: 'SAMEORIGIN',
  *     permissionsPolicy: 'camera=(), microphone=()',
  *     xXssProtection: false  // disable
- *   }), [], 'security'],
+ *   }), 'security'],
  * );
  *
  * @see {@link https://www.rfc-editor.org/rfc/rfc6797 RFC 6797 - HTTP Strict Transport Security}
@@ -57,5 +57,6 @@ import buildSecurityHeaderTuples from '../lib/security-headers.js';
  */
 export default (options = {}) => {
   const headerTuples = buildSecurityHeaderTuples(options);
-  return () => headerTuples;
+  const response = {response: {headers: headerTuples}};
+  return () => response;
 };

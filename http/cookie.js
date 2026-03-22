@@ -20,7 +20,7 @@
  * import {compose, cookie} from 'ergo';
  *
  * const pipeline = compose(
- *   [cookie(), [], 'cookies'],
+ *   [cookie(), 'cookies'],
  *   // acc.cookies.session => 'abc123' (incoming cookie, own property)
  * );
  *

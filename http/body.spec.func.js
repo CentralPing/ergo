@@ -9,7 +9,6 @@ import assert from 'node:assert/strict';
 import {fetch, setupServer} from '../test/helpers.js';
 import compose from '../utils/compose-with.js';
 import createHandler from './handler.js';
-import createSend from './send.js';
 import createBody from './body.js';
 
 const gzip = promisify(zlib.gzip);
@@ -20,14 +19,10 @@ describe('[Contract] http/body', () => {
   let baseUrl;
   let close;
 
-  // A pipeline that parses the body and responds with acc.body.parsed
-  const sendMiddleware = createSend();
-  const pipeline = compose(
-    [createBody(), [], 'body'],
-    (req, res, acc) => ({body: acc.body.parsed}),
-    sendMiddleware
-  );
-  const handlerFn = createHandler(pipeline, sendMiddleware);
+  const pipeline = compose([createBody(), 'body'], (req, res, acc) => ({
+    response: {body: acc.body.parsed}
+  }));
+  const handlerFn = createHandler(pipeline);
 
   before(async () => {
     ({baseUrl, close} = await setupServer(handlerFn));
@@ -71,8 +66,8 @@ describe('[Contract] http/body', () => {
     it('returns 413 when body exceeds limit', async () => {
       let baseUrl2;
       let close2;
-      const smallPipeline = compose([createBody({limit: 5}), [], 'body'], sendMiddleware);
-      const smallHandler = createHandler(smallPipeline, sendMiddleware);
+      const smallPipeline = compose([createBody({limit: 5}), 'body']);
+      const smallHandler = createHandler(smallPipeline);
       ({baseUrl: baseUrl2, close: close2} = await setupServer(smallHandler));
       try {
         const payload = 'this body is much longer than 5 bytes';
@@ -201,11 +196,11 @@ describe('[Contract] http/body', () => {
       let u, c;
       const bigJson = JSON.stringify({data: 'x'.repeat(2000)});
       const compressed = await gzip(Buffer.from(bigJson));
-      const p = compose(
-        [createBody({limit: compressed.length + 100, decompressedLimit: 100}), [], 'body'],
-        sendMiddleware
-      );
-      ({baseUrl: u, close: c} = await setupServer(createHandler(p, sendMiddleware)));
+      const p = compose([
+        createBody({limit: compressed.length + 100, decompressedLimit: 100}),
+        'body'
+      ]);
+      ({baseUrl: u, close: c} = await setupServer(createHandler(p)));
       try {
         const res = await fetch(`${u}/`, {
           method: 'POST',
@@ -226,12 +221,10 @@ describe('[Contract] http/body', () => {
       const payload = JSON.stringify({ok: true});
       const compressed = await gzip(Buffer.from(payload));
       let u, c;
-      const p = compose(
-        [createBody({decompressedLimit: 1024}), [], 'body'],
-        (req, res, acc) => ({body: acc.body.parsed}),
-        sendMiddleware
-      );
-      ({baseUrl: u, close: c} = await setupServer(createHandler(p, sendMiddleware)));
+      const p = compose([createBody({decompressedLimit: 1024}), 'body'], (req, res, acc) => ({
+        response: {body: acc.body.parsed}
+      }));
+      ({baseUrl: u, close: c} = await setupServer(createHandler(p)));
       try {
         const res = await fetch(`${u}/`, {
           method: 'POST',
@@ -307,12 +300,11 @@ describe('[Contract] http/body', () => {
 
   describe('Content-Length mismatch (readBodyDirect guards)', () => {
     it('returns 413 when actual body exceeds the configured limit', async () => {
-      // Use a very small limit so even a small body triggers TooLarge
       let u, c;
-      const p = compose([createBody({limit: 5}), [], 'body'], sendMiddleware);
-      ({baseUrl: u, close: c} = await setupServer(createHandler(p, sendMiddleware)));
+      const p = compose([createBody({limit: 5}), 'body']);
+      ({baseUrl: u, close: c} = await setupServer(createHandler(p)));
       try {
-        const payload = '{"x":1,"y":2,"z":3}'; // 20 bytes > limit 5
+        const payload = '{"x":1,"y":2,"z":3}';
         const res = await fetch(`${u}/`, {
           method: 'POST',
           headers: {
@@ -325,6 +317,162 @@ describe('[Contract] http/body', () => {
       } finally {
         await c();
       }
+    });
+  });
+
+  describe('middleware error return shape (direct invocation)', () => {
+    it('returns 415 response for unsupported Content-Type', async () => {
+      const bodyMw = createBody();
+      const payload = 'hello';
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'text/plain',
+          'content-length': String(Buffer.byteLength(payload))
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from(payload);
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 415);
+      assert.ok(typeof result.response.detail === 'string');
+      assert.ok(result.response.detail.includes('Content-Type'));
+    });
+
+    it('returns 413 response when body exceeds limit', async () => {
+      const bodyMw = createBody({limit: 5});
+      const payload = 'this body is much longer than 5 bytes';
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': String(Buffer.byteLength(payload))
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from(payload);
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 413);
+      assert.ok(result.response.detail.includes('limit'));
+    });
+
+    it('returns 400 response for malformed JSON body', async () => {
+      const bodyMw = createBody();
+      const payload = '{invalid json!!!}';
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': String(Buffer.byteLength(payload))
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from(payload);
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 400);
+    });
+
+    it('returns 411 response for invalid Content-Length', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': 'not-a-number'
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('{}');
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 411);
+    });
+
+    it('returns 400 response when received bytes do not match Content-Length', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': '100'
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('{"short":true}');
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 400);
+    });
+
+    it('returns 415 response for malformed Content-Type header', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': '///invalid',
+          'content-length': '2'
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('{}');
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 415);
+    });
+
+    it('rethrows non-HTTP errors from the body stream', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': '10'
+        },
+        [Symbol.asyncIterator]() {
+          return {
+            async next() {
+              throw new TypeError('stream broke');
+            }
+          };
+        }
+      };
+      await assert.rejects(() => bodyMw(req), {
+        name: 'TypeError',
+        message: 'stream broke'
+      });
+    });
+
+    it('returns 411 when Content-Length is absent and no chunked encoding', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json'
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('{}');
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 411);
     });
   });
 });

@@ -2,12 +2,7 @@ import {describe, it, before, after} from 'node:test';
 import assert from 'node:assert/strict';
 import {setupServer, fetch} from '../test/helpers.js';
 import compose from '../utils/compose-with.js';
-import createSend from './send.js';
 import createHandler from './handler.js';
-
-function makeApp(pipeline) {
-  return createHandler(pipeline, createSend());
-}
 
 describe('[Contract] http/send', () => {
   let baseUrl, close;
@@ -20,26 +15,26 @@ describe('[Contract] http/send', () => {
 
     switch (scenario) {
       case 'json':
-        return {statusCode: 200, body: {message: 'hello', value: 42}};
+        return {response: {body: {message: 'hello', value: 42}}};
       case '204':
-        return {statusCode: 204};
+        return {response: {statusCode: 204}};
       case 'string':
-        return {statusCode: 200, body: 'plain text'};
+        return {response: {body: 'plain text'}};
       case 'html':
-        return {statusCode: 200, body: '<h1>Hello</h1>'};
+        return {response: {body: '<h1>Hello</h1>'}};
       case '201':
-        return {statusCode: 201, body: {id: 99}};
+        return {response: {statusCode: 201, body: {id: 99}}};
       case '201-location':
-        return {statusCode: 201, body: {id: 42}, location: '/items/42'};
+        return {response: {statusCode: 201, body: {id: 42}, location: '/items/42'}};
       case 'last-modified':
-        return {statusCode: 200, body: {data: 'versioned'}, lastModified};
+        return {response: {body: {data: 'versioned'}, lastModified}};
       default:
-        return {statusCode: 200, body: {scenario}};
+        return {response: {body: {scenario}}};
     }
-  }, createSend());
+  });
 
   before(async () => {
-    ({baseUrl, close} = await setupServer(makeApp(pipeline)));
+    ({baseUrl, close} = await setupServer(createHandler(pipeline)));
   });
 
   after(() => close());
@@ -160,20 +155,21 @@ describe('[Contract] http/send', () => {
 
         switch (scenario) {
           case 'array':
-            return {statusCode: 200, body: [{id: 1}, {id: 2}, {id: 3}]};
+            return {response: {body: [{id: 1}, {id: 2}, {id: 3}]}};
           case 'error':
-            return {statusCode: 400, body: {error: 'bad'}};
+            return {response: {statusCode: 400, detail: 'bad'}};
           case 'string':
-            return {statusCode: 200, body: 'text'};
+            return {response: {body: 'text'}};
           default:
-            return {statusCode: 200, body: {message: 'ok'}};
+            return {response: {body: {message: 'ok'}}};
         }
-      },
-      createSend({envelope: true})
+      }
     );
 
     before(async () => {
-      ({baseUrl: envUrl, close: envClose} = await setupServer(makeApp(envPipeline)));
+      ({baseUrl: envUrl, close: envClose} = await setupServer(
+        createHandler(envPipeline, {envelope: true})
+      ));
     });
 
     after(() => envClose());

@@ -19,12 +19,11 @@
  * @requires negotiator
  *
  * @example
- * import {compose, compress, send} from 'ergo';
+ * import {compose, compress} from 'ergo';
  *
  * const pipeline = compose(
  *   compress({threshold: 1024, encodings: ['br', 'gzip', 'deflate']}),
- *   (req, res, acc) => ({statusCode: 200, body: largePayload}),
- *   send()
+ *   (req, res, acc) => ({response: {body: largePayload}})
  * );
  *
  * @see {@link https://www.rfc-editor.org/rfc/rfc9110#section-12.5.3 RFC 9110 Section 12.5.3 - Accept-Encoding}

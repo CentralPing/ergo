@@ -31,4 +31,6 @@ describe('[Module] http/index - package entry point', () => {
   it('exports timeout', () => assert.equal(typeof ergo.timeout, 'function'));
   it('exports validate', () => assert.equal(typeof ergo.validate, 'function'));
   it('exports httpErrors', () => assert.equal(typeof ergo.httpErrors, 'function'));
+  it('exports createResponseAcc', () => assert.equal(typeof ergo.createResponseAcc, 'function'));
+  it('exports mergeResponse', () => assert.equal(typeof ergo.mergeResponse, 'function'));
 });

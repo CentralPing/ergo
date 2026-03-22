@@ -14,19 +14,18 @@ describe('[Contract] http/cors', () => {
 
   before(async () => {
     ({baseUrl, close} = await setupServer((req, res) => {
-      // Apply CORS headers manually for this test
       if (req.headers.origin) {
-        try {
-          const headers = corsMw(req);
-          if (headers) {
-            for (const [name, value] of headers) {
-              res.setHeader(name, value);
-            }
-          }
-        } catch (err) {
-          res.statusCode = err.statusCode ?? 403;
-          res.end(JSON.stringify({error: err.message}));
+        const result = corsMw(req);
+        if (result?.response?.statusCode) {
+          res.statusCode = result.response.statusCode;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({error: 'CORS denied'}));
           return;
+        }
+        if (result?.response?.headers) {
+          for (const [name, value] of result.response.headers) {
+            res.setHeader(name, value);
+          }
         }
       }
       res.statusCode = 200;

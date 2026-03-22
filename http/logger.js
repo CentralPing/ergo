@@ -32,7 +32,7 @@
  * import {compose, logger} from 'ergo';
  *
  * const pipeline = compose(
- *   [logger(), [], 'log'],
+ *   [logger(), 'log'],
  *   // On finish logs: {"requestId":"...","method":"GET","url":"/users","statusCode":200,"duration":12,...}
  * );
  */

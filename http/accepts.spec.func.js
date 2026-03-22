@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {setupServer, fetch} from '../test/helpers.js';
 import compose from '../utils/compose-with.js';
 import createAccepts from './accepts.js';
-import createSend from './send.js';
 import createHandler from './handler.js';
 
 describe('[Contract] http/accepts', () => {
@@ -15,14 +14,12 @@ describe('[Contract] http/accepts', () => {
         types: ['application/json', 'text/html'],
         throwIfFail: true
       }),
-      [],
       'accepts'
     ],
-    (_req, _res, acc) => ({statusCode: 200, body: acc.accepts}),
-    createSend()
+    (_req, _res, acc) => ({response: {body: acc.accepts}})
   );
 
-  const handler = createHandler(pipeline, createSend());
+  const handler = createHandler(pipeline);
 
   before(async () => {
     ({baseUrl, close} = await setupServer(handler));

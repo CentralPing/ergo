@@ -4,7 +4,6 @@ import {setupServer, fetch} from '../test/helpers.js';
 import compose from '../utils/compose-with.js';
 import createAuthorization from './authorization.js';
 import createHandler from './handler.js';
-import createSend from './send.js';
 
 describe('[Contract] http/authorization', () => {
   let baseUrl, close;
@@ -33,14 +32,12 @@ describe('[Contract] http/authorization', () => {
           }
         ]
       }),
-      [],
       'auth'
     ],
-    (req, res, acc) => ({statusCode: 200, body: acc.auth}),
-    createSend()
+    (req, res, acc) => ({response: {body: acc.auth}})
   );
 
-  const handler = createHandler(pipeline, createSend());
+  const handler = createHandler(pipeline);
 
   before(async () => {
     ({baseUrl, close} = await setupServer(handler));
@@ -66,15 +63,10 @@ describe('[Contract] http/authorization', () => {
   });
 
   it('Bearer: passes raw JWT-like token unchanged (not base64-decoded)', async () => {
-    // A JWT-like opaque token: Base64url segments separated by dots.
-    // If the middleware were to base64-decode it, the result would differ.
     const jwtLike = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1MSJ9.sig';
     const res = await fetch(`${baseUrl}/`, {
       headers: {authorization: `Bearer ${jwtLike}`}
     });
-    // Our Bearer strategy only accepts 'valid-token', so this returns 401
-    // BUT the important thing is the server received a 401 (not 400 bad request
-    // due to decoding errors), which proves the raw token was passed as-is.
     assert.ok(res.status === 401, 'should be 401 (invalid_token) not 400 (bad decode)');
   });
 

@@ -19,7 +19,7 @@
  * import {compose, url} from 'ergo';
  *
  * const pipeline = compose(
- *   [url(), [], 'url'],
+ *   [url(), 'url'],
  *   // acc.url => {query: {page: '1', filter: ['a','b']}, pathname: '/users', search: '?page=1&filter=a&filter=b'}
  * );
  */

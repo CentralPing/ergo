@@ -16,7 +16,7 @@ describe('[Module] http/authorization', () => {
     assert.equal(result.userId, 'u1');
   });
 
-  it('throws 401 when Bearer authorization is denied (default for invalid token)', async () => {
+  it('returns 401 response when Bearer authorization is denied (default for invalid token)', async () => {
     const authorization = createAuthorization({
       strategies: [
         {
@@ -25,17 +25,11 @@ describe('[Module] http/authorization', () => {
         }
       ]
     });
-    let err;
-    try {
-      await authorization({headers: {authorization: 'Bearer tok'}});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 401);
+    const result = await authorization({headers: {authorization: 'Bearer tok'}});
+    assert.equal(result.response.statusCode, 401);
   });
 
-  it('throws 403 when Basic authorization is denied', async () => {
+  it('returns 403 response when Basic authorization is denied', async () => {
     const authorization = createAuthorization({
       strategies: [
         {
@@ -45,17 +39,11 @@ describe('[Module] http/authorization', () => {
       ]
     });
     const encoded = Buffer.from('bad:creds').toString('base64');
-    let err;
-    try {
-      await authorization({headers: {authorization: `Basic ${encoded}`}});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 403);
+    const result = await authorization({headers: {authorization: `Basic ${encoded}`}});
+    assert.equal(result.response.statusCode, 403);
   });
 
-  it('throws with WWW-Authenticate header when authenticate is provided', async () => {
+  it('returns 401 with WWW-Authenticate header when authenticate is provided', async () => {
     const authorization = createAuthorization({
       strategies: [
         {
@@ -68,18 +56,15 @@ describe('[Module] http/authorization', () => {
         }
       ]
     });
-    let err;
-    try {
-      await authorization({headers: {authorization: 'Bearer bad'}});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 401);
-    assert.ok(Array.isArray(err.headers), 'should have headers for WWW-Authenticate');
+    const result = await authorization({headers: {authorization: 'Bearer bad'}});
+    assert.equal(result.response.statusCode, 401);
+    assert.ok(Array.isArray(result.response.headers), 'should have headers for WWW-Authenticate');
+    const wwwAuth = result.response.headers.find(([name]) => name === 'WWW-Authenticate');
+    assert.ok(wwwAuth, 'WWW-Authenticate header tuple present');
+    assert.ok(typeof wwwAuth[1] === 'string' && wwwAuth[1].length > 0);
   });
 
-  it('throws 401 when no Authorization header and strategy has authenticate', async () => {
+  it('returns 401 when no Authorization header and strategy has authenticate', async () => {
     const authorization = createAuthorization({
       strategies: [
         {
@@ -89,12 +74,11 @@ describe('[Module] http/authorization', () => {
         }
       ]
     });
-    let err;
-    try {
-      await authorization({headers: {}});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
+    const result = await authorization({headers: {}});
+    assert.equal(result.response.statusCode, 401);
+    assert.ok(
+      Array.isArray(result.response.headers),
+      'should include WWW-Authenticate from dispatcher'
+    );
   });
 });

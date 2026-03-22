@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import createSecurityHeaders from './security-headers.js';
 
 describe('[Module] http/security-headers', () => {
-  it('returns default security headers (HSTS off by default)', () => {
+  it('returns {response: {headers}} with default security headers (HSTS off)', () => {
     const securityHeaders = createSecurityHeaders();
     const result = securityHeaders();
-    const headers = Object.fromEntries(result);
+    assert.ok(result.response, 'should have a response property');
+    const headers = Object.fromEntries(result.response.headers);
 
     assert.equal(headers['Content-Security-Policy'], "default-src 'none'");
     assert.equal(headers['X-Content-Type-Options'], 'nosniff');
@@ -18,8 +19,10 @@ describe('[Module] http/security-headers', () => {
 
   it('does not include Permissions-Policy by default', () => {
     const securityHeaders = createSecurityHeaders();
-    const result = securityHeaders();
-    const names = result.map(([h]) => h);
+    const {
+      response: {headers}
+    } = securityHeaders();
+    const names = headers.map(([h]) => h);
     assert.ok(!names.includes('Permissions-Policy'));
   });
 
@@ -27,7 +30,7 @@ describe('[Module] http/security-headers', () => {
     const securityHeaders = createSecurityHeaders({
       permissionsPolicy: 'camera=(), microphone=()'
     });
-    const headers = Object.fromEntries(securityHeaders());
+    const headers = Object.fromEntries(securityHeaders().response.headers);
     assert.equal(headers['Permissions-Policy'], 'camera=(), microphone=()');
   });
 
@@ -36,7 +39,7 @@ describe('[Module] http/security-headers', () => {
       xFrameOptions: 'SAMEORIGIN',
       contentSecurityPolicy: "default-src 'self'"
     });
-    const headers = Object.fromEntries(securityHeaders());
+    const headers = Object.fromEntries(securityHeaders().response.headers);
     assert.equal(headers['X-Frame-Options'], 'SAMEORIGIN');
     assert.equal(headers['Content-Security-Policy'], "default-src 'self'");
   });
@@ -46,7 +49,7 @@ describe('[Module] http/security-headers', () => {
       xXssProtection: false,
       xFrameOptions: false
     });
-    const names = securityHeaders().map(([h]) => h);
+    const names = securityHeaders().response.headers.map(([h]) => h);
     assert.ok(!names.includes('X-XSS-Protection'));
     assert.ok(!names.includes('X-Frame-Options'));
   });
@@ -58,7 +61,7 @@ describe('[Module] http/security-headers', () => {
 
   it('returns 5 headers with defaults (HSTS off, no Permissions-Policy)', () => {
     const securityHeaders = createSecurityHeaders();
-    assert.equal(securityHeaders().length, 5);
+    assert.equal(securityHeaders().response.headers.length, 5);
   });
 
   it('returns 7 headers when HSTS and Permissions-Policy are included', () => {
@@ -66,14 +69,14 @@ describe('[Module] http/security-headers', () => {
       strictTransportSecurity: 'max-age=31536000; includeSubDomains',
       permissionsPolicy: 'geolocation=()'
     });
-    assert.equal(securityHeaders().length, 7);
+    assert.equal(securityHeaders().response.headers.length, 7);
   });
 
   it('includes HSTS when explicitly enabled', () => {
     const securityHeaders = createSecurityHeaders({
       strictTransportSecurity: 'max-age=31536000; includeSubDomains'
     });
-    const headers = Object.fromEntries(securityHeaders());
+    const headers = Object.fromEntries(securityHeaders().response.headers);
     assert.equal(headers['Strict-Transport-Security'], 'max-age=31536000; includeSubDomains');
   });
 
@@ -86,6 +89,6 @@ describe('[Module] http/security-headers', () => {
       referrerPolicy: false,
       xXssProtection: false
     });
-    assert.equal(securityHeaders().length, 0);
+    assert.equal(securityHeaders().response.headers.length, 0);
   });
 });

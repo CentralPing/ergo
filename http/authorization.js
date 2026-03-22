@@ -5,7 +5,7 @@
  * Basic, API key). Each strategy provides a `type`, optional `attributes` matcher, and an
  * `authorizer` function that receives the parsed credentials and returns `{authorized, info}`.
  *
- * On authorization failure, throws `403 Forbidden` by default. Strategies may return a custom
+ * On authorization failure, returns `{response: {statusCode: 403}}` by default. Strategies may return a custom
  * `statusCode` (e.g. `401`) and an `authenticate` challenge string for the `WWW-Authenticate`
  * response header (RFC 7235).
  *
@@ -29,7 +29,7 @@
  *           : {authorized: false, info: {statusCode: 401}};
  *       }
  *     }]
- *   }), [], 'auth'],
+ *   }), 'auth'],
  *   // acc.auth => {user: {...}} on success
  * );
  *
@@ -38,7 +38,6 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc7235 RFC 7235 - HTTP Authentication}
  */
 import authorize from '../lib/authorization.js';
-import httpErrors from '../utils/http-errors.js';
 
 /**
  * Creates an authorization middleware that parses the Authorization header
@@ -46,9 +45,7 @@ import httpErrors from '../utils/http-errors.js';
  *
  * @param {object} [options] - Authorization configuration
  * @param {Array<{type: string, attributes?: object, authorizer: function}>} [options.strategies=[]] - Authentication strategy definitions
- * @returns {function} - Async middleware `(req) => info` on success; throws on auth failure
- * @throws {Error} 401 Unauthorized when no valid credentials are provided
- * @throws {Error} 403 Forbidden when credentials are valid but authorization is denied
+ * @returns {function} - Async middleware `(req) => info` on success; on failure `{response: {statusCode: 401|403, headers?}}` with optional `WWW-Authenticate` header tuples from `authenticate`
  */
 export default ({strategies = []} = {}) => {
   const authorizer = authorize(strategies);
@@ -60,7 +57,7 @@ export default ({strategies = []} = {}) => {
       const {statusCode = 403, authenticate} = info;
       const headers = authenticate ? [['WWW-Authenticate', authenticate]] : undefined;
 
-      throw httpErrors(statusCode, {headers});
+      return {response: {statusCode, headers}};
     }
 
     return info;

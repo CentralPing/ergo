@@ -30,56 +30,29 @@ describe('[Module] http/precondition', () => {
     assert.equal(result, undefined);
   });
 
-  it('throws 428 when neither conditional header is present', () => {
+  it('returns 428 response when neither conditional header is present', () => {
     const precondition = createPrecondition();
-    assert.throws(
-      () => precondition({method: 'PUT', headers: {}}),
-      err => {
-        assert.equal(err.status, 428);
-        assert.equal(err.title, 'Precondition Required');
-        assert.equal(err.type, 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/428');
-        return true;
-      }
-    );
+    const result = precondition({method: 'PUT', headers: {}});
+    assert.equal(result.response.statusCode, 428);
   });
 
-  it('RFC 9457 body shape on thrown error', () => {
+  it('returns only statusCode in response object on failure', () => {
     const precondition = createPrecondition();
-    try {
-      precondition({method: 'PUT', headers: {}});
-      assert.fail('expected throw');
-    } catch (err) {
-      const json = JSON.parse(JSON.stringify(err));
-      assert.equal(json.status, 428);
-      assert.equal(json.title, 'Precondition Required');
-      assert.ok(json.type);
-      assert.ok(json.detail);
-    }
+    const result = precondition({method: 'PUT', headers: {}});
+    assert.deepEqual(result, {response: {statusCode: 428}});
   });
 
   it('enforces unconditionally when methods option is omitted', () => {
     const precondition = createPrecondition();
-    assert.throws(
-      () => precondition({method: 'GET', headers: {}}),
-      err => err.status === 428
-    );
-    assert.throws(
-      () => precondition({method: 'DELETE', headers: {}}),
-      err => err.status === 428
-    );
+    assert.equal(precondition({method: 'GET', headers: {}}).response.statusCode, 428);
+    assert.equal(precondition({method: 'DELETE', headers: {}}).response.statusCode, 428);
   });
 
   it('only enforces on specified methods (array form)', () => {
     const precondition = createPrecondition({methods: ['PUT', 'PATCH']});
 
-    assert.throws(
-      () => precondition({method: 'PUT', headers: {}}),
-      err => err.status === 428
-    );
-    assert.throws(
-      () => precondition({method: 'PATCH', headers: {}}),
-      err => err.status === 428
-    );
+    assert.equal(precondition({method: 'PUT', headers: {}}).response.statusCode, 428);
+    assert.equal(precondition({method: 'PATCH', headers: {}}).response.statusCode, 428);
 
     const result = precondition({method: 'GET', headers: {}});
     assert.equal(result, undefined);
@@ -88,10 +61,7 @@ describe('[Module] http/precondition', () => {
   it('only enforces on specified methods (Set form)', () => {
     const precondition = createPrecondition({methods: new Set(['DELETE'])});
 
-    assert.throws(
-      () => precondition({method: 'DELETE', headers: {}}),
-      err => err.status === 428
-    );
+    assert.equal(precondition({method: 'DELETE', headers: {}}).response.statusCode, 428);
 
     const result = precondition({method: 'PUT', headers: {}});
     assert.equal(result, undefined);

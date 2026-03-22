@@ -23,20 +23,19 @@
  *
  * // Issue a token on GET (e.g. page load)
  * const issuePipeline = compose(
- *   [cookie(), [], 'cookies'],
- *   [csrfMiddleware.issue, 'cookies', 'csrf'],
+ *   [cookie(), 'cookies'],
+ *   [csrfMiddleware.issue, 'csrf'],
  * );
  *
  * // Verify on state-mutating requests
  * const verifyPipeline = compose(
- *   [cookie(), [], 'cookies'],
- *   [csrfMiddleware.verify, 'cookies', 'csrf'],
+ *   [cookie(), 'cookies'],
+ *   [csrfMiddleware.verify, 'csrf'],
  * );
  *
  * @see {@link https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html OWASP CSRF Prevention Cheat Sheet}
  */
 import {issue, verify} from '../lib/csrf.js';
-import httpErrors from '../utils/http-errors.js';
 
 /**
  * Creates a CSRF token issuance and verification middleware.
@@ -48,8 +47,8 @@ import httpErrors from '../utils/http-errors.js';
  * @param {string} options.secret - HMAC secret for token signing
  * @param {string} [options.encoding] - Token encoding (default: base64)
  * @param {object} [options.cookieOptions={}] - Cookie directives passed to the cookie factory
- * @returns {object} - Object with `issue(req, res, ...rest)` and `verify(req, res, ...rest)` methods
- * @throws {Error} 403 Forbidden when CSRF token verification fails (from `verify`)
+ * @returns {object} - Object with `issue(req, res, ...rest)` and `verify(req, res, ...rest)` methods;
+ *   `verify` returns `{response: {statusCode: 403}}` when CSRF token verification fails
  */
 export default ({
   cookieTokenName = 'CSRF-TOKEN',
@@ -59,19 +58,19 @@ export default ({
   encoding,
   cookieOptions = {}
 } = {}) => ({
-  issue(req, res, ...rest) {
-    const cookies = rest.pop();
+  issue(req, res, acc) {
+    const {cookies} = acc;
 
     const {token, uuid} = issue(secret, undefined, encoding);
 
     cookies.set(cookieTokenName, token, {httpOnly: false, sameSite: 'Strict', ...cookieOptions});
     cookies.set(cookieUuidName, uuid, {sameSite: 'Strict', ...cookieOptions});
   },
-  verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, ...rest) {
-    const {[cookieUuidName]: uuid} = rest.pop();
+  verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, res, acc) {
+    const {cookies: {[cookieUuidName]: uuid} = {}} = acc;
 
     if (headerToken === undefined || !verify(headerToken, {secret, uuid})) {
-      throw httpErrors(403, {message: 'CSRF verification failed'});
+      return {response: {statusCode: 403, detail: 'CSRF verification failed'}};
     }
   }
 });

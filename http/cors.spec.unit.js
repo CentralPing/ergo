@@ -9,27 +9,22 @@ describe('[Module] http/cors', () => {
     assert.equal(result, undefined);
   });
 
-  it('returns header pairs for a simple CORS request', () => {
+  it('returns response headers for a simple CORS request', () => {
     const cors = createCors();
     const result = cors({
       headers: {origin: 'https://a.com'},
       method: 'GET'
     });
-    assert.ok(Array.isArray(result));
-    const acao = result.find(([k]) => k === 'Access-Control-Allow-Origin');
+    assert.ok(result?.response?.headers);
+    assert.ok(Array.isArray(result.response.headers));
+    const acao = result.response.headers.find(([k]) => k === 'Access-Control-Allow-Origin');
     assert.ok(acao, 'should include ACAO header');
   });
 
-  it('throws 403 when origin is denied', () => {
+  it('returns 403 response when origin is denied', () => {
     const cors = createCors({origins: 'https://allowed.com'});
-    let err;
-    try {
-      cors({headers: {origin: 'https://evil.com'}, method: 'GET'});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 403);
+    const result = cors({headers: {origin: 'https://evil.com'}, method: 'GET'});
+    assert.deepEqual(result, {response: {statusCode: 403}});
   });
 
   it('includes Access-Control-Allow-Methods on preflight', () => {
@@ -41,7 +36,7 @@ describe('[Module] http/cors', () => {
       },
       method: 'OPTIONS'
     });
-    const acam = result.find(([k]) => k === 'Access-Control-Allow-Methods');
+    const acam = result.response.headers.find(([k]) => k === 'Access-Control-Allow-Methods');
     assert.ok(acam, 'should include ACAM header');
   });
 
@@ -55,7 +50,7 @@ describe('[Module] http/cors', () => {
       },
       method: 'OPTIONS'
     });
-    const acah = result.find(([k]) => k === 'Access-Control-Allow-Headers');
+    const acah = result.response.headers.find(([k]) => k === 'Access-Control-Allow-Headers');
     assert.ok(acah, 'should include ACAH header');
   });
 });

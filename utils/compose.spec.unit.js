@@ -189,4 +189,93 @@ describe('[Boundary] utils/compose', () => {
     assert.equal(result.a, 1);
     assert.equal(result.b, 2);
   });
+
+  describe('.withOptions() breakWhen predicate', () => {
+    it('stops serial iteration when breakWhen returns true', async () => {
+      const calls = [];
+      const pipeline = compose.withOptions(
+        {breakWhen: () => calls.length >= 2},
+        () => {
+          calls.push('a');
+          return {a: 1};
+        },
+        () => {
+          calls.push('b');
+          return {b: 2};
+        },
+        () => {
+          calls.push('c');
+          return {c: 3};
+        }
+      );
+
+      const result = await pipeline();
+      assert.deepEqual(calls, ['a', 'b']);
+      assert.equal(result.a, 1);
+      assert.equal(result.b, 2);
+      assert.equal(result.c, undefined);
+    });
+
+    it('runs all functions when breakWhen never returns true', async () => {
+      const pipeline = compose.withOptions(
+        {breakWhen: () => false},
+        () => ({a: 1}),
+        () => ({b: 2})
+      );
+
+      const result = await pipeline();
+      assert.equal(result.a, 1);
+      assert.equal(result.b, 2);
+    });
+
+    it('receives the accumulator as the predicate argument', async () => {
+      const pipeline = compose.withOptions(
+        {breakWhen: acc => acc.stop === true},
+        () => ({a: 1}),
+        () => ({stop: true, b: 2}),
+        () => ({c: 3})
+      );
+
+      const result = await pipeline();
+      assert.equal(result.a, 1);
+      assert.equal(result.b, 2);
+      assert.equal(result.c, undefined);
+    });
+
+    it('checks breakWhen after merging (merged value is visible)', async () => {
+      const pipeline = compose.withOptions(
+        {breakWhen: acc => acc.count >= 2},
+        () => ({count: 1}),
+        () => ({count: 2}),
+        () => ({count: 3})
+      );
+
+      const result = await pipeline();
+      assert.equal(result.count, 2);
+    });
+
+    it('works with async functions', async () => {
+      const pipeline = compose.withOptions(
+        {breakWhen: acc => acc.done},
+        async () => ({done: true, a: 1}),
+        async () => ({b: 2})
+      );
+
+      const result = await pipeline();
+      assert.equal(result.a, 1);
+      assert.equal(result.b, undefined);
+    });
+
+    it('works with no breakWhen option (runs all)', async () => {
+      const pipeline = compose.withOptions(
+        {},
+        () => ({a: 1}),
+        () => ({b: 2})
+      );
+
+      const result = await pipeline();
+      assert.equal(result.a, 1);
+      assert.equal(result.b, 2);
+    });
+  });
 });
