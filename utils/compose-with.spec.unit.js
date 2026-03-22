@@ -327,5 +327,16 @@ describe('[Boundary] utils/compose-with', () => {
       assert.equal(result.sync, 1);
       assert.equal(result.async, 2);
     });
+
+    it('merges plain object returns from plain functions via Object.assign', async () => {
+      const pipeline = composeWith.all(
+        () => ({merged: true, x: 1}),
+        [() => ({value: 'tupled'}), 'y']
+      );
+      const result = await pipeline();
+      assert.equal(result.merged, true);
+      assert.equal(result.x, 1);
+      assert.equal(result.y, 'tupled');
+    });
   });
 });

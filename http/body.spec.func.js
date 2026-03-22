@@ -361,5 +361,118 @@ describe('[Contract] http/body', () => {
       assert.equal(result.response.statusCode, 413);
       assert.ok(result.response.detail.includes('limit'));
     });
+
+    it('returns 400 response for malformed JSON body', async () => {
+      const bodyMw = createBody();
+      const payload = '{invalid json!!!}';
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': String(Buffer.byteLength(payload))
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from(payload);
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 400);
+    });
+
+    it('returns 411 response for invalid Content-Length', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': 'not-a-number'
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('{}');
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 411);
+    });
+
+    it('returns 400 response when received bytes do not match Content-Length', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': '100'
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('{"short":true}');
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 400);
+    });
+
+    it('returns 415 response for malformed Content-Type header', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': '///invalid',
+          'content-length': '2'
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('{}');
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 415);
+    });
+
+    it('rethrows non-HTTP errors from the body stream', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': '10'
+        },
+        [Symbol.asyncIterator]() {
+          return {
+            async next() {
+              throw new TypeError('stream broke');
+            }
+          };
+        }
+      };
+      await assert.rejects(() => bodyMw(req), {
+        name: 'TypeError',
+        message: 'stream broke'
+      });
+    });
+
+    it('returns 411 when Content-Length is absent and no chunked encoding', async () => {
+      const bodyMw = createBody();
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json'
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('{}');
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 411);
+    });
   });
 });
