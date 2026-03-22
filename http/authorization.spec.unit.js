@@ -58,10 +58,7 @@ describe('[Module] http/authorization', () => {
     });
     const result = await authorization({headers: {authorization: 'Bearer bad'}});
     assert.equal(result.response.statusCode, 401);
-    assert.ok(
-      Array.isArray(result.response.headers),
-      'should have headers for WWW-Authenticate'
-    );
+    assert.ok(Array.isArray(result.response.headers), 'should have headers for WWW-Authenticate');
     const wwwAuth = result.response.headers.find(([name]) => name === 'WWW-Authenticate');
     assert.ok(wwwAuth, 'WWW-Authenticate header tuple present');
     assert.ok(typeof wwwAuth[1] === 'string' && wwwAuth[1].length > 0);

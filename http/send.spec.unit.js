@@ -117,11 +117,16 @@ describe('[Module] http/send', () => {
   it('sets custom headers from responseAcc.headers', () => {
     const req = createMockReq();
     const res = createMockRes();
-    send(req, res, {
-      statusCode: 200,
-      body: {x: 1},
-      headers: [['X-Custom-Header', 'custom-value']]
-    }, {});
+    send(
+      req,
+      res,
+      {
+        statusCode: 200,
+        body: {x: 1},
+        headers: [['X-Custom-Header', 'custom-value']]
+      },
+      {}
+    );
     assert.equal(res._headers['x-custom-header'], 'custom-value');
   });
 
@@ -129,11 +134,16 @@ describe('[Module] http/send', () => {
     const req = createMockReq();
     const res = createMockRes();
     res.setHeader('X-To-Remove', 'present');
-    send(req, res, {
-      statusCode: 200,
-      body: 'ok',
-      headers: [['X-To-Remove', undefined]]
-    }, {});
+    send(
+      req,
+      res,
+      {
+        statusCode: 200,
+        body: 'ok',
+        headers: [['X-To-Remove', undefined]]
+      },
+      {}
+    );
     assert.ok(!res.getHeader('X-To-Remove'), 'header should be cleared');
   });
 
@@ -237,11 +247,16 @@ describe('[Module] http/send', () => {
     it('forwards extension members to error body', () => {
       const req = createMockReq();
       const res = createMockRes();
-      send(req, res, {
-        statusCode: 422,
-        detail: 'Validation failed',
-        details: [{path: '/name', message: 'required'}]
-      }, {});
+      send(
+        req,
+        res,
+        {
+          statusCode: 422,
+          detail: 'Validation failed',
+          details: [{path: '/name', message: 'required'}]
+        },
+        {}
+      );
       const body = JSON.parse(res._body);
       assert.equal(body.status, 422);
       assert.equal(body.detail, 'Validation failed');
@@ -545,11 +560,16 @@ describe('[Module] http/send', () => {
     it('return=minimal on 201 keeps 201 but strips body', () => {
       const req = createMockReq();
       const res = createMockRes();
-      sendWithPrefer(req, res, {
-        statusCode: 201,
-        body: {id: 1, name: 'item'},
-        location: '/items/1'
-      }, {prefer: {return: 'minimal'}});
+      sendWithPrefer(
+        req,
+        res,
+        {
+          statusCode: 201,
+          body: {id: 1, name: 'item'},
+          location: '/items/1'
+        },
+        {prefer: {return: 'minimal'}}
+      );
       assert.equal(res.statusCode, 201);
       assert.equal(res._headers['preference-applied'], 'return=minimal');
       assert.equal(res._headers['location'], '/items/1');
@@ -559,10 +579,15 @@ describe('[Module] http/send', () => {
     it('return=representation sets Preference-Applied and keeps body', () => {
       const req = createMockReq();
       const res = createMockRes();
-      sendWithPrefer(req, res, {
-        statusCode: 200,
-        body: {id: 1}
-      }, {prefer: {return: 'representation'}});
+      sendWithPrefer(
+        req,
+        res,
+        {
+          statusCode: 200,
+          body: {id: 1}
+        },
+        {prefer: {return: 'representation'}}
+      );
       assert.equal(res.statusCode, 200);
       assert.equal(res._headers['preference-applied'], 'return=representation');
       assert.ok(res._body.includes('"id"'));

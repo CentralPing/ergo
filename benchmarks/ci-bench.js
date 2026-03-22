@@ -8,7 +8,8 @@
  * Usage: node benchmarks/ci-bench.js
  */
 
-import {compose, authorization, cors, accepts} from '../http/index.js';
+import {compose, createResponseAcc, authorization, cors, accepts} from '../http/index.js';
+import {accumulator} from '../utils/compose.js';
 import {IncomingMessage, ServerResponse} from 'node:http';
 import {Socket} from 'node:net';
 
@@ -51,8 +52,8 @@ async function run() {
   const results = [];
 
   const negotiation = compose(
-    [cors(), [], 'cors'],
-    [accepts({types: ['application/json']}), [], 'accepts']
+    [cors(), 'cors'],
+    [accepts({types: ['application/json']}), 'accepts']
   );
 
   results.push(
@@ -62,7 +63,7 @@ async function run() {
         accept: 'application/json'
       });
       const res = createMockRes();
-      await negotiation(req, res, {});
+      await negotiation(req, res, createResponseAcc(), accumulator());
     })
   );
 
@@ -76,7 +77,6 @@ async function run() {
         }
       ]
     }),
-    [],
     'auth'
   ]);
 
@@ -86,13 +86,13 @@ async function run() {
         authorization: 'Bearer test'
       });
       const res = createMockRes();
-      await authPipeline(req, res, {});
+      await authPipeline(req, res, createResponseAcc(), accumulator());
     })
   );
 
   const fullPipeline = compose(
-    [cors(), [], 'cors'],
-    [accepts({types: ['application/json']}), [], 'accepts'],
+    [cors(), 'cors'],
+    [accepts({types: ['application/json']}), 'accepts'],
     [
       authorization({
         strategies: [
@@ -103,10 +103,9 @@ async function run() {
           }
         ]
       }),
-      [],
       'auth'
     ],
-    (_req, _res, _acc) => ({body: {ok: true}})
+    () => ({response: {body: {ok: true}}})
   );
 
   results.push(
@@ -117,7 +116,7 @@ async function run() {
         authorization: 'Bearer test'
       });
       const res = createMockRes();
-      await fullPipeline(req, res, {});
+      await fullPipeline(req, res, createResponseAcc(), accumulator());
     })
   );
 

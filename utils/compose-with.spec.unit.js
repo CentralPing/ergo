@@ -44,13 +44,10 @@ describe('[Boundary] utils/compose-with', () => {
 
     it('receives full domain accumulator as last arg', async () => {
       let received;
-      const pipeline = composeWith(
-        [() => ({value: 42}), 'x'],
-        (_req, acc) => {
-          received = acc;
-          return undefined;
-        }
-      );
+      const pipeline = composeWith([() => ({value: 42}), 'x'], (_req, acc) => {
+        received = acc;
+        return undefined;
+      });
       await pipeline('req');
       assert.equal(received.x, 42);
     });
@@ -60,9 +57,7 @@ describe('[Boundary] utils/compose-with', () => {
     it('merges response into response accumulator', async () => {
       const responseAcc = createResponseAcc();
       const domainAcc = accumulator();
-      const pipeline = composeWith(
-        [() => ({response: {headers: [['X-Foo', 'bar']]}}), 'ignored']
-      );
+      const pipeline = composeWith([() => ({response: {headers: [['X-Foo', 'bar']]}}), 'ignored']);
       await pipeline(responseAcc, domainAcc);
       assert.deepEqual(responseAcc.headers, [['X-Foo', 'bar']]);
     });
@@ -217,7 +212,11 @@ describe('[Boundary] utils/compose-with', () => {
 
     it('handles mixed headers and scalars', () => {
       const acc = createResponseAcc();
-      mergeResponse(acc, {statusCode: 429, detail: 'Rate limited', headers: [['Retry-After', '60']]});
+      mergeResponse(acc, {
+        statusCode: 429,
+        detail: 'Rate limited',
+        headers: [['Retry-After', '60']]
+      });
       assert.equal(acc.statusCode, 429);
       assert.equal(acc.detail, 'Rate limited');
       assert.deepEqual(acc.headers, [['Retry-After', '60']]);
@@ -251,10 +250,7 @@ describe('[Boundary] utils/compose-with', () => {
     it('reuses existing response accumulator from arguments', async () => {
       const responseAcc = createResponseAcc();
       const domainAcc = accumulator();
-      const pipeline = composeWith([
-        () => ({response: {statusCode: 200, body: 'ok'}}),
-        'result'
-      ]);
+      const pipeline = composeWith([() => ({response: {statusCode: 200, body: 'ok'}}), 'result']);
 
       await pipeline(responseAcc, domainAcc);
       assert.equal(responseAcc.statusCode, 200);

@@ -48,11 +48,7 @@ describe('[Module] http/csrf', () => {
     const token = requestCookies['CSRF-TOKEN'];
 
     assert.ok(token, 'should have CSRF-TOKEN in parsed jar');
-    const result = csrf.verify(
-      {headers: {'x-csrf-token': token}},
-      {},
-      {cookies: requestCookies}
-    );
+    const result = csrf.verify({headers: {'x-csrf-token': token}}, {}, {cookies: requestCookies});
     assert.equal(result, undefined);
   });
 

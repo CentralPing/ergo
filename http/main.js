@@ -7,11 +7,12 @@
  * 3. Validation      - Parse and validate request body (body, jsonApiQuery, validate)
  * 4. Execution       - Run the route handler and send the response (handler, send)
  *
- * Middleware is composed via the path-based accumulator pattern using `compose`:
- *   compose([fn, getPaths, setPath], ...)
+ * Middleware is composed via the two-accumulator pattern using `compose`:
+ *   compose([fn, setPath], ...)
  *
- * Each middleware factory returns a function of the form `(req, res?, acc?) => value`.
- * Results are accumulated under named keys and passed to subsequent middleware.
+ * Each middleware factory returns `{value?, response?}`. Domain values are
+ * accumulated under named keys in `domainAcc`; response properties merge
+ * into `responseAcc`. `send()` is called post-pipeline by `handler()`.
  *
  * @module ergo
  * @version 0.1.0
@@ -41,25 +42,24 @@
  *
  * @example
  * import {compose, handler, logger, cors, authorization, accepts,
- *         cookie, url, body, send} from 'ergo';
+ *         cookie, url, body} from 'ergo';
  *
  * const pipeline = compose(
- *   // Stage 1: Negotiation (sequential Fail Fast order)
- *   [logger(), [], 'log'],
- *   [cors(), [], 'cors'],
- *   [accepts({types: ['application/json']}), [], 'accepts'],
- *   [cookie(), [], 'cookies'],
- *   [url(), [], 'url'],
+ *   // Stage 1: Negotiation
+ *   [logger(), 'log'],
+ *   [cors(), 'cors'],
+ *   [accepts({types: ['application/json']}), 'accepts'],
+ *   [cookie(), 'cookies'],
+ *   [url(), 'url'],
  *   // Stage 2: Authorization
- *   [authorization({strategies: [...]}), [], 'auth'],
+ *   [authorization({strategies: [...]}), 'auth'],
  *   // Stage 3: Validation
- *   [body(), [], 'body'],
+ *   [body(), 'body'],
  *   // Stage 4: Execution
- *   (req, res, {auth, cookies, body}) => ({body: body.parsed}),
- *   send()
+ *   (req, res, acc) => ({response: {body: acc.body.parsed}}),
  * );
  *
- * export default handler(pipeline, send());
+ * export default handler(pipeline);
  */
 
 import compose, {createResponseAcc, mergeResponse} from '../utils/compose-with.js';

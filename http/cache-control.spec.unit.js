@@ -12,7 +12,9 @@ describe('[Module] http/cache-control', () => {
 
   it('accepts a raw directives string', () => {
     const cacheControl = createCacheControl({directives: 'public, max-age=3600'});
-    const {response: {headers}} = cacheControl();
+    const {
+      response: {headers}
+    } = cacheControl();
     assert.deepEqual(headers, [['Cache-Control', 'public, max-age=3600']]);
   });
 
@@ -22,7 +24,9 @@ describe('[Module] http/cache-control', () => {
       maxAge: 0,
       mustRevalidate: true
     });
-    const {response: {headers}} = cacheControl();
+    const {
+      response: {headers}
+    } = cacheControl();
     assert.deepEqual(headers, [['Cache-Control', 'private, must-revalidate, max-age=0']]);
   });
 

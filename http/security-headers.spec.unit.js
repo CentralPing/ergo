@@ -19,7 +19,9 @@ describe('[Module] http/security-headers', () => {
 
   it('does not include Permissions-Policy by default', () => {
     const securityHeaders = createSecurityHeaders();
-    const {response: {headers}} = securityHeaders();
+    const {
+      response: {headers}
+    } = securityHeaders();
     const names = headers.map(([h]) => h);
     assert.ok(!names.includes('Permissions-Policy'));
   });

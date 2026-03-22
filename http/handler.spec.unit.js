@@ -74,7 +74,7 @@ describe('[Module] http/handler', () => {
     const handler = createHandler(pipeline);
     const res = createMockRes();
     const errors = [];
-    res.on('error', (e) => errors.push(e));
+    res.on('error', e => errors.push(e));
     await handler(createMockReq(), res);
     assert.ok(errors.length > 0, 'should emit error on res');
     assert.equal(errors[0], err);
