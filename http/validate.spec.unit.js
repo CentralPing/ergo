@@ -3,15 +3,15 @@ import assert from 'node:assert/strict';
 import createValidate from './validate.js';
 
 describe('[Module] http/validate', () => {
-  it('does not throw when all schemas pass', () => {
+  it('returns undefined when all schemas pass', () => {
     const validate = createValidate({
       query: {type: 'object', properties: {page: {type: 'string'}}}
     });
     const acc = {url: {query: {page: '1'}}};
-    assert.doesNotThrow(() => validate(null, null, acc));
+    assert.equal(validate(null, null, acc), undefined);
   });
 
-  it('throws 422 when query schema fails', () => {
+  it('returns 422 response when query schema fails', () => {
     const validate = createValidate({
       query: {
         type: 'object',
@@ -19,17 +19,14 @@ describe('[Module] http/validate', () => {
         required: ['page']
       }
     });
-    let err;
-    try {
-      validate(null, null, {url: {query: {}}});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 422);
+    const result = validate(null, null, {url: {query: {}}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
+    assert.equal(result.response.detail, 'Validation failed');
+    assert.ok(Array.isArray(result.response.details));
   });
 
-  it('validates body.parsed when body schema is set', () => {
+  it('returns 422 response when body schema fails', () => {
     const validate = createValidate({
       body: {
         type: 'object',
@@ -37,25 +34,22 @@ describe('[Module] http/validate', () => {
         required: ['name']
       }
     });
-    let err;
-    try {
-      validate(null, null, {body: {parsed: {}}});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 422);
+    const result = validate(null, null, {body: {parsed: {}}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
+    assert.equal(result.response.detail, 'Validation failed');
+    assert.ok(Array.isArray(result.response.details));
   });
 
   it('skips validation when accumulator key is missing', () => {
     const validate = createValidate({
       body: {type: 'object', required: ['name']}
     });
-    // acc.body is undefined — should not throw
-    assert.doesNotThrow(() => validate(null, null, {}));
+    // acc.body is undefined — should not return an error response
+    assert.equal(validate(null, null, {}), undefined);
   });
 
-  it('validates params when params schema is set', () => {
+  it('returns 422 response when params schema fails', () => {
     const validate = createValidate({
       params: {
         type: 'object',
@@ -63,13 +57,10 @@ describe('[Module] http/validate', () => {
         required: ['id']
       }
     });
-    let err;
-    try {
-      validate(null, null, {params: {id: 'notanumber'}});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 422);
+    const result = validate(null, null, {params: {id: 'notanumber'}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
+    assert.equal(result.response.detail, 'Validation failed');
+    assert.ok(Array.isArray(result.response.details));
   });
 });

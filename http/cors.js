@@ -28,7 +28,6 @@
  *
  * @see {@link https://fetch.spec.whatwg.org/#http-cors-protocol Fetch Standard - CORS Protocol}
  */
-import httpErrors from '../utils/http-errors.js';
 import cors from '../lib/cors.js';
 
 /**
@@ -68,16 +67,14 @@ export default options => {
       } = corsValidator({origin, method, requestMethod, requestHeaders});
 
       if (allowed === false) {
-        throw httpErrors(403);
+        return {response: {statusCode: 403}};
       }
 
-      return Object.entries(
-        headers.reduce((o, {h, v}) => {
-          o[h] = [...(o[h] ?? []), v];
-
-          return o;
-        }, {})
-      );
+      return {
+        response: {
+          headers: headers.map(({h, v}) => [h, v])
+        }
+      };
     }
   };
 };

@@ -1,97 +1,232 @@
 /**
- * @fileoverview Path-based compose utility for Ergo middleware pipelines.
+ * @fileoverview Path-based compose utility for Ergo middleware pipelines (v2).
  *
- * Extends `utils/compose` with declarative path-based argument extraction and result
- * storage. Each operation can be expressed as:
- * - A plain function: `fn` (receives the full accumulator)
- * - A tuple: `[fn, getPaths, setPath]` where:
+ * Extends `utils/compose` with a two-accumulator model: a **domain accumulator** for
+ * inter-middleware data and a **response accumulator** for HTTP response construction.
+ *
+ * Each operation can be expressed as:
+ * - A plain function: `fn` (receives `(...args, domainAcc)`)
+ * - A tuple: `[fn, setPath]` where:
  *   - `fn` — the middleware function
- *   - `getPaths` — an array of accumulator keys to extract and pass as an argument,
- *     a single string path, or `[]` to pass the full accumulator
- *   - `setPath` — the accumulator key to store the return value under
+ *   - `setPath` — the domain accumulator key to store the return value under
  *
- * This pattern implements the Fast Fail four-stage pipeline in a declarative way,
- * making each stage's data dependencies and output location explicit.
+ * Middleware returns are interpreted as `{value?, response?}`:
+ * - `value` is merged into the domain accumulator (at `setPath` for tuples, or
+ *   `Object.assign` for plain functions)
+ * - `response` is merged into the response accumulator (headers append, scalars set)
+ * - When `responseAcc.statusCode` is set, serial iteration breaks immediately
+ * - `undefined` / `null` returns skip all merges
  *
- * Tuple wrappers are sync-capable: when the underlying middleware returns a
- * non-thenable value the wrapper returns a plain object, allowing `serial()`
- * in compose.js to skip `await` and avoid a microtask hop.
+ * Plain return values (without `value` or `response` keys) are treated as `{value: ret}`
+ * for compatibility with simple middleware that only produce domain data.
  *
  * @module utils/compose-with
- * @version 0.1.0
+ * @version 0.2.0
  * @since 0.1.0
  * @requires ./compose.js
- * @requires ./get.js
  * @requires ./set.js
- * @requires ./pick.js
  *
  * @example
- * import compose from 'ergo/utils/compose-with';
- * import {authorization, body, logger, send} from 'ergo';
+ * import compose, {createResponseAcc} from 'ergo/utils/compose-with';
  *
+ * const responseAcc = createResponseAcc();
  * const pipeline = compose(
- *   [logger(), [], 'log'],           // log = logger(req, res, acc)
- *   [authorization({...}), [], 'auth'], // auth = await authorization(req, res, acc)
- *   [body(), [], 'body'],            // body = await body(req, res, acc)
- *   (req, res, acc) => ({result: process(acc.body)}),
- *   send()
+ *   [logger(), 'log'],
+ *   [authorization({...}), 'auth'],
+ *   [body(), 'body'],
+ *   (req, res, acc) => ({response: {body: process(acc.body), statusCode: 200}})
  * );
+ *
+ * await pipeline(req, res, responseAcc, domainAcc);
+ * // responseAcc.statusCode, responseAcc.headers, etc.
  */
-import compose from './compose.js';
-import get from './get.js';
+import {accumulator} from './compose.js';
 import set from './set.js';
-import pick from './pick.js';
 
 /**
- * Composes middleware with path-based argument extraction and result storage.
+ * Creates a null-prototype response accumulator.
  *
- * @param {...(function|Array)} ops - Operation specs; each is a function or `[fn, getPaths, setPath]`
- * @returns {function} - Async composed pipeline
+ * The returned object has a non-enumerable `isResponseAcc` flag used by the pipeline
+ * to distinguish it from the domain accumulator in the argument list.
+ *
+ * @returns {object} - Null-prototype object with `isResponseAcc: true`
  */
-const composeWith = (...ops) => compose(...wrapOps(ops));
-composeWith.all = (...ops) => compose.all(...wrapOps(ops));
-export default composeWith;
+export function createResponseAcc() {
+  const acc = Object.create(null);
+  Object.defineProperty(acc, 'isResponseAcc', {value: true});
+  return acc;
+}
 
 /**
- * Transforms an array of operation specs into standard compose-compatible middleware functions.
+ * Merges a response patch into the response accumulator.
  *
- * Tuple operations are wrapped in a sync-capable function that checks the return
- * value for a `.then` method. Sync middleware avoids Promise wrapping entirely;
- * async middleware chains the setPath assignment via `.then()`.
+ * - `headers` arrays are **appended** (additive across middleware)
+ * - All other properties are **assigned** (last writer wins)
  *
- * @param {Array<function|Array>} ops - Operation specs; each is a function or `[fn, getPaths, setPath]`
- * @returns {function[]} - Wrapped middleware functions suitable for `compose`
+ * @param {object} responseAcc - Mutable response accumulator
+ * @param {object} patch - Response contribution from middleware
  */
-function wrapOps(ops) {
-  return ops.map(op => {
-    if (!Array.isArray(op)) {
-      return op;
+export function mergeResponse(responseAcc, patch) {
+  if (patch.headers) {
+    responseAcc.headers ??= [];
+    responseAcc.headers.push(...patch.headers);
+  }
+
+  for (const key of Object.keys(patch)) {
+    if (key !== 'headers') responseAcc[key] = patch[key];
+  }
+}
+
+/**
+ * Extracts `{value, response}` from a middleware return value.
+ *
+ * If the return is an object with a `value` or `response` key, those are used directly.
+ * Otherwise the entire return is treated as `{value: ret}` for backward compatibility
+ * with middleware that return plain domain data.
+ *
+ * @param {*} resolved - Resolved return value from middleware
+ * @returns {{value: *, response: *}} - Extracted value and response
+ */
+function extractReturn(resolved) {
+  if (
+    resolved !== null &&
+    typeof resolved === 'object' &&
+    !Array.isArray(resolved) &&
+    ('value' in resolved || 'response' in resolved)
+  ) {
+    return resolved;
+  }
+
+  return {value: resolved};
+}
+
+/**
+ * Converts an operation spec into a normalized descriptor.
+ *
+ * @param {function|Array} op - A plain function or `[fn, setPath]` tuple
+ * @returns {{fn: function, setPath: string|undefined}} - Normalized descriptor
+ */
+function normalizeOp(op) {
+  if (!Array.isArray(op)) return {fn: op, setPath: undefined};
+  return {fn: op[0], setPath: op[1]};
+}
+
+/**
+ * Runs middleware descriptors sequentially with two-accumulator support.
+ *
+ * Uses a sync fast-path: when a middleware returns a non-thenable value, merging
+ * happens immediately without a microtask hop.
+ *
+ * @param {Array<{fn: function, setPath: string|undefined}>} descriptors - Normalized ops
+ * @param {*[]} args - Original request arguments (req, res, etc.)
+ * @param {object} domainAcc - Domain accumulator
+ * @param {object} responseAcc - Response accumulator
+ * @returns {object} - Final domain accumulator
+ */
+async function serial(descriptors, args, domainAcc, responseAcc) {
+  for (const {fn, setPath} of descriptors) {
+    const raw = fn(...args, domainAcc, responseAcc);
+    const resolved = typeof raw?.then === 'function' ? await raw : raw;
+
+    if (resolved == null) continue;
+
+    const {value, response} = extractReturn(resolved);
+
+    if (value !== undefined) {
+      if (setPath !== undefined) {
+        set(domainAcc, setPath, value);
+      } else if (typeof value === 'object') {
+        Object.assign(domainAcc, value);
+      }
     }
 
-    const [f, getPaths = [], setPath] = op;
+    if (response !== undefined) {
+      mergeResponse(responseAcc, response);
+    }
 
-    return (...args) => {
-      const acc = args.pop();
-      const arg = !Array.isArray(getPaths)
-        ? get(acc, getPaths)
-        : getPaths.length
-          ? pick(acc, getPaths)
-          : acc;
-      const ret = f(...args, arg);
+    if (responseAcc.statusCode !== undefined) break;
+  }
 
-      if (typeof ret?.then === 'function') {
-        return ret.then(value => {
-          if (setPath === undefined) return value;
-          const retObj = {};
-          set(retObj, setPath, value);
-          return retObj;
-        });
-      }
-
-      if (setPath === undefined) return ret;
-      const retObj = {};
-      set(retObj, setPath, ret);
-      return retObj;
-    };
-  });
+  return domainAcc;
 }
+
+/**
+ * Runs middleware descriptors concurrently with two-accumulator support.
+ *
+ * Each branch receives an isolated domain accumulator copy. After all branches
+ * complete, values and responses are merged in declaration order.
+ *
+ * @param {Array<{fn: function, setPath: string|undefined}>} descriptors - Normalized ops
+ * @param {*[]} args - Original request arguments
+ * @param {object} domainAcc - Domain accumulator
+ * @param {object} responseAcc - Response accumulator
+ * @returns {object} - Final domain accumulator
+ */
+async function concurrent(descriptors, args, domainAcc, responseAcc) {
+  const copies = descriptors.map(() => Object.assign(accumulator(), domainAcc));
+  const rets = descriptors.map(({fn}, i) => fn(...args, copies[i], responseAcc));
+  const hasAsync = rets.some(r => typeof r?.then === 'function');
+  const results = hasAsync ? await Promise.all(rets) : rets;
+
+  for (let i = 0; i < descriptors.length; i++) {
+    const resolved = results[i];
+    if (resolved == null) continue;
+
+    const {setPath} = descriptors[i];
+    const {value, response} = extractReturn(resolved);
+
+    if (value !== undefined) {
+      if (setPath !== undefined) {
+        set(domainAcc, setPath, value);
+      } else if (typeof value === 'object') {
+        Object.assign(domainAcc, value);
+      }
+    }
+
+    if (response !== undefined) {
+      mergeResponse(responseAcc, response);
+    }
+  }
+
+  return domainAcc;
+}
+
+/**
+ * Composes middleware with path-based result storage and two-accumulator support.
+ *
+ * The composed function pops the domain accumulator (last arg with `isAccumulator`)
+ * and response accumulator (last arg with `isResponseAcc`) from its arguments.
+ * If either is absent, a fresh one is created.
+ *
+ * @param {...(function|Array)} ops - Operation specs; each is a function or `[fn, setPath]`
+ * @returns {function} - Async composed pipeline
+ */
+const composeWith = (...ops) => {
+  const descriptors = ops.map(normalizeOp);
+
+  return async (...args) => {
+    const domainAcc = args.at(-1)?.isAccumulator ? args.pop() : accumulator();
+    const responseAcc = args.at(-1)?.isResponseAcc ? args.pop() : createResponseAcc();
+
+    return await serial(descriptors, args, domainAcc, responseAcc);
+  };
+};
+
+/**
+ * Concurrent variant of composeWith.
+ *
+ * @param {...(function|Array)} ops - Operation specs
+ * @returns {function} - Async composed pipeline
+ */
+composeWith.all = (...ops) => {
+  const descriptors = ops.map(normalizeOp);
+
+  return async (...args) => {
+    const domainAcc = args.at(-1)?.isAccumulator ? args.pop() : accumulator();
+    const responseAcc = args.at(-1)?.isResponseAcc ? args.pop() : createResponseAcc();
+
+    return await concurrent(descriptors, args, domainAcc, responseAcc);
+  };
+};
+
+export default composeWith;

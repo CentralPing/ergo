@@ -57,5 +57,6 @@ import buildSecurityHeaderTuples from '../lib/security-headers.js';
  */
 export default (options = {}) => {
   const headerTuples = buildSecurityHeaderTuples(options);
-  return () => headerTuples;
+  const response = {response: {headers: headerTuples}};
+  return () => response;
 };

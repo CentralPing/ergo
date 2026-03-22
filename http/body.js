@@ -139,91 +139,98 @@ export default ({
     charset = 'utf-8'
   } = {}) =>
   async req => {
-    let type;
-    let boundary;
-    let charsetEncoding = charset;
-    const ctHeader = req.headers['content-type'] ?? '';
+    try {
+      let type;
+      let boundary;
+      let charsetEncoding = charset;
+      const ctHeader = req.headers['content-type'] ?? '';
 
-    // Fast path: plain "application/json" with no parameters
-    if (ctHeader === 'application/json') {
-      type = 'application/json';
-    } else {
-      try {
-        ({
-          type,
-          parameters: {charset: charsetEncoding = charsetEncoding, boundary}
-        } = parse(req));
-      } catch (err) {
-        throw errors.Unsupported({prop: 'Content-Type', value: ctHeader, err});
+      // Fast path: plain "application/json" with no parameters
+      if (ctHeader === 'application/json') {
+        type = 'application/json';
+      } else {
+        try {
+          ({
+            type,
+            parameters: {charset: charsetEncoding = charsetEncoding, boundary}
+          } = parse(req));
+        } catch (err) {
+          throw errors.Unsupported({prop: 'Content-Type', value: ctHeader, err});
+        }
       }
-    }
 
-    if (!types.includes(type)) {
-      throw errors.Unsupported({prop: 'Content-Type', value: type});
-    }
+      if (!types.includes(type)) {
+        throw errors.Unsupported({prop: 'Content-Type', value: type});
+      }
 
-    const hasContentLength = 'content-length' in req.headers;
-    const isChunked = /\bchunked\b/i.test(req.headers['transfer-encoding'] ?? '');
+      const hasContentLength = 'content-length' in req.headers;
+      const isChunked = /\bchunked\b/i.test(req.headers['transfer-encoding'] ?? '');
 
-    let length;
+      let length;
 
-    if (hasContentLength) {
-      length = Number(req.headers['content-length']);
-      if (Number.isNaN(length) || length < 0) {
+      if (hasContentLength) {
+        length = Number(req.headers['content-length']);
+        if (Number.isNaN(length) || length < 0) {
+          throw errors.NoLength({length: req.headers['content-length']});
+        }
+        if (length > limit) {
+          throw errors.TooLarge({limit, length});
+        }
+      } else if (!isChunked) {
         throw errors.NoLength({length: req.headers['content-length']});
       }
-      if (length > limit) {
-        throw errors.TooLarge({limit, length});
-      }
-    } else if (!isChunked) {
-      throw errors.NoLength({length: req.headers['content-length']});
-    }
 
-    const encoding = req.headers['content-encoding'];
-    const isIdentity = !encoding || encoding === 'identity';
+      const encoding = req.headers['content-encoding'];
+      const isIdentity = !encoding || encoding === 'identity';
 
-    const {data: raw, received} = isIdentity
-      ? await readBodyDirect(req, {limit, expected: length, encoding: charsetEncoding})
-      : await readReqStream(req, {
-          limit,
-          decompressedLimit,
-          expected: length,
-          type: encoding,
-          encoding: charsetEncoding
-        });
+      const {data: raw, received} = isIdentity
+        ? await readBodyDirect(req, {limit, expected: length, encoding: charsetEncoding})
+        : await readReqStream(req, {
+            limit,
+            decompressedLimit,
+            expected: length,
+            type: encoding,
+            encoding: charsetEncoding
+          });
 
-    const result = {type, charset: charsetEncoding, encoding, length, received, boundary, raw};
+      const result = {type, charset: charsetEncoding, encoding, length, received, boundary, raw};
 
-    // Fast path: for JSON types, parse immediately instead of a lazy getter
-    if (
-      isIdentity &&
-      type !== 'multipart/form-data' &&
-      type !== 'application/x-www-form-urlencoded'
-    ) {
-      try {
-        result.parsed = JSON.parse(raw);
-      } catch (err) {
-        throw errors.Malformed({type, err});
-      }
-      return result;
-    }
-
-    Object.defineProperty(result, 'parsed', {
-      get() {
+      // Fast path: for JSON types, parse immediately instead of a lazy getter
+      if (
+        isIdentity &&
+        type !== 'multipart/form-data' &&
+        type !== 'application/x-www-form-urlencoded'
+      ) {
         try {
-          return (this.parsed = parsers[type](this.raw, this.boundary));
+          result.parsed = JSON.parse(raw);
         } catch (err) {
           throw errors.Malformed({type, err});
         }
-      },
-      set(v) {
-        delete this.parsed;
-        this.parsed = v;
-      },
-      configurable: true
-    });
+        return result;
+      }
 
-    return result;
+      Object.defineProperty(result, 'parsed', {
+        get() {
+          try {
+            return (this.parsed = parsers[type](this.raw, this.boundary));
+          } catch (err) {
+            throw errors.Malformed({type, err});
+          }
+        },
+        set(v) {
+          delete this.parsed;
+          this.parsed = v;
+        },
+        configurable: true
+      });
+
+      return result;
+    } catch (err) {
+      if (err?.statusCode) {
+        return {response: {statusCode: err.statusCode, detail: err.message}};
+      }
+      throw err;
+    }
   };
 
 /**

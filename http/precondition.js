@@ -33,7 +33,6 @@
  *
  * @see {@link https://www.rfc-editor.org/rfc/rfc6585#section-3 RFC 6585 Section 3 - 428 Precondition Required}
  */
-import httpErrors from '../utils/http-errors.js';
 
 /**
  * Create a precondition enforcement middleware.
@@ -51,7 +50,7 @@ export default function precondition({methods} = {}) {
     if (methodSet && !methodSet.has(req.method)) return;
 
     if (!req.headers['if-match'] && !req.headers['if-unmodified-since']) {
-      throw httpErrors(428);
+      return {response: {statusCode: 428}};
     }
   };
 }

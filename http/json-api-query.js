@@ -25,7 +25,6 @@
  * );
  */
 import {validate} from '../lib/json-api-query/index.js';
-import httpErrors from '../utils/http-errors.js';
 
 /**
  * Creates a JSON:API query validation middleware.
@@ -37,15 +36,17 @@ import httpErrors from '../utils/http-errors.js';
 export default (...options) => {
   const validator = validate(...options);
 
-  return (req, res, ...rest) => {
-    const query = rest.pop();
+  return (req, res, acc) => {
+    const query = acc.url?.query;
     const valid = validator(query);
 
     if (!valid) {
-      throw httpErrors(400, {
-        message: 'Invalid JSON API query',
-        originalError: validator.errors
-      });
+      return {
+        response: {
+          statusCode: 400,
+          detail: 'Invalid JSON API query'
+        }
+      };
     }
   };
 };

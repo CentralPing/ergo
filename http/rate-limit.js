@@ -27,7 +27,6 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc6585#section-4 RFC 6585 Section 4 - 429 Too Many Requests}
  */
 import {MemoryStore, checkRateLimit, defaultKeyGenerator} from '../lib/rate-limit.js';
-import httpErrors from '../utils/http-errors.js';
 
 /**
  * Create a rate limiting middleware.
@@ -48,13 +47,22 @@ export default function rateLimit({max = 100, windowMs = 60000, store, keyGenera
     const result = checkRateLimit(_store, _keyGen(req), max, windowMs);
 
     if (result.limited) {
-      throw httpErrors(429, {retryAfter: result.retryAfter});
+      return {
+        response: {
+          statusCode: 429,
+          retryAfter: result.retryAfter
+        }
+      };
     }
 
-    return [
-      ['X-RateLimit-Limit', String(max)],
-      ['X-RateLimit-Remaining', String(result.remaining)],
-      ['X-RateLimit-Reset', String(result.reset)]
-    ];
+    return {
+      response: {
+        headers: [
+          ['X-RateLimit-Limit', String(max)],
+          ['X-RateLimit-Remaining', String(result.remaining)],
+          ['X-RateLimit-Reset', String(result.reset)]
+        ]
+      }
+    };
   };
 }

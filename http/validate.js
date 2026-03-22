@@ -59,16 +59,26 @@ export default (schemas = {}, options = {}) => {
   }
 
   return (req, res, acc) => {
-    if (validators.body && acc.body && acc.body.parsed !== undefined) {
-      validators.body(acc.body.parsed);
-    }
+    try {
+      if (validators.body && acc.body && acc.body.parsed !== undefined) {
+        validators.body(acc.body.parsed);
+      }
 
-    if (validators.query && acc.url?.query) {
-      validators.query(acc.url.query);
-    }
+      if (validators.query && acc.url?.query) {
+        validators.query(acc.url.query);
+      }
 
-    if (validators.params && acc.params) {
-      validators.params(acc.params);
+      if (validators.params && acc.params) {
+        validators.params(acc.params);
+      }
+    } catch (err) {
+      return {
+        response: {
+          statusCode: err.statusCode ?? 422,
+          detail: err.message,
+          details: err.details
+        }
+      };
     }
   };
 };

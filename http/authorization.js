@@ -38,7 +38,6 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc7235 RFC 7235 - HTTP Authentication}
  */
 import authorize from '../lib/authorization.js';
-import httpErrors from '../utils/http-errors.js';
 
 /**
  * Creates an authorization middleware that parses the Authorization header
@@ -60,7 +59,7 @@ export default ({strategies = []} = {}) => {
       const {statusCode = 403, authenticate} = info;
       const headers = authenticate ? [['WWW-Authenticate', authenticate]] : undefined;
 
-      throw httpErrors(statusCode, {headers});
+      return {response: {statusCode, headers}};
     }
 
     return info;

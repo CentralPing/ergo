@@ -36,7 +36,6 @@
  * @see {@link https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html OWASP CSRF Prevention Cheat Sheet}
  */
 import {issue, verify} from '../lib/csrf.js';
-import httpErrors from '../utils/http-errors.js';
 
 /**
  * Creates a CSRF token issuance and verification middleware.
@@ -59,19 +58,19 @@ export default ({
   encoding,
   cookieOptions = {}
 } = {}) => ({
-  issue(req, res, ...rest) {
-    const cookies = rest.pop();
+  issue(req, res, acc) {
+    const {cookies} = acc;
 
     const {token, uuid} = issue(secret, undefined, encoding);
 
     cookies.set(cookieTokenName, token, {httpOnly: false, sameSite: 'Strict', ...cookieOptions});
     cookies.set(cookieUuidName, uuid, {sameSite: 'Strict', ...cookieOptions});
   },
-  verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, ...rest) {
-    const {[cookieUuidName]: uuid} = rest.pop();
+  verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, res, acc) {
+    const {cookies: {[cookieUuidName]: uuid} = {}} = acc;
 
     if (headerToken === undefined || !verify(headerToken, {secret, uuid})) {
-      throw httpErrors(403, {message: 'CSRF verification failed'});
+      return {response: {statusCode: 403, detail: 'CSRF verification failed'}};
     }
   }
 });

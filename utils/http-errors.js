@@ -1,10 +1,12 @@
 /**
  * @fileoverview HTTP error factory producing RFC 9457 Problem Details errors.
  *
- * Creates `Error` instances with RFC 9457 (Problem Details for HTTP APIs) properties:
- * `type`, `title`, `status`, `detail`, plus internal properties `headers` and
- * `originalError`. Captures a clean stack trace (omitting the factory frame) using
- * `Error.captureStackTrace`.
+ * Creates `Error`-prototype objects with RFC 9457 (Problem Details for HTTP APIs)
+ * properties: `type`, `title`, `status`, `detail`, plus internal properties `headers`
+ * and `originalError`. Uses `Object.create(Error.prototype)` instead of `new Error()`
+ * to avoid V8's automatic stack trace capture (~10 µs overhead per call). This is
+ * critical in hot paths like rate-limit rejections where errors are expected control
+ * flow, not exceptional conditions. The objects pass `instanceof Error` checks.
  *
  * The `toJSON()` method serializes to RFC 9457 format automatically when
  * `JSON.stringify()` is called (e.g. by `send()`).
@@ -70,18 +72,18 @@ export default function httpErrors(
     extra.retryAfter = retryAfter;
   }
 
-  const err = Object.assign(new Error(detail), {
-    name,
-    ...extra,
-    statusCode,
-    status: statusCode,
-    type,
-    title,
-    detail,
-    instance,
-    headers: effectiveHeaders,
-    originalError
-  });
+  const err = Object.create(Error.prototype);
+  err.message = detail;
+  err.name = name;
+  err.statusCode = statusCode;
+  err.status = statusCode;
+  err.type = type;
+  err.title = title;
+  err.detail = detail;
+  err.instance = instance;
+  err.headers = effectiveHeaders;
+  err.originalError = originalError;
+  if (extra) Object.assign(err, extra);
 
   Object.defineProperty(err, 'toJSON', {
     value() {
@@ -96,8 +98,6 @@ export default function httpErrors(
       return json;
     }
   });
-
-  Error.captureStackTrace(err, httpErrors);
 
   return err;
 }

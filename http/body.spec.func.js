@@ -327,4 +327,47 @@ describe('[Contract] http/body', () => {
       }
     });
   });
+
+  describe('middleware error return shape (direct invocation)', () => {
+    it('returns 415 response for unsupported Content-Type', async () => {
+      const bodyMw = createBody();
+      const payload = 'hello';
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'text/plain',
+          'content-length': String(Buffer.byteLength(payload))
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from(payload);
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 415);
+      assert.ok(typeof result.response.detail === 'string');
+      assert.ok(result.response.detail.includes('Content-Type'));
+    });
+
+    it('returns 413 response when body exceeds limit', async () => {
+      const bodyMw = createBody({limit: 5});
+      const payload = 'this body is much longer than 5 bytes';
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json',
+          'content-length': String(Buffer.byteLength(payload))
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from(payload);
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 413);
+      assert.ok(result.response.detail.includes('limit'));
+    });
+  });
 });

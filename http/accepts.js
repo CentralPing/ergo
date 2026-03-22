@@ -26,7 +26,6 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc9110#section-12.5 RFC 9110 Section 12.5 - Content Negotiation}
  */
 import accepts from '../lib/accepts.js';
-import httpErrors from '../utils/http-errors.js';
 
 const headerMap = {
   type: 'Accept',
@@ -56,9 +55,12 @@ export default ({throwIfFail = false, ...options} = {}) => {
     if (throwIfFail) {
       for (const [k, v] of Object.entries(accepted)) {
         if (v === undefined) {
-          throw httpErrors(406, {
-            message: `Failed to negotiate content for: [${headerMap[k]}].`
-          });
+          return {
+            response: {
+              statusCode: 406,
+              detail: `Failed to negotiate content for: [${headerMap[k]}].`
+            }
+          };
         }
       }
     }

@@ -7,62 +7,63 @@ import createJsonApiQuery from './json-api-query.js';
 import {createMockReq, createMockRes} from '../test/helpers.js';
 
 describe('[Module] http/json-api-query', () => {
-  it('does not throw when the query accumulator is empty (valid)', () => {
+  it('returns undefined when acc.url.query is an empty object (valid)', () => {
     const mw = createJsonApiQuery();
     const req = createMockReq();
     const res = createMockRes();
-    assert.doesNotThrow(() => mw(req, res, {}));
+    assert.equal(mw(req, res, {url: {query: {}}}), undefined);
   });
 
-  it('does not throw for a valid JSON:API sort array', () => {
+  it('returns undefined for a valid JSON:API sort array in acc.url.query', () => {
     const mw = createJsonApiQuery();
-    assert.doesNotThrow(() => mw(createMockReq(), createMockRes(), {sort: ['title', '-date']}));
+    assert.equal(
+      mw(createMockReq(), createMockRes(), {url: {query: {sort: ['title', '-date']}}}),
+      undefined
+    );
   });
 
-  it('throws 400 when the query is null (not an object)', () => {
+  it('returns 400 response when acc.url.query is null (not an object)', () => {
     const mw = createJsonApiQuery();
-    let err;
-    try {
-      mw(createMockReq(), createMockRes(), null);
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err, 'should throw on null query');
-    assert.equal(err.statusCode, 400);
-    assert.ok(err.message.toLowerCase().includes('json api'));
+    const result = mw(createMockReq(), createMockRes(), {url: {query: null}});
+    assert.ok(result?.response, 'should return error response for null query');
+    assert.equal(result.response.statusCode, 400);
+    assert.equal(result.response.detail, 'Invalid JSON API query');
   });
 
-  it('throws 400 when fields is a string (must be an object)', () => {
+  it('returns 400 response when fields is a string (must be an object)', () => {
     const mw = createJsonApiQuery();
-    let err;
-    try {
-      mw(createMockReq(), createMockRes(), {fields: 'invalid'});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err, 'should throw on invalid fields type');
-    assert.equal(err.statusCode, 400);
+    const result = mw(createMockReq(), createMockRes(), {
+      url: {query: {fields: 'invalid'}}
+    });
+    assert.ok(result?.response, 'should return error response for invalid fields type');
+    assert.equal(result.response.statusCode, 400);
+    assert.equal(result.response.detail, 'Invalid JSON API query');
   });
 
-  it('throws 400 when page is a string (must be an object)', () => {
+  it('returns 400 response when page is a string (must be an object)', () => {
     const mw = createJsonApiQuery();
-    let err;
-    try {
-      mw(createMockReq(), createMockRes(), {page: 'invalid'});
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 400);
+    const result = mw(createMockReq(), createMockRes(), {url: {query: {page: 'invalid'}}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 400);
+    assert.equal(result.response.detail, 'Invalid JSON API query');
   });
 
-  it('pops the last argument from rest as the query (ignores leading args)', () => {
+  it('reads only acc.url.query (ignores unrelated acc keys)', () => {
     const mw = createJsonApiQuery();
-    assert.doesNotThrow(() => mw(createMockReq(), createMockRes(), 'irrelevant-acc', {}));
+    assert.equal(
+      mw(createMockReq(), createMockRes(), {
+        unrelated: {foo: 'bar'},
+        url: {query: {}}
+      }),
+      undefined
+    );
   });
 
-  it('does not throw for a valid filter object', () => {
+  it('returns undefined for a valid filter object in acc.url.query', () => {
     const mw = createJsonApiQuery();
-    assert.doesNotThrow(() => mw(createMockReq(), createMockRes(), {filter: {name: 'alice'}}));
+    assert.equal(
+      mw(createMockReq(), createMockRes(), {url: {query: {filter: {name: 'alice'}}}}),
+      undefined
+    );
   });
 });

@@ -16,7 +16,7 @@ const secret = 'test-secret-12345';
 function issueCycleJar(csrf) {
   const cookieMw = createCookieMw();
   const issueJar = cookieMw({headers: {}});
-  csrf.issue({headers: {}}, {}, issueJar);
+  csrf.issue({headers: {}}, {}, {cookies: issueJar});
 
   // Serialize Set-Cookie values to a Cookie request header string
   const setCookieHeaders = issueJar.toHeader();
@@ -29,7 +29,7 @@ describe('[Module] http/csrf', () => {
   it('issue() sets CSRF-TOKEN and CSRF-UUID cookies on the jar', () => {
     const csrf = createCsrf({secret});
     const cookies = createCookieMw()({headers: {}});
-    csrf.issue({headers: {}}, {}, cookies);
+    csrf.issue({headers: {}}, {}, {cookies});
 
     const headers = cookies.toHeader();
     assert.ok(
@@ -48,37 +48,36 @@ describe('[Module] http/csrf', () => {
     const token = requestCookies['CSRF-TOKEN'];
 
     assert.ok(token, 'should have CSRF-TOKEN in parsed jar');
-    assert.doesNotThrow(() => {
-      csrf.verify({headers: {'x-csrf-token': token}}, {}, requestCookies);
+    const result = csrf.verify(
+      {headers: {'x-csrf-token': token}},
+      {},
+      {cookies: requestCookies}
+    );
+    assert.equal(result, undefined);
+  });
+
+  it('verify() returns 403 response when header token is missing', () => {
+    const csrf = createCsrf({secret});
+    const requestCookies = issueCycleJar(csrf);
+
+    const result = csrf.verify({headers: {}}, {}, {cookies: requestCookies});
+    assert.deepEqual(result, {
+      response: {statusCode: 403, detail: 'CSRF verification failed'}
     });
   });
 
-  it('verify() throws 403 when header token is missing', () => {
+  it('verify() returns 403 response when header token is tampered', () => {
     const csrf = createCsrf({secret});
     const requestCookies = issueCycleJar(csrf);
 
-    let err;
-    try {
-      csrf.verify({headers: {}}, {}, requestCookies);
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 403);
-  });
-
-  it('verify() throws 403 when header token is tampered', () => {
-    const csrf = createCsrf({secret});
-    const requestCookies = issueCycleJar(csrf);
-
-    let err;
-    try {
-      csrf.verify({headers: {'x-csrf-token': 'tampered-value'}}, {}, requestCookies);
-    } catch (e) {
-      err = e;
-    }
-    assert.ok(err);
-    assert.equal(err.statusCode, 403);
+    const result = csrf.verify(
+      {headers: {'x-csrf-token': 'tampered-value'}},
+      {},
+      {cookies: requestCookies}
+    );
+    assert.deepEqual(result, {
+      response: {statusCode: 403, detail: 'CSRF verification failed'}
+    });
   });
 
   it('respects custom cookie and header names', () => {
@@ -89,7 +88,7 @@ describe('[Module] http/csrf', () => {
       cookieUuidName: 'MY-UUID'
     });
     const cookies = createCookieMw()({headers: {}});
-    csrf.issue({headers: {}}, {}, cookies);
+    csrf.issue({headers: {}}, {}, {cookies});
 
     const headers = cookies.toHeader();
     assert.ok(

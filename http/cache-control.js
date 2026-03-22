@@ -79,8 +79,9 @@ export default ({
     });
 
   const headerTuples = [['Cache-Control', value]];
+  const response = {response: {headers: headerTuples}};
 
-  return () => headerTuples;
+  return () => response;
 };
 
 /**

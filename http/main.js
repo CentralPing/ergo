@@ -62,7 +62,7 @@
  * export default handler(pipeline, send());
  */
 
-import compose from '../utils/compose-with.js';
+import compose, {createResponseAcc, mergeResponse} from '../utils/compose-with.js';
 import handler from './handler.js';
 import accepts from './accepts.js';
 import authorization from './authorization.js';
@@ -87,6 +87,8 @@ import fromConnect from '../lib/from-connect.js';
 
 export {
   compose,
+  createResponseAcc,
+  mergeResponse,
   handler,
   accepts,
   authorization,
