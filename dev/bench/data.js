@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774223498248,
+  "lastUpdate": 1774223620335,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -476,6 +476,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "350bc37b1f46bb66e908fc046c8f49648d103d15",
+          "message": "feat: pipeline v2 — two-accumulator return-value model (#8)\n\n* feat: pipeline v2 — two-accumulator return-value model\n\nReplace the throw-based single-accumulator pipeline with a return-value\ntwo-accumulator model (domainAcc + responseAcc). Middleware now returns\n{value?, response?} instead of throwing httpErrors for expected outcomes.\n\nCore changes:\n- compose.js: add breakWhen predicate to serial(), export accumulator()\n- compose-with.js: two-accumulator flow with [fn, setPath] tuples,\n  {value, response} extraction, mergeResponse(), pipeline break on\n  responseAcc.statusCode\n- send.js: refactored to post-pipeline handler accepting\n  (req, res, responseAcc, domainAcc), RFC 9457 Problem Details formatting,\n  removed headerKeys option, prefer boolean flag\n- handler.js: thin wrapper creating both accumulators per request,\n  simplified catch block, single send() call\n\nMiddleware updates:\n- All rejecting middleware (accepts, authorization, cors, rate-limit,\n  precondition, csrf, validate, json-api-query) return {response: {...}}\n  instead of throwing\n- timeout.js: sets responseAcc.statusCode/detail via closure, calls\n  req.destroy() without error arg\n- Trivial middleware (url, prefer, cookie, logger, security-headers,\n  cache-control, body) return domain values naturally\n- Eliminated rest.pop() pattern — middleware reads full domainAcc\n\nBenchmarked: 9-33% throughput improvement, up to 55% p99 latency\nreduction vs v1, with ergo winning 4/9 scenarios against node-http,\nexpress, fastify, hono, and koa.\n\n* fix: prettier formatting, v2 tuple format in ci-bench and JSDoc example\n\n* fix: purge v1 remnants from JSDoc, functional tests, and CSRF handler\n\n- Update JSDoc across 16 http/ middleware files: replace [fn, [], 'path']\n  tuples with [fn, 'path'], remove send() from compose examples, wrap bare\n  {statusCode, body} returns in {response: {...}}, replace @throws with\n  @returns for HTTP status outcomes\n- Fix csrf.spec.func.js: pass domain accumulator {cookies} instead of raw\n  jar to csrf.issue/verify (was causing server handler crash and test hang)\n- Fix from-connect.spec.func.js: remove createSend() from compose pipelines\n  and createHandler args, wrap returns in {response: {...}}\n- Update lib/from-connect.js JSDoc example for v2 model\n\n* add coverage tests for body error paths and compose-with concurrent merge\n\nCover previously-untested error paths in body.js: malformed Content-Type,\ninvalid Content-Length, missing Content-Length without chunked encoding,\nmalformed JSON, Content-Length mismatch, and non-HTTP error rethrow.\nAdd Object.assign path test for compose-with.all() with plain functions.",
+          "timestamp": "2026-03-22T19:53:23-04:00",
+          "tree_id": "bfdf4ea557764ff1b15fc4115db584e4cd393ff5",
+          "url": "https://github.com/CentralPing/ergo/commit/350bc37b1f46bb66e908fc046c8f49648d103d15"
+        },
+        "date": 1774223619941,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
             "unit": "us/op"
           },
           {
