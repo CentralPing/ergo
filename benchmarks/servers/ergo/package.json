@@ -1,0 +1,10 @@
+{
+  "name": "bench-ergo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "ergo": "file:packages/ergo",
+    "ergo-router": "file:packages/ergo-router"
+  }
+}

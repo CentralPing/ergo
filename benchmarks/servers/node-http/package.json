@@ -1,0 +1,10 @@
+{
+  "name": "bench-node-http",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "ajv": "^8.18.0",
+    "etag": "^1.8.1"
+  }
+}
