@@ -238,6 +238,9 @@ describe('[Module] http/logger', () => {
     assert.equal(info.request.headers.authorization, '[REDACTED]');
     assert.equal(info.request.headers.cookie, '[REDACTED]');
     assert.equal(info.request.headers['proxy-authorization'], '[REDACTED]');
+    assert.equal(req.headers.authorization, 'Bearer secret-token', 'original not mutated');
+    assert.equal(req.headers.cookie, 'session=abc123', 'original not mutated');
+    assert.equal(req.headers['proxy-authorization'], 'Basic creds', 'original not mutated');
   });
 
   it('redacts sensitive response headers on finish', () => {
@@ -252,6 +255,8 @@ describe('[Module] http/logger', () => {
     const entry = logged[0][0];
     assert.equal(entry.response.headers['set-cookie'], '[REDACTED]');
     assert.equal(entry.response.headers['x-custom'], 'visible');
+    assert.equal(res.getHeader('set-cookie'), 'session=abc; HttpOnly', 'original not mutated');
+    assert.equal(res.getHeader('x-custom'), 'visible', 'original not mutated');
   });
 
   it('allows custom redactHeaders set', () => {

@@ -154,6 +154,7 @@ describe('[Boundary] utils/http-errors', () => {
       const json = JSON.parse(JSON.stringify(err));
       assert.equal(json.status, 422);
       assert.equal(json.title, 'Unprocessable Entity');
+      assert.equal(json.name, 'UnprocessableEntity', 'name reflects protected value');
     });
 
     it('extra keys cannot override core properties on the error object', () => {

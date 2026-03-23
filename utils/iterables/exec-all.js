@@ -31,11 +31,12 @@ export default re => {
     let match;
 
     while ((match = localRe.exec(str)) !== null) {
-      if (match[0].length === 0) {
-        localRe.lastIndex++;
-        if (localRe.lastIndex > str.length) break;
-      }
       yield match.slice(1);
+      if (match[0].length === 0) {
+        // Advance past zero-length match; use code-point width for Unicode regexes
+        const cp = str.codePointAt(localRe.lastIndex);
+        localRe.lastIndex += localRe.unicode && cp !== undefined && cp > 0xffff ? 2 : 1;
+      }
     }
   };
 };

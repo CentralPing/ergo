@@ -50,6 +50,6 @@ describe('[Boundary] utils/iterables/exec-all', () => {
   it('does not infinite-loop on zero-length matches', () => {
     const find = execAll(/(a*)/);
     const results = [...find('bc')];
-    assert.ok(results.length >= 0, 'should terminate');
+    assert.deepEqual(results, [[''], [''], ['']]);
   });
 });
