@@ -130,11 +130,13 @@ stack.use(async (c, next) => {
   await next();
 });
 
-stack.use(cors({
-  origin: '*',
-  allowMethods: ['POST'],
-  allowHeaders: ['Authorization', 'Content-Type']
-}));
+stack.use(
+  cors({
+    origin: '*',
+    allowMethods: ['POST'],
+    allowHeaders: ['Authorization', 'Content-Type']
+  })
+);
 
 stack.use(compress({threshold: 0}));
 

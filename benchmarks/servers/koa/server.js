@@ -113,24 +113,29 @@ function koaRateLimit(ctx) {
   return false;
 }
 
-router.post('/rate-limited/users', (ctx, next) => {
-  if (koaRateLimit(ctx)) return;
-  return next();
-}, jsonParser, ctx => {
-  const token = extractBearer(ctx.headers['authorization']);
-  if (token !== BEARER_TOKEN) {
-    ctx.status = 401;
-    ctx.body = {error: 'Unauthorized'};
-    return;
+router.post(
+  '/rate-limited/users',
+  (ctx, next) => {
+    if (koaRateLimit(ctx)) return;
+    return next();
+  },
+  jsonParser,
+  ctx => {
+    const token = extractBearer(ctx.headers['authorization']);
+    if (token !== BEARER_TOKEN) {
+      ctx.status = 401;
+      ctx.body = {error: 'Unauthorized'};
+      return;
+    }
+    if (!validateUser(ctx.request.body)) {
+      ctx.status = 422;
+      ctx.body = {error: `Validation failed: ${ajv.errorsText(validateUser.errors)}`};
+      return;
+    }
+    ctx.status = 201;
+    ctx.body = {id: 'u_bench', ...ctx.request.body};
   }
-  if (!validateUser(ctx.request.body)) {
-    ctx.status = 422;
-    ctx.body = {error: `Validation failed: ${ajv.errorsText(validateUser.errors)}`};
-    return;
-  }
-  ctx.status = 201;
-  ctx.body = {id: 'u_bench', ...ctx.request.body};
-});
+);
 
 // Scenario 8: Conditional GET -- manual ETag generation and If-None-Match check.
 router.get('/cached/users/:id', ctx => {

@@ -84,14 +84,21 @@ app.post('/auth/users', jsonParser, (req, res) => {
 });
 
 // Scenario 9: Rate-limited POST -- rate limiter applied before body parser
-const rateLimiter = rateLimit({windowMs: 10000, limit: 50, standardHeaders: true, legacyHeaders: false});
+const rateLimiter = rateLimit({
+  windowMs: 10000,
+  limit: 50,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 app.post('/rate-limited/users', rateLimiter, jsonParser, (req, res) => {
   const token = extractBearer(req.headers['authorization']);
   if (token !== BEARER_TOKEN) {
     return res.status(401).json({error: 'Unauthorized'});
   }
   if (!validateUser(req.body)) {
-    return res.status(422).json({error: `Validation failed: ${ajv.errorsText(validateUser.errors)}`});
+    return res
+      .status(422)
+      .json({error: `Validation failed: ${ajv.errorsText(validateUser.errors)}`});
   }
   return res.status(201).json({id: 'u_bench', ...req.body});
 });

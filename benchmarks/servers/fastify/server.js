@@ -63,29 +63,37 @@ app.get('/auth/users/:id', async (req, reply) => {
 app.post('/users', async (req, reply) => reply.status(201).send({id: 'u_bench', ...req.body}));
 
 // Scenario 5
-app.post('/auth/users', {
-  schema: {body: userBodySchema}
-}, async (req, reply) => {
-  const token = extractBearer(req.headers['authorization']);
-  if (token !== BEARER_TOKEN) {
-    return reply.status(401).send({error: 'Unauthorized'});
-  }
-  return reply.status(201).send({id: 'u_bench', ...req.body});
-});
-
-// Scenario 9: Rate-limited POST -- @fastify/rate-limit runs in onRequest (before body parsing)
-app.register(async function rateLimitPlugin(instance) {
-  await instance.register(fastifyRateLimit, {max: 50, timeWindow: 10000});
-
-  instance.post('/rate-limited/users', {
+app.post(
+  '/auth/users',
+  {
     schema: {body: userBodySchema}
-  }, async (req, reply) => {
+  },
+  async (req, reply) => {
     const token = extractBearer(req.headers['authorization']);
     if (token !== BEARER_TOKEN) {
       return reply.status(401).send({error: 'Unauthorized'});
     }
     return reply.status(201).send({id: 'u_bench', ...req.body});
-  });
+  }
+);
+
+// Scenario 9: Rate-limited POST -- @fastify/rate-limit runs in onRequest (before body parsing)
+app.register(async function rateLimitPlugin(instance) {
+  await instance.register(fastifyRateLimit, {max: 50, timeWindow: 10000});
+
+  instance.post(
+    '/rate-limited/users',
+    {
+      schema: {body: userBodySchema}
+    },
+    async (req, reply) => {
+      const token = extractBearer(req.headers['authorization']);
+      if (token !== BEARER_TOKEN) {
+        return reply.status(401).send({error: 'Unauthorized'});
+      }
+      return reply.status(201).send({id: 'u_bench', ...req.body});
+    }
+  );
 });
 
 // Scenario 8: Conditional GET -- @fastify/etag generates ETags and handles
@@ -118,15 +126,19 @@ app.register(async function stackPlugin(instance) {
     }
   });
 
-  instance.post('/stack/auth/users', {
-    schema: {body: userBodySchema}
-  }, async (req, reply) => {
-    const token = extractBearer(req.headers['authorization']);
-    if (token !== BEARER_TOKEN) {
-      return reply.status(401).send({error: 'Unauthorized'});
+  instance.post(
+    '/stack/auth/users',
+    {
+      schema: {body: userBodySchema}
+    },
+    async (req, reply) => {
+      const token = extractBearer(req.headers['authorization']);
+      if (token !== BEARER_TOKEN) {
+        return reply.status(401).send({error: 'Unauthorized'});
+      }
+      return reply.status(201).send({id: 'u_bench', ...req.body});
     }
-    return reply.status(201).send({id: 'u_bench', ...req.body});
-  });
+  );
 });
 
 app.listen({port: PORT, host: '0.0.0.0'}).then(() => {
