@@ -9,12 +9,7 @@ DECISIONS.md
 .cursor/
 .vscode/
 
-# Benchmark suite (environment-specific; only ci-bench.js is committed)
-benchmarks/README.md
-benchmarks/report/
-benchmarks/run.sh
-benchmarks/scenarios/
-benchmarks/servers/
+# Benchmark suite (methodology committed; results are environment-specific)
 benchmarks/results/
 benchmarks/results-before/
 benchmarks/.ergo-build-ctx/
