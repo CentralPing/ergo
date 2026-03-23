@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774224757263,
+  "lastUpdate": 1774224834799,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -625,6 +625,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f24776b9a89c98d646c1184d27a6b22a140c6c8d",
+          "message": "docs: add benchmark suite for reproducibility (#9)\n\n* docs: add benchmark suite for reproducibility\n\nCommit the full Docker/k6 benchmark suite (scenarios, server\nimplementations, orchestrator, and report generator) so the methodology\nis auditable and reproducible. Result JSON files remain gitignored\nas they are environment-specific point-in-time snapshots.\n\n- Un-ignore benchmarks/{README,run.sh,scenarios/,servers/}\n- Add generate-report.js (9 scenarios, CoV noise analysis, rankings)\n- Remove old benchmarks/report/ directory (superseded)\n- Update benchmarks/README.md with scenarios 08-09 and new paths\n\n* style: fix Prettier formatting in benchmark server files\n\n* ci: exclude benchmarks/ from CodeQL scanning\n\nBenchmark servers are synthetic test harnesses that run in isolated\nDocker containers, never deployed. Spreading request body into JSON\nresponses and permissive CORS are intentional for fair framework\ncomparison — \"fixing\" them would add overhead that biases results.",
+          "timestamp": "2026-03-22T20:13:40-04:00",
+          "tree_id": "7a20b5f267d0b9bcf88658ea1154ee9e5e02256b",
+          "url": "https://github.com/CentralPing/ergo/commit/f24776b9a89c98d646c1184d27a6b22a140c6c8d"
+        },
+        "date": 1774224834379,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
