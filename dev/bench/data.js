@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774290943768,
+  "lastUpdate": 1774293277184,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -848,6 +848,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "distinct": true,
+          "id": "7f95178705f8cf736498daec2fb5f16d36243b12",
+          "message": "ci: enable CodeRabbit auto-approval workflow",
+          "timestamp": "2026-03-23T15:14:21-04:00",
+          "tree_id": "f925612b5dbac7b903c40bf242a4d7c8adb66bed",
+          "url": "https://github.com/CentralPing/ergo/commit/7f95178705f8cf736498daec2fb5f16d36243b12"
+        },
+        "date": 1774293276861,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
