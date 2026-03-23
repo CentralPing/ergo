@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774269740863,
+  "lastUpdate": 1774270010032,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -774,6 +774,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f60e6fd20153419166a50ac58d86cfe24aebac36",
+          "message": "fix: security hardening pass 3 — compliance and defense in depth (#10)\n\n* fix: security hardening pass 3 — compliance and defense in depth\n\nRemediate 4 High, 7 Medium, and 2 Low severity findings from the\nsecurity audit targeting SOC 2, GDPR, ISO 27001, and FedRAMP readiness.\n\nPhase 1 — Compliance Blockers:\n- H1: Redact internal error messages from 500 responses (handler.js)\n- H2: Guard missing UUID cookie in CSRF verify (csrf.js)\n- H3: Prevent extra keys from overriding core RFC 9457 fields (http-errors.js)\n\nPhase 2 — Security Hardening:\n- M1: Add sensitive header redaction to structured logger (logger.js)\n- M2: Add key cleanup and maxKeys eviction to MemoryStore (rate-limit.js)\n- M3: Expand CTL character stripping in sanitizeQuotedString (RFC 7230)\n- M4: Lock CSRF cookie security attributes against override (csrf.js)\n- M5: Catch invalid charset in body parser (body.js)\n- M11: Wrap send() in error boundary in handler (handler.js)\n- M12: Document Content-Length + Transfer-Encoding coexistence (body.js)\n- H4+M6: Fix multipart boundary check and add maxParts limit (multiparse.js)\n\nPhase 3 — Defense in Depth:\n- L8: Guard zero-length regex matches in execAll (exec-all.js)\n- L9: Validate sameSite attribute in cookie toHeader (cookie.js)\n\n19 files changed (2 new spec files), ~30 new or updated tests.\nAll 757 tests pass. Coverage: 99.55% stmts, 95.5% branches.\n\n* ci: add CodeRabbit configuration for automated PR reviews\n\n* test: cover compressed-body charset validation in readReqStream\n\n* fix: address CodeRabbit review findings\n\nActionable:\n- exec-all: yield before zero-length handling to prevent EOF match\n  drop; make lastIndex advance Unicode-aware for surrogate pairs\n- exec-all spec: replace vacuous assertion with explicit captures\n\nNitpicks:\n- multiparse spec: add maxParts boundary tests (0 and exact match)\n- http-errors spec: assert name field in toJSON protection test\n- logger spec: add immutability assertions for header redaction\n- rate-limit spec: rename test for clarity; use node:test timer mock\n- rate-limit: add FIFO eviction comment; document silent eviction",
+          "timestamp": "2026-03-23T08:46:29-04:00",
+          "tree_id": "07e52456b25b7a9be8006b5e9c47acdc5c615fcb",
+          "url": "https://github.com/CentralPing/ergo/commit/f60e6fd20153419166a50ac58d86cfe24aebac36"
+        },
+        "date": 1774270009484,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
