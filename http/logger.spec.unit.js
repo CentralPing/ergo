@@ -221,4 +221,68 @@ describe('[Module] http/logger', () => {
     assert.equal(info1.host, info2.host, 'host should be the same reference');
     assert.ok(Object.isFrozen(info1.host), 'host should be frozen');
   });
+
+  it('redacts sensitive request headers by default', () => {
+    const logger = createLogger({log: () => {}, error: () => {}});
+    const req = makeReq({
+      headers: {
+        'content-type': 'application/json',
+        authorization: 'Bearer secret-token',
+        cookie: 'session=abc123',
+        'proxy-authorization': 'Basic creds'
+      }
+    });
+    const res = makeRes();
+    const info = logger(req, res);
+    assert.equal(info.request.headers['content-type'], 'application/json');
+    assert.equal(info.request.headers.authorization, '[REDACTED]');
+    assert.equal(info.request.headers.cookie, '[REDACTED]');
+    assert.equal(info.request.headers['proxy-authorization'], '[REDACTED]');
+    assert.equal(req.headers.authorization, 'Bearer secret-token', 'original not mutated');
+    assert.equal(req.headers.cookie, 'session=abc123', 'original not mutated');
+    assert.equal(req.headers['proxy-authorization'], 'Basic creds', 'original not mutated');
+  });
+
+  it('redacts sensitive response headers on finish', () => {
+    const logged = [];
+    const logger = createLogger({log: (...args) => logged.push(args), error: () => {}});
+    const req = makeReq();
+    const res = makeRes();
+    res.setHeader('set-cookie', 'session=abc; HttpOnly');
+    res.setHeader('x-custom', 'visible');
+    logger(req, res);
+    res.emit('finish');
+    const entry = logged[0][0];
+    assert.equal(entry.response.headers['set-cookie'], '[REDACTED]');
+    assert.equal(entry.response.headers['x-custom'], 'visible');
+    assert.equal(res.getHeader('set-cookie'), 'session=abc; HttpOnly', 'original not mutated');
+    assert.equal(res.getHeader('x-custom'), 'visible', 'original not mutated');
+  });
+
+  it('allows custom redactHeaders set', () => {
+    const logger = createLogger({
+      log: () => {},
+      error: () => {},
+      redactHeaders: new Set(['x-api-key'])
+    });
+    const req = makeReq({
+      headers: {authorization: 'Bearer token', 'x-api-key': 'secret'}
+    });
+    const res = makeRes();
+    const info = logger(req, res);
+    assert.equal(info.request.headers.authorization, 'Bearer token', 'not in custom set');
+    assert.equal(info.request.headers['x-api-key'], '[REDACTED]');
+  });
+
+  it('allows disabling redaction with empty set', () => {
+    const logger = createLogger({
+      log: () => {},
+      error: () => {},
+      redactHeaders: new Set()
+    });
+    const req = makeReq({headers: {authorization: 'Bearer token'}});
+    const res = makeRes();
+    const info = logger(req, res);
+    assert.equal(info.request.headers.authorization, 'Bearer token');
+  });
 });

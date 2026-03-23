@@ -474,5 +474,47 @@ describe('[Contract] http/body', () => {
       assert.ok(result?.response);
       assert.equal(result.response.statusCode, 411);
     });
+
+    it('returns 415 for invalid charset encoding', async () => {
+      const bodyMw = createBody();
+      const body = JSON.stringify({hello: 'world'});
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json; charset=FAKE',
+          'content-length': String(Buffer.byteLength(body))
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from(body);
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 415);
+      assert.ok(result.response.detail.includes('charset'), 'detail should mention charset');
+    });
+
+    it('returns 415 for invalid charset encoding on compressed body', async () => {
+      const bodyMw = createBody();
+      const body = JSON.stringify({hello: 'world'});
+      const compressed = await gzip(Buffer.from(body));
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json; charset=FAKE',
+          'content-encoding': 'gzip',
+          'content-length': String(compressed.length)
+        },
+        async *[Symbol.asyncIterator]() {
+          yield compressed;
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 415);
+      assert.ok(result.response.detail.includes('charset'), 'detail should mention charset');
+    });
   });
 });

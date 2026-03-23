@@ -147,4 +147,28 @@ describe('[Boundary] utils/http-errors', () => {
       assert.equal(err.headers, undefined);
     });
   });
+
+  describe('extra key safety', () => {
+    it('extra keys cannot override core RFC 9457 fields in toJSON', () => {
+      const err = httpErrors(422, {status: 200, title: 'Hijacked', name: 'Fake'});
+      const json = JSON.parse(JSON.stringify(err));
+      assert.equal(json.status, 422);
+      assert.equal(json.title, 'Unprocessable Entity');
+      assert.equal(json.name, 'UnprocessableEntity', 'name reflects protected value');
+    });
+
+    it('extra keys cannot override core properties on the error object', () => {
+      const err = httpErrors(500, {status: 200, statusCode: 418, name: 'Fake'});
+      assert.equal(err.status, 500);
+      assert.equal(err.statusCode, 500);
+      assert.equal(err.name, 'InternalServerError');
+    });
+
+    it('toJSON reads extension values from this, not the closure', () => {
+      const err = httpErrors(429, {retryAfter: 60});
+      err.retryAfter = 120;
+      const json = JSON.parse(JSON.stringify(err));
+      assert.equal(json.retryAfter, 120);
+    });
+  });
 });

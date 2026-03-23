@@ -46,4 +46,10 @@ describe('[Boundary] utils/iterables/exec-all', () => {
     const results = [...find('')];
     assert.equal(results.length, 0);
   });
+
+  it('does not infinite-loop on zero-length matches', () => {
+    const find = execAll(/(a*)/);
+    const results = [...find('bc')];
+    assert.deepEqual(results, [[''], [''], ['']]);
+  });
 });

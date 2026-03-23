@@ -160,6 +160,11 @@ export default ({
       }
 
       const hasContentLength = 'content-length' in req.headers;
+      // Per RFC 9112 §6.3, Transfer-Encoding overrides Content-Length when both present.
+      // Node's HTTP parser decodes chunked framing before this middleware sees chunks.
+      // Keeping the Content-Length check provides an extra integrity validation:
+      // if the proxy forwarded both headers, a mismatch results in a 400 rather than
+      // silent acceptance of inconsistent framing.
       const isChunked = /\bchunked\b/i.test(req.headers['transfer-encoding'] ?? '');
 
       let length;
@@ -263,7 +268,11 @@ async function readBodyDirect(stream, {limit = Infinity, expected, encoding} = {
     throw errors.InvalidLength({length: expected, received: bytesRead});
   }
 
-  return {data: Buffer.concat(chunks, bytesRead).toString(encoding), received: bytesRead};
+  try {
+    return {data: Buffer.concat(chunks, bytesRead).toString(encoding), received: bytesRead};
+  } catch (err) {
+    throw errors.Unsupported({prop: 'charset', value: encoding, err});
+  }
 }
 
 /**
@@ -294,5 +303,9 @@ async function readReqStream(
     throw err;
   }
 
-  return {data: w.data.toString(encoding), received: wireMeter.bytesRead};
+  try {
+    return {data: w.data.toString(encoding), received: wireMeter.bytesRead};
+  } catch (err) {
+    throw errors.Unsupported({prop: 'charset', value: encoding, err});
+  }
 }

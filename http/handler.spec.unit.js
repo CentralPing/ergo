@@ -54,16 +54,17 @@ describe('[Module] http/handler', () => {
     assert.equal(res.statusCode, 408);
   });
 
-  it('populates responseAcc.detail from error message for 500 errors', async () => {
+  it('uses generic detail for 500 errors (does not leak err.message)', async () => {
     const pipeline = async () => {
-      throw new Error('something broke');
+      throw new Error('secret internal detail');
     };
     const handler = createHandler(pipeline);
     const res = createMockRes();
     await handler(createMockReq(), res);
     const body = JSON.parse(res._body);
-    assert.equal(body.detail, 'something broke');
+    assert.equal(body.detail, 'Internal Server Error');
     assert.equal(body.status, 500);
+    assert.ok(!res._body.includes('secret internal detail'), 'err.message must not leak');
   });
 
   it('emits error event on response when pipeline throws', async () => {
@@ -157,5 +158,24 @@ describe('[Module] http/handler', () => {
     const body = JSON.parse(res._body);
     assert.equal(body.status, 429);
     assert.equal(body.detail, 'Rate limit exceeded');
+  });
+
+  it('safely ends response when send() throws', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline);
+    const res = createMockRes();
+    let setHeaderCalls = 0;
+    const origSetHeader = res.setHeader.bind(res);
+    res.setHeader = (name, value) => {
+      setHeaderCalls++;
+      if (setHeaderCalls > 2) throw new Error('simulated setHeader failure');
+      origSetHeader(name, value);
+    };
+    await handler(createMockReq(), res);
+    assert.equal(res.statusCode, 500);
+    assert.ok(res.writableEnded, 'response should still end');
   });
 });

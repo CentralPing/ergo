@@ -39,6 +39,22 @@
 import {hostname} from 'node:os';
 import {randomUUID} from 'node:crypto';
 
+const DEFAULT_REDACTED = new Set(['authorization', 'proxy-authorization', 'cookie', 'set-cookie']);
+
+/**
+ * @param {object} headers - Header object to redact
+ * @param {Set<string>} redactSet - Header names to replace with '[REDACTED]'
+ * @returns {object} - Copy with sensitive values replaced
+ */
+function redact(headers, redactSet) {
+  if (!redactSet?.size) return headers;
+  const safe = {};
+  for (const [k, v] of Object.entries(headers)) {
+    safe[k] = redactSet.has(k) ? '[REDACTED]' : v;
+  }
+  return safe;
+}
+
 const host = Object.freeze({
   hostname: hostname(),
   arch: process.arch,
@@ -56,6 +72,8 @@ const host = Object.freeze({
  *   is found on the response or request headers (default: crypto.randomUUID)
  * @param {string} [options.headerRequestIdName] - Request ID header name (default: 'x-request-id')
  * @param {string} [options.headerRequestIpName] - Client IP header name (default: 'x-real-ip')
+ * @param {Set<string>} [options.redactHeaders] - Header names to replace with '[REDACTED]' in logs
+ *   (default: authorization, proxy-authorization, cookie, set-cookie)
  * @returns {object} - Log entry with request metadata and host info (statusCode/duration added on finish)
  */
 export default ({
@@ -65,7 +83,8 @@ export default ({
     error: logError = console.error,
     uuid = randomUUID,
     headerRequestIdName = 'x-request-id',
-    headerRequestIpName = 'x-real-ip'
+    headerRequestIpName = 'x-real-ip',
+    redactHeaders = DEFAULT_REDACTED
   } = {}) =>
   (req, res) => {
     const time = performance.now();
@@ -87,7 +106,7 @@ export default ({
       httpVersion: req.httpVersion,
       host,
       request: {
-        headers: req.headers,
+        headers: redact(req.headers, redactHeaders),
         encrypted: req.socket?.encrypted,
         remoteAddress: req.socket?.remoteAddress,
         remotePort: req.socket?.remotePort
@@ -117,7 +136,7 @@ export default ({
       info.statusCode = res.statusCode;
 
       info.response = {
-        headers: res.getHeaders(),
+        headers: redact(res.getHeaders(), redactHeaders),
         statusMessage: res.statusMessage,
         writableFinished: res.writableFinished
       };

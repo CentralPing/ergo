@@ -96,4 +96,21 @@ describe('[Module] http/csrf', () => {
       'should use custom uuid cookie name'
     );
   });
+
+  it('verify() returns 403 response when UUID cookie is missing', () => {
+    const csrf = createCsrf({secret});
+    const result = csrf.verify({headers: {'x-csrf-token': 'some-token'}}, {}, {cookies: {}});
+    assert.deepEqual(result, {
+      response: {statusCode: 403, detail: 'CSRF verification failed'}
+    });
+  });
+
+  it('cookieOptions cannot override httpOnly on token cookie', () => {
+    const csrf = createCsrf({secret, cookieOptions: {httpOnly: true}});
+    const cookies = createCookieMw()({headers: {}});
+    csrf.issue({headers: {}}, {}, {cookies});
+    const headers = cookies.toHeader();
+    const tokenHeader = headers.find(h => h.startsWith('CSRF-TOKEN='));
+    assert.ok(!tokenHeader.includes('HttpOnly'), 'token cookie must be JS-readable');
+  });
 });

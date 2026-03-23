@@ -63,13 +63,13 @@ export default ({
 
     const {token, uuid} = issue(secret, undefined, encoding);
 
-    cookies.set(cookieTokenName, token, {httpOnly: false, sameSite: 'Strict', ...cookieOptions});
-    cookies.set(cookieUuidName, uuid, {sameSite: 'Strict', ...cookieOptions});
+    cookies.set(cookieTokenName, token, {...cookieOptions, httpOnly: false, sameSite: 'Strict'});
+    cookies.set(cookieUuidName, uuid, {...cookieOptions, sameSite: 'Strict'});
   },
   verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, res, acc) {
     const {cookies: {[cookieUuidName]: uuid} = {}} = acc;
 
-    if (headerToken === undefined || !verify(headerToken, {secret, uuid})) {
+    if (headerToken === undefined || uuid === undefined || !verify(headerToken, {secret, uuid})) {
       return {response: {statusCode: 403, detail: 'CSRF verification failed'}};
     }
   }

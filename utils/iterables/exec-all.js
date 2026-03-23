@@ -32,6 +32,11 @@ export default re => {
 
     while ((match = localRe.exec(str)) !== null) {
       yield match.slice(1);
+      if (match[0].length === 0) {
+        // Advance past zero-length match; use code-point width for Unicode regexes
+        const cp = str.codePointAt(localRe.lastIndex);
+        localRe.lastIndex += localRe.unicode && cp !== undefined && cp > 0xffff ? 2 : 1;
+      }
     }
   };
 };
