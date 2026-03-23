@@ -474,5 +474,25 @@ describe('[Contract] http/body', () => {
       assert.ok(result?.response);
       assert.equal(result.response.statusCode, 411);
     });
+
+    it('returns 415 for invalid charset encoding', async () => {
+      const bodyMw = createBody();
+      const body = JSON.stringify({hello: 'world'});
+      const req = {
+        method: 'POST',
+        url: '/',
+        headers: {
+          'content-type': 'application/json; charset=FAKE',
+          'content-length': String(Buffer.byteLength(body))
+        },
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from(body);
+        }
+      };
+      const result = await bodyMw(req);
+      assert.ok(result?.response);
+      assert.equal(result.response.statusCode, 415);
+      assert.ok(result.response.detail.includes('charset'), 'detail should mention charset');
+    });
   });
 });

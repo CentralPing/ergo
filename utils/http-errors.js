@@ -84,16 +84,26 @@ export default function httpErrors(
   err.headers = effectiveHeaders;
   err.originalError = originalError;
   if (extra) Object.assign(err, extra);
+  err.message = detail;
+  err.name = name;
+  err.statusCode = statusCode;
+  err.status = statusCode;
+  err.type = type;
+  err.title = title;
+  err.detail = detail;
+
+  const extraKeys = Object.keys(extra);
 
   Object.defineProperty(err, 'toJSON', {
     value() {
-      const json = {
-        type: this.type,
-        title: this.title,
-        status: this.status,
-        detail: this.detail,
-        ...extra
-      };
+      const json = {};
+      for (const key of extraKeys) {
+        json[key] = this[key];
+      }
+      json.type = this.type;
+      json.title = this.title;
+      json.status = this.status;
+      json.detail = this.detail;
       if (this.instance !== undefined) json.instance = this.instance;
       return json;
     }

@@ -52,7 +52,7 @@ export default (pipeline, sendOptions = {}) => {
     } catch (err) {
       if (responseAcc.statusCode === undefined) {
         responseAcc.statusCode = 500;
-        responseAcc.detail = err.message;
+        responseAcc.detail = 'Internal Server Error';
       }
 
       attachInstance(responseAcc, res);
@@ -62,6 +62,13 @@ export default (pipeline, sendOptions = {}) => {
       }
     }
 
-    send(req, res, responseAcc, domainAcc);
+    try {
+      send(req, res, responseAcc, domainAcc);
+    } catch {
+      if (!res.writableEnded) {
+        res.statusCode = 500;
+        res.end();
+      }
+    }
   };
 };
