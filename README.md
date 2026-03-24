@@ -19,7 +19,8 @@ A **Fast Fail** REST API toolkit for Node.js. _ergo_ (error or go) provides comp
 
 - **Fail Fast by design** -- Errors are caught at the earliest possible stage. You never parse a request body for an unauthenticated user, and you never execute business logic on invalid input. This principle produces more robust software with fewer defects ([Shore, "Fail Fast", IEEE Software 2004](https://www.martinfowler.com/ieeeSoftware/failFast.pdf)) and is a core reliability pillar in the [AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_mitigate_interaction_failure_limit_retries.html).
 - **RESTful-first via RFCs** -- Every middleware implements a specific RFC or standard. Content negotiation follows [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110), error responses use [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457), cookies follow [RFC 6265](https://www.rfc-editor.org/rfc/rfc6265). No proprietary patterns.
-- **Defense in depth** -- Input validation happens [as early as possible in the data flow](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html) per OWASP, and access control is enforced [at each API endpoint](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html) before business logic.
+- **Defense in depth** -- Input validation happens [as early as possible in the data flow](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html) per OWASP, and access control is enforced [at each API endpoint](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html) before business logic. Authorization runs before body parsing, so unauthenticated requests never trigger expensive I/O.
+- **Secure by default** -- Security headers ship with conservative defaults (`Content-Security-Policy: default-src 'none'`, `X-Frame-Options: DENY`). All user-input objects use [null prototypes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create#object_with_null_prototype) to prevent prototype pollution. Input parsing is bounded out of the box (query length, pair count, body size, decompressed size). The pipeline's design maps directly to the [OWASP API Security Top 10](https://owasp.org/API-Security/) and [REST Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html).
 - **Zero-overhead composition** -- Synchronous middleware avoids microtask overhead entirely. Independent middleware within a stage run concurrently. The pipeline is a single function call with no framework runtime.
 
 ## The Fast Fail Design
@@ -113,6 +114,8 @@ See the [full API reference](https://centralping.github.io/api/ergo/) for detail
 | [RFC 7617](https://www.rfc-editor.org/rfc/rfc7617) | Basic HTTP Authentication | `authorization()` |
 | [RFC 7578](https://www.rfc-editor.org/rfc/rfc7578) | multipart/form-data | `body()` |
 | [RFC 6797](https://www.rfc-editor.org/rfc/rfc6797) | HTTP Strict Transport Security | `securityHeaders()` |
+| [OWASP API Security Top 10](https://owasp.org/API-Security/) | Aligned with top API security risks | Pipeline stage ordering, `rateLimit()`, `securityHeaders()`, input bounding |
+| [OWASP REST Security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html) | Aligned with REST security best practices | Auth enforcement, input validation, security headers, error redaction |
 
 ## Documentation
 

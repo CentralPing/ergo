@@ -57,7 +57,11 @@
     "json-api",
     "http",
     "middleware",
-    "streaming"
+    "streaming",
+    "security",
+    "security-headers",
+    "owasp",
+    "api-security"
   ],
   "author": "Jason Cust <jason@centralping.com>",
   "license": "MIT",
