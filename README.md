@@ -114,8 +114,8 @@ See the [full API reference](https://centralping.github.io/api/ergo/) for detail
 | [RFC 7617](https://www.rfc-editor.org/rfc/rfc7617) | Basic HTTP Authentication | `authorization()` |
 | [RFC 7578](https://www.rfc-editor.org/rfc/rfc7578) | multipart/form-data | `body()` |
 | [RFC 6797](https://www.rfc-editor.org/rfc/rfc6797) | HTTP Strict Transport Security | `securityHeaders()` |
-| [OWASP API Security Top 10](https://owasp.org/API-Security/) | Top API security risks | Pipeline stage ordering, `rateLimit()`, `securityHeaders()`, input bounding |
-| [OWASP REST Security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html) | REST API security best practices | Auth enforcement, input validation, security headers, error redaction |
+| [OWASP API Security Top 10](https://owasp.org/API-Security/) | Aligned with top API security risks | Pipeline stage ordering, `rateLimit()`, `securityHeaders()`, input bounding |
+| [OWASP REST Security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html) | Aligned with REST security best practices | Auth enforcement, input validation, security headers, error redaction |
 
 ## Documentation
 
