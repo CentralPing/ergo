@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774367884073,
+  "lastUpdate": 1774374668178,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -1090,6 +1090,41 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/CentralPing/ergo/commit/5a82219fb71c2309cd83728fb81b6d4f6a43f0ca"
         },
         "date": 1774367883742,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "efb9098d30439703818ddb81c94c9ef3bccb8bcc",
+          "message": "ci: enable CodeRabbit auto-approval on resolved PRs",
+          "timestamp": "2026-03-24T15:57:52Z",
+          "url": "https://github.com/CentralPing/ergo/pull/14/commits/efb9098d30439703818ddb81c94c9ef3bccb8bcc"
+        },
+        "date": 1774374667883,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
