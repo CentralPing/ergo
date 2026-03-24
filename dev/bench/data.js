@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774367737326,
+  "lastUpdate": 1774367884073,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -1066,6 +1066,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5a82219fb71c2309cd83728fb81b6d4f6a43f0ca",
+          "message": "docs: add security compliance messaging to README (#11)\n\n* docs: add security compliance messaging to README\n\nAdd \"Secure by default\" bullet to Why ergo section highlighting\nconservative security header defaults, null-prototype objects, and\nbounded input parsing. Expand \"Defense in depth\" bullet. Add OWASP API\nSecurity Top 10 and REST Security Cheat Sheet rows to the Standards\nCompliance table. Add security-related npm keywords.\n\n* docs: soften OWASP wording to avoid implying certification\n\nUse \"Aligned with\" qualifier in Standards Compliance table for OWASP\nentries to make clear these are design alignments, not formal\ncompliance claims.",
+          "timestamp": "2026-03-24T11:57:47-04:00",
+          "tree_id": "95e71dde7d1062819defdd1baa98535c925ae0ee",
+          "url": "https://github.com/CentralPing/ergo/commit/5a82219fb71c2309cd83728fb81b6d4f6a43f0ca"
+        },
+        "date": 1774367883742,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
