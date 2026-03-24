@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774363918376,
+  "lastUpdate": 1774364280788,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -957,6 +957,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "77166c5a0b2625163b43162951ef4e502b9f9f51",
+          "message": "ci: add version payload to website dispatch (#13)\n\nBoth ci.yml and release.yml now send {package, version} in the\nrepository_dispatch client-payload to centralping.github.io.\n\n- ci.yml: version \"dev\" on push to main\n- release.yml: version from release tag name, dispatched after\n  successful npm publish",
+          "timestamp": "2026-03-24T10:57:38-04:00",
+          "tree_id": "d9265cebd0f863cfde9593fecdae0dbf19d93d8b",
+          "url": "https://github.com/CentralPing/ergo/commit/77166c5a0b2625163b43162951ef4e502b9f9f51"
+        },
+        "date": 1774364280346,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
