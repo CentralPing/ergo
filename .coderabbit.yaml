@@ -27,10 +27,11 @@ reviews:
         Use undefined (not null) for absent values. No HTTP or framework imports.
     - path: "http/**"
       instructions: >
-        Pipeline middleware factories. Must return {value?, response?} format. Setting
-        responseAcc.statusCode breaks the pipeline — never throw httpErrors() for expected
-        outcomes. Verify JSDoc conventions: lowercase primitives, @returns not @return,
-        import('node:...') for built-in Node.js types.
+        Pipeline middleware factories. Must return {value?, response?} format.
+        Mutating response accumulators breaks pipeline flow — for expected outcomes,
+        return a response object instead of throwing httpErrors(). Verify JSDoc
+        conventions: lowercase primitives, @returns not @return, import('node:...')
+        for built-in Node.js types.
     - path: "utils/**"
       instructions: >
         Low-level utilities. get.js defaults invoke to false — callers must opt in explicitly.
