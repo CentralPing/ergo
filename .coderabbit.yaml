@@ -1,15 +1,56 @@
 language: en-US
+tone_instructions: >
+  Focus on RFC compliance, security hardening (prototype pollution, injection,
+  timing attacks), performance (avoid async overhead), and the Fast Fail pipeline
+  contract. Verify null-prototype policy and {value, response} return convention.
 reviews:
-  profile: chill
+  profile: assertive
   request_changes_workflow: true
   high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  sequence_diagrams: true
+  review_details: true
   poem: false
   review_status: true
+  related_issues: true
+  related_prs: true
+  assess_linked_issues: true
+  estimate_code_review_effort: true
   path_filters:
     - "!assets/**"
     - "!benchmarks/**"
+  path_instructions:
+    - path: "lib/**"
+      instructions: >
+        Shared primitives — pure functions with no transport or framework dependencies.
+        Must use null-prototype objects (Object.create(null)) for user-input-derived data.
+        Use undefined (not null) for absent values. No HTTP or framework imports.
+    - path: "http/**"
+      instructions: >
+        Pipeline middleware factories. Must return {value?, response?} format. Setting
+        responseAcc.statusCode breaks the pipeline — never throw httpErrors() for expected
+        outcomes. Verify JSDoc conventions: lowercase primitives, @returns not @return,
+        import('node:...') for built-in Node.js types.
+    - path: "utils/**"
+      instructions: >
+        Low-level utilities. get.js defaults invoke to false — callers must opt in explicitly.
+        No mutation of req objects. Prefer ?? over || for nullish defaults.
   auto_review:
     enabled: true
     drafts: false
 chat:
   auto_reply: true
+knowledge_base:
+  learnings:
+    scope: auto
+  linked_repositories:
+    - repository: "CentralPing/ergo-router"
+      instructions: >
+        REST-compliant router that consumes ergo's shared primitives from lib/.
+        Changes to lib/cors.js, lib/rate-limit.js, lib/security-headers.js,
+        lib/attach-instance.js, lib/vary.js, or lib/sanitize-quoted-string.js
+        may affect ergo-router's transport adapters.
+    - repository: "CentralPing/json-api-query"
+      instructions: >
+        Standalone JSON:API query validator. ergo vendors this at lib/json-api-query/.
+        Schema or validation changes should be synchronized.
