@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774451038942,
+  "lastUpdate": 1774452896254,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -1315,6 +1315,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d90f74dae8d4e77466f084171d430fd23123765e",
+          "message": "ci: enhance CodeRabbit config with assertive profile and path instructions (#16)\n\n* ci: enhance CodeRabbit config with assertive profile and path instructions\n\n- Switch profile from chill to assertive for security-critical reviews\n- Add tone_instructions focused on RFC compliance and Fast Fail contract\n- Add path_instructions for lib/ (shared primitives), http/ (middleware),\n  and utils/ (low-level utilities)\n- Enable sequence_diagrams, review_details, related_issues/PRs,\n  effort estimation\n- Add linked_repositories for ergo-router and json-api-query\n- Add knowledge_base with auto-scoped learnings\n\n* ci: generalize http path instruction to contract language\n\nReplace internal symbol reference (responseAcc.statusCode) with\ncontract-focused guidance per CodeRabbit review feedback.\n\n* ci: trigger CodeRabbit re-review",
+          "timestamp": "2026-03-25T11:34:35-04:00",
+          "tree_id": "f208fbc20453f46c46aa765af61ef8c918efa943",
+          "url": "https://github.com/CentralPing/ergo/commit/d90f74dae8d4e77466f084171d430fd23123765e"
+        },
+        "date": 1774452895752,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
