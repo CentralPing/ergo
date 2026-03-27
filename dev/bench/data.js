@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774452896254,
+  "lastUpdate": 1774647364975,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -1354,6 +1354,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "8934655f54b685bf728f62da86a00214e199a24f",
+          "message": "build(deps): Bump codecov/codecov-action from 5.5.3 to 6.0.0",
+          "timestamp": "2026-03-25T15:37:45Z",
+          "url": "https://github.com/CentralPing/ergo/pull/17/commits/8934655f54b685bf728f62da86a00214e199a24f"
+        },
+        "date": 1774647364101,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.027,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
