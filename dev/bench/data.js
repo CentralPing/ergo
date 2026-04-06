@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775488555330,
+  "lastUpdate": 1775488625150,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -1681,6 +1681,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c00c9656379b544ec8886796f5608f6ca5b88033",
+          "message": "build(deps-dev): Bump undici in the dev-dependencies group (#20)\n\nBumps the dev-dependencies group with 1 update: [undici](https://github.com/nodejs/undici).\n\n\nUpdates `undici` from 7.24.7 to 8.0.1\n- [Release notes](https://github.com/nodejs/undici/releases)\n- [Commits](https://github.com/nodejs/undici/compare/v7.24.7...v8.0.1)\n\n---\nupdated-dependencies:\n- dependency-name: undici\n  dependency-version: 8.0.1\n  dependency-type: direct:development\n  update-type: version-update:semver-major\n  dependency-group: dev-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Jason Cust <JasonCust@users.noreply.github.com>",
+          "timestamp": "2026-04-06T11:16:47-04:00",
+          "tree_id": "9ef6c1319dbbedb0ff695bee06f75993044b15dc",
+          "url": "https://github.com/CentralPing/ergo/commit/c00c9656379b544ec8886796f5608f6ca5b88033"
+        },
+        "date": 1775488624569,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.017,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
