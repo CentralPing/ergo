@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1776461795835,
+  "lastUpdate": 1777066570839,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -1740,6 +1740,41 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/CentralPing/ergo/pull/21/commits/95978330f6345d7737d3d884693d6f244946a2de"
         },
         "date": 1776461794970,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "e8e5da54a30ac5a9dbf09f489568c60bb3a0fa30",
+          "message": "build(deps): Bump actions/setup-node from 6.3.0 to 6.4.0",
+          "timestamp": "2026-04-06T15:16:56Z",
+          "url": "https://github.com/CentralPing/ergo/pull/22/commits/e8e5da54a30ac5a9dbf09f489568c60bb3a0fa30"
+        },
+        "date": 1777066570380,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
