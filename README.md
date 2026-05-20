@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/CentralPing/ergo/actions/workflows/ci.yml/badge.svg)](https://github.com/CentralPing/ergo/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/CentralPing/ergo/branch/main/graph/badge.svg)](https://codecov.io/gh/CentralPing/ergo)
-[![npm version](https://img.shields.io/npm/v/ergo.svg)](https://www.npmjs.com/package/ergo)
+[![npm version](https://img.shields.io/npm/v/@centralping/ergo.svg)](https://www.npmjs.com/package/@centralping/ergo)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/CentralPing/ergo/badge)](https://scorecard.dev/viewer/?uri=github.com/CentralPing/ergo)
 [![Node.js >=22](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -48,7 +48,7 @@ Stages run serially. If any middleware throws, the pipeline stops immediately an
 ## Installation
 
 ```bash
-npm install ergo
+npm install @centralping/ergo
 ```
 
 Requires **Node.js >= 22**.
@@ -57,7 +57,7 @@ Requires **Node.js >= 22**.
 
 ```js
 import {createServer} from 'node:http';
-import {compose, handler, logger, cors, authorization, body, send} from 'ergo';
+import {compose, handler, logger, cors, authorization, body, send} from '@centralping/ergo';
 
 const pipeline = compose(
   [logger(), [], 'log'],
