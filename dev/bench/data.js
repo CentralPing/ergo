@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779299293287,
+  "lastUpdate": 1779299308993,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -2612,6 +2612,41 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/CentralPing/ergo/commit/19f6538d104049f568a535bd3dc589c0674302b7"
         },
         "date": 1779299292938,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "4c98dcc2f182e47b13a3ca0c775955808c4346c9",
+          "message": "docs: update README with @centralping/ergo namespace",
+          "timestamp": "2026-05-20T17:47:18Z",
+          "url": "https://github.com/CentralPing/ergo/pull/31/commits/4c98dcc2f182e47b13a3ca0c775955808c4346c9"
+        },
+        "date": 1779299308065,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
