@@ -5,7 +5,9 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "es2022",
-    "noEmit": true
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "types"
   },
   "include": ["http/**/*.js", "lib/**/*.js", "utils/**/*.js"],
   "exclude": ["**/*.spec.*.js"]

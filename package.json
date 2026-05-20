@@ -1,28 +1,65 @@
 {
   "name": "@centralping/ergo",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.1",
   "description": "A Fast Fail REST API toolkit for Node.js -- composable middleware with structured Negotiation, Authorization, Validation, and Execution stages.",
   "main": "http/index.js",
   "type": "module",
+  "types": "types/http/index.d.ts",
   "exports": {
-    ".": "./http/index.js",
-    "./http": "./http/index.js",
-    "./http/*": "./http/*.js",
-    "./lib/cookie": "./lib/cookie/index.js",
-    "./lib/json-api-query": "./lib/json-api-query/index.js",
-    "./lib/*": "./lib/*.js",
-    "./utils/buffers": "./utils/buffers/index.js",
-    "./utils/iterables": "./utils/iterables/index.js",
-    "./utils/observables": "./utils/observables/index.js",
-    "./utils/streams": "./utils/streams/index.js",
-    "./utils/*": "./utils/*.js"
+    ".": {
+      "types": "./types/http/index.d.ts",
+      "default": "./http/index.js"
+    },
+    "./http": {
+      "types": "./types/http/index.d.ts",
+      "default": "./http/index.js"
+    },
+    "./http/*": {
+      "types": "./types/http/*.d.ts",
+      "default": "./http/*.js"
+    },
+    "./lib/cookie": {
+      "types": "./types/lib/cookie/index.d.ts",
+      "default": "./lib/cookie/index.js"
+    },
+    "./lib/json-api-query": {
+      "types": "./types/lib/json-api-query/index.d.ts",
+      "default": "./lib/json-api-query/index.js"
+    },
+    "./lib/*": {
+      "types": "./types/lib/*.d.ts",
+      "default": "./lib/*.js"
+    },
+    "./utils/buffers": {
+      "types": "./types/utils/buffers/index.d.ts",
+      "default": "./utils/buffers/index.js"
+    },
+    "./utils/iterables": {
+      "types": "./types/utils/iterables/index.d.ts",
+      "default": "./utils/iterables/index.js"
+    },
+    "./utils/observables": {
+      "types": "./types/utils/observables/index.d.ts",
+      "default": "./utils/observables/index.js"
+    },
+    "./utils/streams": {
+      "types": "./types/utils/streams/index.d.ts",
+      "default": "./utils/streams/index.js"
+    },
+    "./utils/*": {
+      "types": "./types/utils/*.d.ts",
+      "default": "./utils/*.js"
+    }
   },
   "files": [
     "http/",
     "lib/",
     "utils/",
+    "types/",
+    "!**/*.spec.*.js",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=22"
@@ -35,7 +72,8 @@
     "test": "c8 node --test \"**/*.spec.unit.js\" \"**/*.spec.func.js\"",
     "test:watch": "node --test --watch \"**/*.spec.unit.js\" \"**/*.spec.func.js\"",
     "preversion": "npm test",
-    "prepublishOnly": "npm test",
+    "types": "tsc",
+    "prepublishOnly": "npm test && npm run types",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
@@ -91,6 +129,7 @@
     "lint-staged": "^17.0.3",
     "prettier": "^3.8.1",
     "simple-git-hooks": "^2.12.1",
+    "typescript": "^6.0.3",
     "undici": "^8.0.1"
   },
   "c8": {

@@ -149,7 +149,7 @@ export default ({
           ({
             type,
             parameters: {charset: charsetEncoding = charsetEncoding, boundary}
-          } = parse(req));
+          } = parse(ctHeader));
         } catch (err) {
           throw errors.Unsupported({prop: 'Content-Type', value: ctHeader, err});
         }
