@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779299327732,
+  "lastUpdate": 1779310483084,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -2701,6 +2701,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "75ef6f6a21f95e6e32c1dd5ee93783a7d3d0e723",
+          "message": "docs: namespace audit — fix JSDoc imports, README Quick Start, stale links (#34)",
+          "timestamp": "2026-05-20T18:30:59Z",
+          "url": "https://github.com/CentralPing/ergo/pull/35/commits/75ef6f6a21f95e6e32c1dd5ee93783a7d3d0e723"
+        },
+        "date": 1779310482141,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
