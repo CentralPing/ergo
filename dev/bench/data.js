@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779299210530,
+  "lastUpdate": 1779299293287,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -2578,6 +2578,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.018,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "19f6538d104049f568a535bd3dc589c0674302b7",
+          "message": "build(deps): Bump the production-dependencies group across 1 directory with 2 updates (#30)\n\nBumps the production-dependencies group with 2 updates in the / directory: [ajv](https://github.com/ajv-validator/ajv) and [content-type](https://github.com/jshttp/content-type).\n\n\nUpdates `ajv` from 8.18.0 to 8.20.0\n- [Release notes](https://github.com/ajv-validator/ajv/releases)\n- [Commits](https://github.com/ajv-validator/ajv/compare/v8.18.0...v8.20.0)\n\nUpdates `content-type` from 1.0.5 to 2.0.0\n- [Release notes](https://github.com/jshttp/content-type/releases)\n- [Changelog](https://github.com/jshttp/content-type/blob/master/HISTORY.md)\n- [Commits](https://github.com/jshttp/content-type/compare/v1.0.5...v2.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: ajv\n  dependency-version: 8.20.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: production-dependencies\n- dependency-name: content-type\n  dependency-version: 2.0.0\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n  dependency-group: production-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Jason Cust <JasonCust@users.noreply.github.com>",
+          "timestamp": "2026-05-20T13:47:13-04:00",
+          "tree_id": "3cce7101eb836c3b76b7ce0283e836b9eeab3b98",
+          "url": "https://github.com/CentralPing/ergo/commit/19f6538d104049f568a535bd3dc589c0674302b7"
+        },
+        "date": 1779299292938,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
             "unit": "us/op"
           },
           {
