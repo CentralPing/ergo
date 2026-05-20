@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "ergo": "file:packages/ergo",
-    "ergo-router": "file:packages/ergo-router"
+    "@centralping/ergo": "file:packages/ergo",
+    "@centralping/ergo-router": "file:packages/ergo-router"
   }
 }

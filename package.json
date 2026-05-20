@@ -1,5 +1,5 @@
 {
-  "name": "ergo",
+  "name": "@centralping/ergo",
   "version": "0.1.0",
   "description": "A Fast Fail REST API toolkit for Node.js -- composable middleware with structured Negotiation, Authorization, Validation, and Execution stages.",
   "main": "http/index.js",
@@ -68,6 +68,9 @@
   "bugs": {
     "url": "https://github.com/CentralPing/ergo/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "homepage": "https://github.com/CentralPing/ergo",
   "funding": {
     "type": "github",
@@ -85,7 +88,7 @@
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.4.0",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.3",
     "prettier": "^3.8.1",
     "simple-git-hooks": "^2.12.1",
     "undici": "^8.0.1"
