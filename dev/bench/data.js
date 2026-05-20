@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779295317007,
+  "lastUpdate": 1779295390899,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -2226,6 +2226,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5c3410461c02949ae9a37584f0b73d0eb29f1b36",
+          "message": "build(deps-dev): Bump lint-staged in the dev-dependencies group (#26)\n\nBumps the dev-dependencies group with 1 update: [lint-staged](https://github.com/lint-staged/lint-staged).\n\n\nUpdates `lint-staged` from 16.4.0 to 17.0.3\n- [Release notes](https://github.com/lint-staged/lint-staged/releases)\n- [Changelog](https://github.com/lint-staged/lint-staged/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/lint-staged/lint-staged/compare/v16.4.0...v17.0.3)\n\n---\nupdated-dependencies:\n- dependency-name: lint-staged\n  dependency-version: 17.0.3\n  dependency-type: direct:development\n  update-type: version-update:semver-major\n  dependency-group: dev-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-05-20T16:42:35Z",
+          "tree_id": "ebe145f5232aa14ca933317ed0546b34e60fec9c",
+          "url": "https://github.com/CentralPing/ergo/commit/5c3410461c02949ae9a37584f0b73d0eb29f1b36"
+        },
+        "date": 1779295390560,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
