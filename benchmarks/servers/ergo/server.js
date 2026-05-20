@@ -26,7 +26,7 @@
  * authorizer without decoding.
  */
 
-import createRouter from 'ergo-router';
+import createRouter from '@centralping/ergo-router';
 
 const PORT = Number(process.env.PORT) || 3000;
 
