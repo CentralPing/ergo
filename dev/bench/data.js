@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779297857784,
+  "lastUpdate": 1779298590089,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -2370,6 +2370,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dc1721cc5ce21733fe398819594f4480bcf0caca",
+          "message": "chore: migrate to @centralping/ergo namespace (#29)\n\n- Rename package from 'ergo' to '@centralping/ergo'\n- Add publishConfig with public access\n- Commit package-lock.json (enables npm ci, improves OpenSSF score)\n- Update CI workflows to use npm ci\n- Update benchmark server dependencies and imports\n- Update repository dispatch payloads",
+          "timestamp": "2026-05-20T13:35:59-04:00",
+          "tree_id": "fd015e16436a1b9a7764a44413344260ea067819",
+          "url": "https://github.com/CentralPing/ergo/commit/dc1721cc5ce21733fe398819594f4480bcf0caca"
+        },
+        "date": 1779298589223,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
