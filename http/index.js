@@ -1,11 +1,11 @@
 /**
- * @fileoverview Entry point for the ergo package.
+ * @fileoverview Entry point for the @centralping/ergo package.
  *
- * Re-exports the main module, enabling both `import 'ergo'` (ESM)
- * and `require('ergo')` (CJS compat) as equivalent entry points.
+ * Re-exports the main module for ESM consumers:
+ * `import { handler, send } from '@centralping/ergo'`
  *
- * @module ergo
- * @version 0.1.0
+ * @module @centralping/ergo
+ * @version 0.1.0-beta.1
  * @since 0.1.0
  * @requires ./main.js
  */
