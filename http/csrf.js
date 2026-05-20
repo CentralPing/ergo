@@ -11,13 +11,12 @@
  * The CSRF UUID is stored in a separate cookie so the token can be regenerated independently.
  *
  * @module http/csrf
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/csrf.js
  * @requires ../utils/http-errors.js
  *
  * @example
- * import {compose, cookie, csrf} from 'ergo';
+ * import {compose, cookie, csrf} from '@centralping/ergo';
  *
  * const csrfMiddleware = csrf({secret: process.env.CSRF_SECRET});
  *

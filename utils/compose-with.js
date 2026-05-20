@@ -21,13 +21,12 @@
  * for compatibility with simple middleware that only produce domain data.
  *
  * @module utils/compose-with
- * @version 0.2.0
  * @since 0.1.0
  * @requires ./compose.js
  * @requires ./set.js
  *
  * @example
- * import compose, {createResponseAcc} from 'ergo/utils/compose-with';
+ * import compose, {createResponseAcc} from '@centralping/ergo/utils/compose-with';
  *
  * const responseAcc = createResponseAcc();
  * const pipeline = compose(

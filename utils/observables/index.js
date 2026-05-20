@@ -6,7 +6,6 @@
  * body parsing and other real-time data flows.
  *
  * @module utils/observables
- * @version 0.1.0
  * @since 0.1.0
  * @requires ./buffer-split.js
  * @requires ./chain.js

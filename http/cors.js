@@ -10,13 +10,12 @@
  * Pre-flight `OPTIONS` requests should be handled at the router level using `ergo-router`.
  *
  * @module http/cors
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/cors.js
  * @requires ../utils/http-errors.js
  *
  * @example
- * import {compose, cors} from 'ergo';
+ * import {compose, cors} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [cors({

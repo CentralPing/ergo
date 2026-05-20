@@ -6,11 +6,10 @@
  * Array nodes are created when the next path segment is a valid integer string.
  *
  * @module utils/set
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import set from 'ergo/utils/set';
+ * import set from '@centralping/ergo/utils/set';
  *
  * const obj = {};
  * set(obj, 'a.b.c', 42);   // obj => {a: {b: {c: 42}}}

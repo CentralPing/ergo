@@ -8,12 +8,11 @@
  * Used by `lib/body/multiparse.js` for multipart boundary splitting.
  *
  * @module utils/iterables/buffer-split
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../buffers/split.js
  *
  * @example
- * import {chain, bufferSplit, reduce} from 'ergo/utils/iterables';
+ * import {chain, bufferSplit, reduce} from '@centralping/ergo/utils/iterables';
  *
  * const chunks = [Buffer.from('a--b--c')];
  * const result = chain(chunks, bufferSplit('--'), reduce((acc, [, b]) => [...acc, b.toString()], []));

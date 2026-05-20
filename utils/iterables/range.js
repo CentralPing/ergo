@@ -5,11 +5,10 @@
  * stepping by `step`. Mirrors Python's `range()` behaviour.
  *
  * @module utils/iterables/range
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import range from 'ergo/utils/iterables/range';
+ * import range from '@centralping/ergo/utils/iterables/range';
  *
  * [...range(5)]        // => [0, 1, 2, 3, 4]
  * [...range(1, 5)]     // => [1, 2, 3, 4]

@@ -9,11 +9,10 @@
  * Used throughout Ergo for duck-typing checks (e.g. `type(x) === 'AsyncGeneratorFunction'`).
  *
  * @module utils/type
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import type from 'ergo/utils/type';
+ * import type from '@centralping/ergo/utils/type';
  *
  * type(42)              // 'Number'
  * type(NaN)             // 'NaN'

@@ -6,12 +6,11 @@
  * async generators; sync transforms produce sync generators.
  *
  * @module utils/iterables/map
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../type.js
  *
  * @example
- * import {chain, map} from 'ergo/utils/iterables';
+ * import {chain, map} from '@centralping/ergo/utils/iterables';
  *
  * [...chain([1, 2, 3], map(x => x * 2))] // => [2, 4, 6]
  *

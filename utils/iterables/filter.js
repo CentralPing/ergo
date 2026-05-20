@@ -6,11 +6,10 @@
  * to the predicate (same signature as `Array.prototype.filter`).
  *
  * @module utils/iterables/filter
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import {chain, filter} from 'ergo/utils/iterables';
+ * import {chain, filter} from '@centralping/ergo/utils/iterables';
  *
  * [...chain([1, 2, 3, 4], filter(x => x % 2 === 0))] // => [2, 4]
  */

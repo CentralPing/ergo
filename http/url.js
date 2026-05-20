@@ -11,12 +11,11 @@
  * - `search` is the raw query string including the `?` prefix, or `undefined`
  *
  * @module http/url
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/query.js
  *
  * @example
- * import {compose, url} from 'ergo';
+ * import {compose, url} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [url(), 'url'],

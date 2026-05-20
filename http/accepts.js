@@ -10,13 +10,12 @@
  * Fast Fail pipeline.
  *
  * @module http/accepts
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/accepts.js
  * @requires ../utils/http-errors.js
  *
  * @example
- * import {compose, accepts} from 'ergo';
+ * import {compose, accepts} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [accepts({types: ['application/json']}), 'accepts'],

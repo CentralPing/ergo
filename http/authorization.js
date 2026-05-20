@@ -10,13 +10,12 @@
  * response header (RFC 7235).
  *
  * @module http/authorization
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/authorization.js
  * @requires ../utils/http-errors.js
  *
  * @example
- * import {compose, authorization} from 'ergo';
+ * import {compose, authorization} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [authorization({

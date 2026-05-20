@@ -10,12 +10,11 @@
  * or execution.
  *
  * @module http/rate-limit
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/rate-limit.js
  *
  * @example
- * import {compose, rateLimit} from 'ergo';
+ * import {compose, rateLimit} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [rateLimit({max: 100, windowMs: 60000}), 'rateLimit'],

@@ -8,12 +8,11 @@
  * Delegates tuple construction to `lib/security-headers.js` (the shared primitive).
  *
  * @module http/security-headers
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/security-headers.js
  *
  * @example
- * import {compose, securityHeaders} from 'ergo';
+ * import {compose, securityHeaders} from '@centralping/ergo';
  *
  * // Use defaults
  * const pipeline = compose(

@@ -19,11 +19,10 @@
  * of ergo's built-in middleware).
  *
  * @module utils/compose
- * @version 0.2.0
  * @since 0.1.0
  *
  * @example
- * import compose from 'ergo/utils/compose';
+ * import compose from '@centralping/ergo/utils/compose';
  *
  * const pipeline = compose(
  *   async (req, res) => ({user: await getUser(req)}),

@@ -8,13 +8,12 @@
  * If no generator is provided, a no-op generator is used (pure passthrough).
  *
  * @module utils/streams/tee
- * @version 0.1.0
  * @since 0.1.0
  * @requires node:stream
  *
  * @example
  * import {pipeline} from 'node:stream';
- * import tee from 'ergo/utils/streams/tee';
+ * import tee from '@centralping/ergo/utils/streams/tee';
  *
  * async function* inspect(gen) {
  *   let chunk;

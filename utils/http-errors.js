@@ -15,14 +15,13 @@
  * catches them and forwards to `send()` for serialization.
  *
  * @module utils/http-errors
- * @version 0.1.0
  * @since 0.1.0
  * @requires node:http
  *
  * @see {@link https://www.rfc-editor.org/rfc/rfc9457 RFC 9457 - Problem Details for HTTP APIs}
  *
  * @example
- * import httpErrors from 'ergo/utils/http-errors';
+ * import httpErrors from '@centralping/ergo/utils/http-errors';
  *
  * throw httpErrors(404);
  * // Error { name: 'NotFound', status: 404, type: 'https://...', title: 'Not Found', detail: 'Not Found' }

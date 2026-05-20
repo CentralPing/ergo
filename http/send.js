@@ -29,7 +29,6 @@
  * - Optional response envelope for 2xx Object bodies
  *
  * @module http/send
- * @version 0.2.0
  * @since 0.1.0
  * @requires node:stream
  * @requires node:http
@@ -38,7 +37,7 @@
  * @requires ../lib/vary.js
  *
  * @example
- * import {send, createResponseAcc} from 'ergo';
+ * import {send, createResponseAcc} from '@centralping/ergo';
  *
  * const writer = send({etag: true});
  * // After pipeline completes:

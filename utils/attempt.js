@@ -7,11 +7,10 @@
  * Used by `http/handler.js` to wrap the try pipeline with an error handler pipeline.
  *
  * @module utils/attempt
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import attempt from 'ergo/utils/attempt';
+ * import attempt from '@centralping/ergo/utils/attempt';
  *
  * const safe = attempt(
  *   async (req, res) => { throw new Error('oops'); },
