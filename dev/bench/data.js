@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779335170395,
+  "lastUpdate": 1779335328569,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -2771,6 +2771,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4a74df45e7456079a00f9fa6a828906c17f84ae2",
+          "message": "docs: namespace audit — fix JSDoc imports, README Quick Start, stale links (#34) (#35)\n\nBulk-update all 63 JSDoc @example imports from bare 'ergo' to '@centralping/ergo'.\nFix @module tag in http/main.js. Drop per-module @version tags (kept at entry point only).\n\nFix README Quick Start for v2 compose API:\n- [fn, setPath] tuples (not 3-element)\n- v2 return shape {response: {...}}\n- handler(pipeline) without send() arg\n- Remove unused send import\n\nFix broken doc links (/api/ergo/ -> /packages/ergo/).\nUpdate DECISIONS.md for scoped npm identity and resolved publishing status.\nRegenerate package-lock.json to sync version 0.1.0-beta.1.",
+          "timestamp": "2026-05-21T03:48:33Z",
+          "tree_id": "73fc76e7bdb287edf1fc92f761a7e821d421ec3e",
+          "url": "https://github.com/CentralPing/ergo/commit/4a74df45e7456079a00f9fa6a828906c17f84ae2"
+        },
+        "date": 1779335328265,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.008,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
