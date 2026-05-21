@@ -16,7 +16,7 @@
  * @since 0.1.0
  *
  * @example
- * import {handler, compose, send, logger, authorization, body} from '@centralping/ergo';
+ * import {handler, compose, logger, authorization, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [logger(), 'log'],
