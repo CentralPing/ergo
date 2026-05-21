@@ -5,7 +5,6 @@
  * transformed and forwarded downstream via the iterator's `.next()`.
  *
  * @module utils/observables/map
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example

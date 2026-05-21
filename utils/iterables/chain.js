@@ -8,11 +8,10 @@
  * This is the core primitive for building lazy data pipelines with the iterable utilities.
  *
  * @module utils/iterables/chain
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import {chain, map, filter, reduce} from 'ergo/utils/iterables';
+ * import {chain, map, filter, reduce} from '@centralping/ergo/utils/iterables';
  *
  * chain(
  *   [1, 2, 3, 4, 5],

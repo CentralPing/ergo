@@ -6,11 +6,10 @@
  * flag is added to avoid infinite loops with stateful regexes.
  *
  * @module utils/iterables/exec-all
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import execAll from 'ergo/utils/iterables/exec-all';
+ * import execAll from '@centralping/ergo/utils/iterables/exec-all';
  *
  * const findWords = execAll(/([a-z]+)/ig);
  * [...findWords('hello world')] // => [['hello'], ['world']]

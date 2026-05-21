@@ -17,7 +17,6 @@
  * 3-stream pipeline for reduced per-request overhead.
  *
  * @module http/body
- * @version 0.1.0
  * @since 0.1.0
  * @requires node:stream
  * @requires node:zlib
@@ -29,7 +28,7 @@
  * @requires ../utils/http-errors.js
  *
  * @example
- * import {compose, body} from 'ergo';
+ * import {compose, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [body({limit: 2 * 1024 * 1024}), 'body'],

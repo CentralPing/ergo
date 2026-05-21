@@ -6,13 +6,12 @@
  * - Rename tuples: `pick(obj, ['a.b', 'c'])` extracts `obj.a.b` as `result.c`
  *
  * @module utils/pick
- * @version 0.1.0
  * @since 0.1.0
  * @requires ./get.js
  * @requires ./set.js
  *
  * @example
- * import pick from 'ergo/utils/pick';
+ * import pick from '@centralping/ergo/utils/pick';
  *
  * pick({a: {b: 1}, c: 2}, 'a.b', 'c')
  * // => {a: {b: 1}, c: 2}

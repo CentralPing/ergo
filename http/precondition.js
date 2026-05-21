@@ -10,11 +10,10 @@
  * inspection that short-circuits before authorization, body parsing, or execution.
  *
  * @module http/precondition
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import {compose, precondition} from 'ergo';
+ * import {compose, precondition} from '@centralping/ergo';
  *
  * // Enforce on all requests (method scoping handled by pipeline builder)
  * const pipeline = compose(

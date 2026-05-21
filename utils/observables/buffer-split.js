@@ -6,7 +6,6 @@
  * integration with observable-style pipelines built with `utils/observables/chain`.
  *
  * @module utils/observables/buffer-split
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../buffers/split.js
  *

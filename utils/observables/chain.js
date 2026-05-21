@@ -6,7 +6,6 @@
  * The last generator in the array is the sink.
  *
  * @module utils/observables/chain
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../type.js
  */

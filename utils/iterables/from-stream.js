@@ -6,11 +6,10 @@
  * interface for code that receives streams and needs to iterate them.
  *
  * @module utils/iterables/from-stream
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import fromStream from 'ergo/utils/iterables/from-stream';
+ * import fromStream from '@centralping/ergo/utils/iterables/from-stream';
  * import {Readable} from 'node:stream';
  *
  * const readable = Readable.from(['hello', ' ', 'world']);

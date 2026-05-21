@@ -9,12 +9,11 @@
  * are populated before validation runs.
  *
  * @module http/validate
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/validate.js
  *
  * @example
- * import {compose, body, url, validate} from 'ergo';
+ * import {compose, body, url, validate} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [body(), 'body'],

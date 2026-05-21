@@ -9,11 +9,10 @@
  * match state (`partial`) for the next chunk.
  *
  * @module utils/buffers/match
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import bufferMatch from 'ergo/utils/buffers/match';
+ * import bufferMatch from '@centralping/ergo/utils/buffers/match';
  *
  * const {matches} = bufferMatch(Buffer.from('hello world'), Buffer.from('l'));
  * // matches => [2, 3, 9]

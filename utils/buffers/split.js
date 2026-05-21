@@ -8,13 +8,12 @@
  * Returns `{buffers, partial, lookup}` where `buffers` is the array of Buffer slices.
  *
  * @module utils/buffers/split
- * @version 0.1.0
  * @since 0.1.0
  * @requires ./match.js
  * @requires ../get.js
  *
  * @example
- * import bufferSplit from 'ergo/utils/buffers/split';
+ * import bufferSplit from '@centralping/ergo/utils/buffers/split';
  *
  * const {buffers} = bufferSplit(Buffer.from('a--b--c'), Buffer.from('--'));
  * // buffers => [Buffer<'a'>, Buffer<'b'>, Buffer<'c'>]

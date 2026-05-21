@@ -12,12 +12,11 @@
  * and other cookie-based workflows.
  *
  * @module http/cookie
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/cookie/index.js
  *
  * @example
- * import {compose, cookie} from 'ergo';
+ * import {compose, cookie} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [cookie(), 'cookies'],

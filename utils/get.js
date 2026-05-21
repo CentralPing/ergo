@@ -6,11 +6,10 @@
  * - Returns `undefined` gracefully when a step is missing (`safe: true`)
  *
  * @module utils/get
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import get from 'ergo/utils/get';
+ * import get from '@centralping/ergo/utils/get';
  *
  * get({a: {b: {c: 42}}}, 'a.b.c') // => 42
  * get({a: null}, 'a.b.c', {safe: true}) // => undefined (no throw)

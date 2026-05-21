@@ -13,13 +13,12 @@
  * - Bodies below the configurable `threshold` byte count (default 1 KiB)
  *
  * @module http/compress
- * @version 0.1.0
  * @since 0.1.0
  * @requires node:zlib
  * @requires negotiator
  *
  * @example
- * import {compose, compress} from 'ergo';
+ * import {compose, compress} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   compress({threshold: 1024, encodings: ['br', 'gzip', 'deflate']}),

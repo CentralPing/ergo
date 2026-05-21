@@ -6,7 +6,6 @@
  *   `chain(source, bufferSplit(sep), map(fn), reduce(fn, init))`
  *
  * @module utils/iterables
- * @version 0.1.0
  * @since 0.1.0
  */
 export {default as bufferSplit} from './buffer-split.js';

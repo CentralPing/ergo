@@ -8,12 +8,11 @@
  * Placed in Stage 1 (Negotiation) — cheap header parse with no I/O.
  *
  * @module http/prefer
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/prefer.js
  *
  * @example
- * import {compose, prefer} from 'ergo';
+ * import {compose, prefer} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [prefer(), 'prefer'],

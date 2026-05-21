@@ -5,7 +5,6 @@
  * downstream iterator, then calls `.return()` to signal completion.
  *
  * @module utils/observables/take
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example

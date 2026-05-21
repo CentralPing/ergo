@@ -5,7 +5,6 @@
  * `import { handler, send } from '@centralping/ergo'`
  *
  * @module @centralping/ergo
- * @version 0.1.0-beta.1
  * @since 0.1.0
  * @requires ./main.js
  */

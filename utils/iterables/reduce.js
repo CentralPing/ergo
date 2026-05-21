@@ -6,11 +6,10 @@
  * least one element, the first element is used as the initial accumulator.
  *
  * @module utils/iterables/reduce
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import {chain, reduce} from 'ergo/utils/iterables';
+ * import {chain, reduce} from '@centralping/ergo/utils/iterables';
  *
  * chain([1, 2, 3, 4], reduce((sum, x) => sum + x, 0)) // => 10
  */

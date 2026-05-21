@@ -14,8 +14,7 @@
  * accumulated under named keys in `domainAcc`; response properties merge
  * into `responseAcc`. `send()` is called post-pipeline by `handler()`.
  *
- * @module ergo
- * @version 0.1.0
+ * @module @centralping/ergo
  * @since 0.1.0
  * @requires ./handler.js
  * @requires ./accepts.js
@@ -42,7 +41,7 @@
  *
  * @example
  * import {compose, handler, logger, cors, authorization, accepts,
- *         cookie, url, body} from 'ergo';
+ *         cookie, url, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   // Stage 1: Negotiation

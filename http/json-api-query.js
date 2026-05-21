@@ -11,13 +11,12 @@
  * Must be placed after `url()` in the pipeline so that `acc.url` is populated.
  *
  * @module http/json-api-query
- * @version 0.1.0
  * @since 0.1.0
  * @requires ../lib/json-api-query/index.js
  * @requires ../utils/http-errors.js
  *
  * @example
- * import {compose, url, jsonApiQuery} from 'ergo';
+ * import {compose, url, jsonApiQuery} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [url(), 'url'],

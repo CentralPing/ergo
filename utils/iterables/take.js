@@ -5,11 +5,10 @@
  * then returns (stops iteration).
  *
  * @module utils/iterables/take
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import {chain, take} from 'ergo/utils/iterables';
+ * import {chain, take} from '@centralping/ergo/utils/iterables';
  *
  * [...chain([1, 2, 3, 4, 5], take(3))] // => [1, 2, 3]
  */

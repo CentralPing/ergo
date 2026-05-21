@@ -6,13 +6,12 @@
  * (InvalidLength). Used by `http/body.js` to enforce size constraints.
  *
  * @module utils/streams/meter
- * @version 0.1.0
  * @since 0.1.0
  * @requires node:stream
  *
  * @example
  * import {pipeline} from 'node:stream';
- * import meter from 'ergo/utils/streams/meter';
+ * import meter from '@centralping/ergo/utils/streams/meter';
  *
  * const m = meter({limit: 1024 * 1024, expected: 512});
  * pipeline(readable, m, writable, err => {

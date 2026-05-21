@@ -23,13 +23,12 @@
  * accidental secret leakage.
  *
  * @module http/logger
- * @version 0.1.0
  * @since 0.1.0
  * @requires node:os
  * @requires node:crypto
  *
  * @example
- * import {compose, logger} from 'ergo';
+ * import {compose, logger} from '@centralping/ergo';
  *
  * const pipeline = compose(
  *   [logger(), 'log'],

@@ -57,20 +57,19 @@ Requires **Node.js >= 22**.
 
 ```js
 import {createServer} from 'node:http';
-import {compose, handler, logger, cors, authorization, body, send} from '@centralping/ergo';
+import {compose, handler, logger, cors, authorization, body} from '@centralping/ergo';
 
 const pipeline = compose(
-  [logger(), [], 'log'],
-  [cors(), [], 'cors'],
+  [logger(), 'log'],
+  [cors(), 'cors'],
   [authorization({strategies: [{type: 'Bearer', authorizer: (_, token) =>
     token === 'my-token' ? {authorized: true, info: {uid: 1}} : {}
-  }]}), [], 'auth'],
-  [body(), [], 'body'],
-  (req, res, {auth, body}) => ({body: {user: auth, data: body.parsed}}),
-  send()
+  }]}), 'auth'],
+  [body(), 'body'],
+  (req, res, acc) => ({response: {body: {user: acc.auth, data: acc.body.parsed}}})
 );
 
-createServer(handler(pipeline, send())).listen(3000);
+createServer(handler(pipeline)).listen(3000);
 ```
 
 ## Middleware Overview
@@ -96,7 +95,7 @@ createServer(handler(pipeline, send())).listen(3000);
 | `cacheControl()` | Cache-Control header management | [RFC 9111](https://www.rfc-editor.org/rfc/rfc9111) |
 | `jsonApiQuery()` | JSON:API query parameter validation | [JSON:API](https://jsonapi.org/) |
 
-See the [full API reference](https://centralping.github.io/api/ergo/) for detailed options and examples.
+See the [full API reference](https://centralping.github.io/packages/ergo/) for detailed options and examples.
 
 ## Standards Compliance
 
@@ -120,8 +119,8 @@ See the [full API reference](https://centralping.github.io/api/ergo/) for detail
 ## Documentation
 
 - [Getting Started](https://centralping.github.io/getting-started/)
-- [API Reference](https://centralping.github.io/api/ergo/)
-- [Architecture & Design](https://centralping.github.io/architecture/)
+- [API Reference](https://centralping.github.io/packages/ergo/)
+- [Fast Fail Pipeline](https://centralping.github.io/concepts/fast-fail/)
 - [Benchmarks](https://centralping.github.io/benchmarks/)
 
 ## Development

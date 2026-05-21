@@ -6,11 +6,10 @@
  * a raw directive string or structured options that are assembled into a directive.
  *
  * @module http/cache-control
- * @version 0.1.0
  * @since 0.1.0
  *
  * @example
- * import {compose, cacheControl} from 'ergo';
+ * import {compose, cacheControl} from '@centralping/ergo';
  *
  * // String shorthand
  * const pipeline = compose(
