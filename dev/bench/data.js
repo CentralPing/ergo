@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779411263007,
+  "lastUpdate": 1779413025556,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -2874,6 +2874,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "77b7add25cb195c84820116642bc51fb7e904252",
+          "message": "docs: enrich API overview JSDoc for TypeDoc landing page (#37)",
+          "timestamp": "2026-05-22T00:54:11Z",
+          "url": "https://github.com/CentralPing/ergo/pull/39/commits/77b7add25cb195c84820116642bc51fb7e904252"
+        },
+        "date": 1779413024639,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.03,
             "unit": "us/op"
           },
           {
