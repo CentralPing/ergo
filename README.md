@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-wordmark-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/logo-wordmark-light.svg">
-    <img alt="ergo" src="assets/logo-wordmark-light.svg" width="240">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CentralPing/ergo/main/assets/logo-wordmark-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/CentralPing/ergo/main/assets/logo-wordmark-light.svg">
+    <img alt="ergo" src="https://raw.githubusercontent.com/CentralPing/ergo/main/assets/logo-wordmark-light.svg" width="240">
   </picture>
 </p>
 
@@ -11,7 +11,7 @@
 [![npm version](https://img.shields.io/npm/v/@centralping/ergo.svg)](https://www.npmjs.com/package/@centralping/ergo)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/CentralPing/ergo/badge)](https://scorecard.dev/viewer/?uri=github.com/CentralPing/ergo)
 [![Node.js >=22](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/CentralPing/ergo/blob/main/LICENSE)
 
 A **Fast Fail** REST API toolkit for Node.js. _ergo_ (error or go) provides composable, stream-native middleware organized around the principle that a server should fail as early as possible -- before doing any expensive work -- through four ordered stages: **Negotiation, Authorization, Validation, and Execution**. Every behavior is backed by an IETF RFC or industry standard, not invented conventions.
 
