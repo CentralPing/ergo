@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779384917772,
+  "lastUpdate": 1779411263007,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -2845,6 +2845,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.008,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6a935934171e6967d70a1b0e4ef18ff40eb331f9",
+          "message": "docs: fix package.json homepage and README URLs for npm rendering (#36) (#38)\n\n- Update homepage to point to documentation site instead of GitHub repo\n- Convert README logo images to absolute raw.githubusercontent.com URLs\n  so they render correctly on npm (relative paths only work on GitHub)\n- Convert LICENSE badge to absolute GitHub URL",
+          "timestamp": "2026-05-21T20:54:06-04:00",
+          "tree_id": "66a4e9c44580617463ad1d4f942a52679b05f7dc",
+          "url": "https://github.com/CentralPing/ergo/commit/6a935934171e6967d70a1b0e4ef18ff40eb331f9"
+        },
+        "date": 1779411262132,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
