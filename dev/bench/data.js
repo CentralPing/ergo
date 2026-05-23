@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779485826859,
+  "lastUpdate": 1779561236456,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -3024,6 +3024,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.007,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6cf01959385f9e7d257aa40e6812bc68fac0802e",
+          "message": "docs: enrich API overview JSDoc for TypeDoc landing page (#37) (#39)",
+          "timestamp": "2026-05-23T14:33:43-04:00",
+          "tree_id": "037b40c10195e69f056dba11636000b783ed191e",
+          "url": "https://github.com/CentralPing/ergo/commit/6cf01959385f9e7d257aa40e6812bc68fac0802e"
+        },
+        "date": 1779561235921,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
