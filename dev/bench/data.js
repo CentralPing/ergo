@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779562369497,
+  "lastUpdate": 1779640357407,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -3246,6 +3246,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8cefd3dfb5d5d17966e7825d02e9dd4a9bef3770",
+          "message": "build(deps-dev): Bump the dev-dependencies group with 3 updates (#46)\n\nBumps the dev-dependencies group with 3 updates: [eslint](https://github.com/eslint/eslint), [globals](https://github.com/sindresorhus/globals) and [prettier](https://github.com/prettier/prettier).\n\n\nUpdates `eslint` from 10.0.3 to 10.4.0\n- [Release notes](https://github.com/eslint/eslint/releases)\n- [Commits](https://github.com/eslint/eslint/compare/v10.0.3...v10.4.0)\n\nUpdates `globals` from 17.4.0 to 17.6.0\n- [Release notes](https://github.com/sindresorhus/globals/releases)\n- [Commits](https://github.com/sindresorhus/globals/compare/v17.4.0...v17.6.0)\n\nUpdates `prettier` from 3.8.1 to 3.8.3\n- [Release notes](https://github.com/prettier/prettier/releases)\n- [Changelog](https://github.com/prettier/prettier/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/prettier/prettier/compare/3.8.1...3.8.3)\n\n---\nupdated-dependencies:\n- dependency-name: eslint\n  dependency-version: 10.4.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-dependencies\n- dependency-name: globals\n  dependency-version: 17.6.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-dependencies\n- dependency-name: prettier\n  dependency-version: 3.8.3\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n  dependency-group: dev-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-05-23T18:53:34Z",
+          "tree_id": "cbdab56d6f0d3a864d78698e959390a368e7c232",
+          "url": "https://github.com/CentralPing/ergo/commit/8cefd3dfb5d5d17966e7825d02e9dd4a9bef3770"
+        },
+        "date": 1779640356946,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
