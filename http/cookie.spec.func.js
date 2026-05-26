@@ -54,4 +54,16 @@ describe('[Contract] http/cookie', () => {
     assert.equal(data.session, null);
     assert.equal(data.user, null);
   });
+
+  it('handles reserved-name cookies without crashing', async () => {
+    const res = await fetch(`${baseUrl}/`, {
+      headers: {cookie: 'set=x; session=abc123; get=y'}
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.session, 'abc123');
+    const setCookie = res.headers.get('set-cookie');
+    assert.ok(setCookie, 'set() should still work after reserved-name filtering');
+    assert.ok(setCookie.includes('response-cookie=set-by-server'));
+  });
 });
