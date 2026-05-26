@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779819254791,
+  "lastUpdate": 1779819427796,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -3355,6 +3355,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.008,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "83ee0023b2e0efba12f675f9ee5f3eeee98a66f5",
+          "message": "fix: update fast-uri to 3.1.2 (CVE remediation) (#43) (#47)",
+          "timestamp": "2026-05-26T14:16:51-04:00",
+          "tree_id": "1d9c21c8de5cc66fa9fe63a669cc9f6105220364",
+          "url": "https://github.com/CentralPing/ergo/commit/83ee0023b2e0efba12f675f9ee5f3eeee98a66f5"
+        },
+        "date": 1779819427437,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
