@@ -16,11 +16,11 @@ describe('[Boundary] http/idempotency', () => {
     });
 
     it('skips GET requests', () => {
-      assert.equal(mw(makeReq('GET', '"k1"'), {}, {}), undefined);
+      assert.deepEqual(mw(makeReq('GET', '"k1"'), {}, {}), {});
     });
 
     it('skips DELETE requests', () => {
-      assert.equal(mw(makeReq('DELETE', '"k1"'), {}, {}), undefined);
+      assert.deepEqual(mw(makeReq('DELETE', '"k1"'), {}, {}), {});
     });
 
     it('processes POST requests', () => {
@@ -35,15 +35,15 @@ describe('[Boundary] http/idempotency', () => {
 
     it('respects custom methods option', () => {
       mw = idempotency({methods: ['PUT']});
-      assert.equal(mw(makeReq('POST', '"k1"'), {}, {}), undefined);
+      assert.deepEqual(mw(makeReq('POST', '"k1"'), {}, {}), {});
       assert.notEqual(mw(makeReq('PUT', '"k1"'), {}, {}), undefined);
     });
   });
 
   describe('required option', () => {
-    it('returns undefined when not required and key missing', () => {
+    it('returns empty object when not required and key missing', () => {
       mw = idempotency();
-      assert.equal(mw(makeReq('POST'), {}, {}), undefined);
+      assert.deepEqual(mw(makeReq('POST'), {}, {}), {});
     });
 
     it('returns 400 when required and key missing', () => {

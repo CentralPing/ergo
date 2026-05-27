@@ -47,7 +47,7 @@ export default function idempotency({store, ttlMs, required = false, methods} = 
   const _methods = methods instanceof Set ? methods : new Set(methods ?? DEFAULT_METHODS);
 
   return (req, _res, domainAcc) => {
-    if (!_methods.has(req.method)) return;
+    if (!_methods.has(req.method)) return {};
 
     const key = parseIdempotencyKey(req.headers?.['idempotency-key']);
 
@@ -60,7 +60,7 @@ export default function idempotency({store, ttlMs, required = false, methods} = 
           }
         };
       }
-      return;
+      return {};
     }
 
     const rawBody = domainAcc?.body?.raw ?? domainAcc?.body?.parsed ?? '';
