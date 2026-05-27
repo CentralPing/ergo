@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779885535360,
+  "lastUpdate": 1779886634837,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -3503,6 +3503,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6c2049cd24eac09f124d27d934bde67c29295aae",
+          "message": "chore: bump version to 0.1.0-beta.2 (#49)\n\nIncludes security fixes since beta.1:\n- prevent cookie jar DoS via reserved property name collision\n- update fast-uri to 3.1.2 (CVE remediation)",
+          "timestamp": "2026-05-27T12:56:28Z",
+          "tree_id": "defe396cdee2f87fcbaa97e18120a95aaef7a965",
+          "url": "https://github.com/CentralPing/ergo/commit/6c2049cd24eac09f124d27d934bde67c29295aae"
+        },
+        "date": 1779886611941,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
