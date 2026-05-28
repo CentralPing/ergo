@@ -80,6 +80,7 @@ import rateLimit from './rate-limit.js';
 import securityHeaders from './security-headers.js';
 import send from './send.js';
 import timeout from './timeout.js';
+import idempotency from './idempotency.js';
 import validate from './validate.js';
 import httpErrors from '../utils/http-errors.js';
 import fromConnect from '../lib/from-connect.js';
@@ -99,6 +100,7 @@ export {
   csrf,
   fromConnect,
   httpErrors,
+  idempotency,
   jsonApiQuery,
   logger,
   prefer,
@@ -126,6 +128,7 @@ export default {
   csrf,
   fromConnect,
   httpErrors,
+  idempotency,
   jsonApiQuery,
   logger,
   prefer,
