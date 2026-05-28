@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779917917814,
+  "lastUpdate": 1779982657410,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -3746,6 +3746,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "09956f805e92eb44c6ceee63eea4036e8876ad04",
+          "message": "feat: add Idempotency-Key header middleware (#53)",
+          "timestamp": "2026-05-27T21:28:06Z",
+          "url": "https://github.com/CentralPing/ergo/pull/54/commits/09956f805e92eb44c6ceee63eea4036e8876ad04"
+        },
+        "date": 1779982656119,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
             "unit": "us/op"
           },
           {
