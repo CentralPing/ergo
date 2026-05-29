@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780086345689,
+  "lastUpdate": 1780086489374,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -3865,6 +3865,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9ac95220f3ecc4124132fe7b5090680580cc9b70",
+          "message": "chore: bump version to 0.1.0-beta.3 (#62) (#63)\n\nIncludes features since beta.2:\n- cursor-based pagination link helpers (#51)\n- Idempotency-Key header middleware (#54)",
+          "timestamp": "2026-05-29T16:27:54-04:00",
+          "tree_id": "61943b8057a987214d6e235052ff9e222375bee4",
+          "url": "https://github.com/CentralPing/ergo/commit/9ac95220f3ecc4124132fe7b5090680580cc9b70"
+        },
+        "date": 1780086488489,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
