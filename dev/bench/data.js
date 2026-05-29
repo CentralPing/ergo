@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780089273010,
+  "lastUpdate": 1780090047051,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4044,6 +4044,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f72510aa025f7dae595a394f24960dc0f8f06d8f",
+          "message": "feat: add ajv-formats for JSON Schema format keyword support (#58) (#64)\n\n* feat: add ajv-formats for JSON Schema format keyword support (#58)\n\n* test: add boundary test for object format config (#58)",
+          "timestamp": "2026-05-29T17:27:08-04:00",
+          "tree_id": "db0302b6da809e095f59766d53b5c907dcd85537",
+          "url": "https://github.com/CentralPing/ergo/commit/f72510aa025f7dae595a394f24960dc0f8f06d8f"
+        },
+        "date": 1780090046076,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
