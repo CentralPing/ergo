@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780090202969,
+  "lastUpdate": 1780090714379,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4118,6 +4118,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a023905de685270002920dd68ede05a2a21663f8",
+          "message": "fix: enforce Fast Fail pipeline contract for accepts, body, and validate (#55, #56, #57) (#65)\n\n* fix: enforce Fast Fail pipeline contract for accepts, body, and validate (#55, #56, #57)\n\n- accepts(): change throwIfFail default from false to true (406 on mismatch)\n- body(): add application/merge-patch+json and application/json-patch+json to default types\n- validate(): resolve params from acc.route.params (ergo-router) with acc.params fallback\n\n* refactor: remove redundant throwIfFail in contract test",
+          "timestamp": "2026-05-29T17:38:17-04:00",
+          "tree_id": "fc2b83612664d4e5e4ab238055ae70674be846d1",
+          "url": "https://github.com/CentralPing/ergo/commit/a023905de685270002920dd68ede05a2a21663f8"
+        },
+        "date": 1780090713991,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
