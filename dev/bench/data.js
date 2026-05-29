@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780093040852,
+  "lastUpdate": 1780097560774,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4187,6 +4187,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "0823555ec71df7f9daf09c0e37d5830446ef4d03",
+          "message": "build(deps-dev): Bump eslint from 10.4.0 to 10.4.1 in the dev-dependencies group",
+          "timestamp": "2026-05-29T21:38:22Z",
+          "url": "https://github.com/CentralPing/ergo/pull/68/commits/0823555ec71df7f9daf09c0e37d5830446ef4d03"
+        },
+        "date": 1780097559861,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
             "unit": "us/op"
           },
           {
