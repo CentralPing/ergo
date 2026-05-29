@@ -63,4 +63,29 @@ describe('[Module] http/validate', () => {
     assert.equal(result.response.detail, 'Validation failed');
     assert.ok(Array.isArray(result.response.details));
   });
+
+  it('returns 422 for invalid format in body schema', () => {
+    const validate = createValidate({
+      body: {
+        type: 'object',
+        properties: {email: {type: 'string', format: 'email'}},
+        required: ['email']
+      }
+    });
+    const result = validate(null, null, {body: {parsed: {email: 'not-an-email'}}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
+    assert.ok(Array.isArray(result.response.details));
+  });
+
+  it('passes valid format in body schema', () => {
+    const validate = createValidate({
+      body: {
+        type: 'object',
+        properties: {email: {type: 'string', format: 'email'}},
+        required: ['email']
+      }
+    });
+    assert.equal(validate(null, null, {body: {parsed: {email: 'alice@example.com'}}}), undefined);
+  });
 });

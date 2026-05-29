@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- JSON Schema `format` keyword support via `ajv-formats`. Standard formats (`email`, `uri`,
+  `date-time`, `uuid`, etc.) are validated by default. Opt out with `formats: false` or select
+  specific formats with an array (e.g. `formats: ['email', 'uri']`). (#58)
+
 ## [0.1.0-beta.1] - 2026-05-20
 
 ### Changed
