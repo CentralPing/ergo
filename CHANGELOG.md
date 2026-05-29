@@ -10,6 +10,12 @@ All notable changes to this project will be documented in this file.
   `date-time`, `uuid`, etc.) are validated by default. Opt out with `formats: false` or select
   specific formats with an array (e.g. `formats: ['email', 'uri']`). (#58)
 
+### Fixed
+
+- **BREAKING**: `accepts()` now defaults `throwIfFail` to `true`, enforcing 406 responses for unsatisfied content negotiation per the Fast Fail pipeline contract. Set `throwIfFail: false` to restore the previous informational-only behavior. (#55)
+- `body()` default types now include `application/merge-patch+json` (RFC 7386) and `application/json-patch+json` (RFC 6902), resolving 415 rejections for valid PATCH content types that ergo-router's `strictPatch` allows. (#56)
+- `validate()` params validation now checks `acc.route.params` (ergo-router convention) with fallback to `acc.params` (standalone), fixing silent no-op validation when used with ergo-router. (#57)
+
 ## [0.1.0-beta.1] - 2026-05-20
 
 ### Changed

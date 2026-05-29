@@ -9,8 +9,8 @@ describe('[Module] http/accepts', () => {
     assert.equal(result.type, 'text/html');
   });
 
-  it('returns undefined type when no type matches', () => {
-    const accepts = createAccepts({types: ['application/json']});
+  it('returns undefined type when no type matches (informational mode)', () => {
+    const accepts = createAccepts({types: ['application/json'], throwIfFail: false});
     const result = accepts({headers: {accept: 'text/plain'}});
     assert.equal(result.type, undefined);
   });

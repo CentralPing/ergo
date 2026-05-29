@@ -2,7 +2,8 @@
  * @fileoverview HTTP middleware factory for request body parsing.
  *
  * Reads and parses the request body according to the declared `Content-Type`. Supports:
- * - `application/json` and `application/vnd.api+json` — parsed via `JSON.parse`
+ * - `application/json`, `application/vnd.api+json`, `application/merge-patch+json`
+ *   (RFC 7386), and `application/json-patch+json` (RFC 6902) — parsed via `JSON.parse`
  * - `application/x-www-form-urlencoded` — parsed via the query string parser
  * - `multipart/form-data` — parsed via the RFC 7578 streaming multipart parser
  *
@@ -128,6 +129,8 @@ export default ({
     types = [
       'application/vnd.api+json',
       'application/json',
+      'application/merge-patch+json',
+      'application/json-patch+json',
       'application/x-www-form-urlencoded',
       'multipart/form-data'
     ],

@@ -1,8 +1,10 @@
 /**
  * @fileoverview HTTP middleware factory for JSON Schema validation.
  *
- * Validates properties from the accumulator (body, url, params) against provided JSON
- * Schemas using AJV. Schemas are compiled once at middleware creation time for performance.
+ * Validates properties from the accumulator (body, url, route params) against provided
+ * JSON Schemas using AJV. Schemas are compiled once at middleware creation time for
+ * performance. Route params are resolved from `acc.route.params` (ergo-router) with
+ * fallback to `acc.params` (standalone).
  *
  * Returns `{response: {statusCode: 422, detail: ...}}` with structured error details on validation failure.
  * Must be placed after `body()` and/or `url()` in the pipeline so accumulator values
@@ -39,7 +41,7 @@ import createValidator from '../lib/validate.js';
  * @param {object} [schemas] - Schema map; each key corresponds to an accumulator property
  * @param {object} [schemas.body] - JSON Schema for the parsed request body
  * @param {object} [schemas.query] - JSON Schema for parsed query parameters
- * @param {object} [schemas.params] - JSON Schema for route path parameters
+ * @param {object} [schemas.params] - JSON Schema for route path parameters (reads `acc.route.params` or `acc.params`)
  * @param {object} [options] - AJV options forwarded to each compiled validator
  * @param {boolean|Array<string>|object} [options.formats] - Format keyword support via
  *   `ajv-formats`; forwarded to `createValidator`. Defaults to all standard formats enabled
@@ -69,8 +71,8 @@ export default (schemas = {}, options = {}) => {
         validators.query(acc.url.query);
       }
 
-      if (validators.params && acc.params) {
-        validators.params(acc.params);
+      if (validators.params && (acc.route?.params ?? acc.params)) {
+        validators.params(acc.route?.params ?? acc.params);
       }
     } catch (err) {
       return {
