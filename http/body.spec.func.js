@@ -63,6 +63,37 @@ describe('[Contract] http/body', () => {
       assert.equal(json.data.type, 'user');
     });
 
+    it('parses application/merge-patch+json body (RFC 7386)', async () => {
+      const payload = JSON.stringify({name: 'updated'});
+      const res = await fetch(`${baseUrl}/`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/merge-patch+json',
+          'content-length': String(Buffer.byteLength(payload))
+        },
+        body: payload
+      });
+      assert.equal(res.status, 200);
+      const json = await res.json();
+      assert.deepEqual(json, {name: 'updated'});
+    });
+
+    it('parses application/json-patch+json body (RFC 6902)', async () => {
+      const payload = JSON.stringify([{op: 'replace', path: '/name', value: 'patched'}]);
+      const res = await fetch(`${baseUrl}/`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json-patch+json',
+          'content-length': String(Buffer.byteLength(payload))
+        },
+        body: payload
+      });
+      assert.equal(res.status, 200);
+      const json = await res.json();
+      assert.ok(Array.isArray(json));
+      assert.equal(json[0].op, 'replace');
+    });
+
     it('returns 413 when body exceeds limit', async () => {
       let baseUrl2;
       let close2;

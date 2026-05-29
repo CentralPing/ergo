@@ -122,7 +122,7 @@ router.get('/cached/users/:id', {
 // Scenario 7: Production Stack -- CORS scoped to this route only via route config.
 router.post('/stack/auth/users', {
   cors: {origin: '*', allowedHeaders: ['Authorization', 'Content-Type']},
-  accepts: {types: ['application/json'], throwIfFail: true},
+  accepts: {types: ['application/json']},
   timeout: {ms: 30000},
   compress: {threshold: 0},
   auth: {strategies: bearerStrategy},

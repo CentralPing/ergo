@@ -49,7 +49,7 @@ describe('[Module] http/validate', () => {
     assert.equal(validate(null, null, {}), undefined);
   });
 
-  it('returns 422 response when params schema fails', () => {
+  it('returns 422 response when params schema fails (acc.params)', () => {
     const validate = createValidate({
       params: {
         type: 'object',
@@ -87,5 +87,36 @@ describe('[Module] http/validate', () => {
       }
     });
     assert.equal(validate(null, null, {body: {parsed: {email: 'alice@example.com'}}}), undefined);
+  });
+
+  it('returns 422 response when params schema fails (acc.route.params)', () => {
+    const validate = createValidate({
+      params: {
+        type: 'object',
+        properties: {id: {type: 'string', pattern: '^[0-9]+$'}},
+        required: ['id']
+      }
+    });
+    const result = validate(null, null, {route: {params: {id: 'notanumber'}}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
+    assert.equal(result.response.detail, 'Validation failed');
+    assert.ok(Array.isArray(result.response.details));
+  });
+
+  it('prefers acc.route.params over acc.params when both exist', () => {
+    const validate = createValidate({
+      params: {
+        type: 'object',
+        properties: {id: {type: 'string', pattern: '^[0-9]+$'}},
+        required: ['id']
+      }
+    });
+    const result = validate(null, null, {
+      route: {params: {id: 'notanumber'}},
+      params: {id: '123'}
+    });
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
   });
 });
