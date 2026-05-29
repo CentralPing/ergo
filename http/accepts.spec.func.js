@@ -9,13 +9,7 @@ describe('[Contract] http/accepts', () => {
   let baseUrl, close;
 
   const pipeline = compose(
-    [
-      createAccepts({
-        types: ['application/json', 'text/html'],
-        throwIfFail: true
-      }),
-      'accepts'
-    ],
+    [createAccepts({types: ['application/json', 'text/html']}), 'accepts'],
     (_req, _res, acc) => ({response: {body: acc.accepts}})
   );
 
