@@ -41,6 +41,8 @@ import createValidator from '../lib/validate.js';
  * @param {object} [schemas.query] - JSON Schema for parsed query parameters
  * @param {object} [schemas.params] - JSON Schema for route path parameters
  * @param {object} [options] - AJV options forwarded to each compiled validator
+ * @param {boolean|Array<string>|object} [options.formats] - Format keyword support via
+ *   `ajv-formats`; forwarded to `createValidator`. Defaults to all standard formats enabled
  * @returns {function} - Ergo middleware `(req, res, acc) => void` that returns `{response: {statusCode: 422}}`
  *   (with `detail` and `details` from AJV) on validation failure
  */
