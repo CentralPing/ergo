@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780097560774,
+  "lastUpdate": 1780097660701,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4227,6 +4227,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "793f168263c66df5ee06e4c1838d5c86976a7183",
+          "message": "build(deps-dev): Bump eslint in the dev-dependencies group (#68)\n\nBumps the dev-dependencies group with 1 update: [eslint](https://github.com/eslint/eslint).\n\n\nUpdates `eslint` from 10.4.0 to 10.4.1\n- [Release notes](https://github.com/eslint/eslint/releases)\n- [Commits](https://github.com/eslint/eslint/compare/v10.4.0...v10.4.1)\n\n---\nupdated-dependencies:\n- dependency-name: eslint\n  dependency-version: 10.4.1\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n  dependency-group: dev-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-05-29T19:34:08-04:00",
+          "tree_id": "e49ccefacc4d81a7eb1221f1692a7a31da3a7a47",
+          "url": "https://github.com/CentralPing/ergo/commit/793f168263c66df5ee06e4c1838d5c86976a7183"
+        },
+        "date": 1780097660309,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
