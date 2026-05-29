@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780090047051,
+  "lastUpdate": 1780090202969,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4078,6 +4078,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "67ae89bcf309b6b51cb7f9edcb3c0b26d1d65d95",
+          "message": "fix: enforce Fast Fail pipeline contract for accepts, body, and validate (#55, #56, #57)",
+          "timestamp": "2026-05-29T21:27:14Z",
+          "url": "https://github.com/CentralPing/ergo/pull/65/commits/67ae89bcf309b6b51cb7f9edcb3c0b26d1d65d95"
+        },
+        "date": 1780090202249,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
