@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780090714379,
+  "lastUpdate": 1780093040852,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4157,6 +4157,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "bdcd826563bdd01e8849991a0bef51f089d7d139",
+          "message": "docs: fix CI dispatch payload format and README license link (#61, #66)",
+          "timestamp": "2026-05-29T21:38:22Z",
+          "url": "https://github.com/CentralPing/ergo/pull/67/commits/bdcd826563bdd01e8849991a0bef51f089d7d139"
+        },
+        "date": 1780093040535,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
