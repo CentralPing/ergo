@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.0-beta.4] - 2026-05-29
+
 ### Added
 
 - JSON Schema `format` keyword support via `ajv-formats`. Standard formats (`email`, `uri`,
