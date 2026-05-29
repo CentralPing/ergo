@@ -34,4 +34,5 @@ jobs:
           token: ${{ secrets.WEBSITE_DISPATCH_TOKEN }}
           repository: CentralPing/centralping.github.io
           event-type: docs-update
-          client-payload: '{"package": "@centralping/ergo", "version": "${{ github.event.release.tag_name }}"}'
+          # deploy.yml expects short name: "ergo" or "ergo-router", not npm scope
+          client-payload: '{"package": "ergo", "version": "${{ github.event.release.tag_name }}"}'

@@ -135,4 +135,4 @@ npm run format      # Prettier
 
 ## License
 
-[MIT](LICENSE) &copy; 2019-present Jason Cust
+[MIT](https://github.com/CentralPing/ergo/blob/main/LICENSE) &copy; 2019-present Jason Cust
