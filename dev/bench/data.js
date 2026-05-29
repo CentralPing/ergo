@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780097687786,
+  "lastUpdate": 1780097848256,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4301,6 +4301,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f3cbc994ce926d05ef65c2a1b871ee1b08f3ad0e",
+          "message": "docs: fix CI dispatch payload format and README license link (#61, #66) (#67)\n\n- Change dispatch package name from \"@centralping/ergo\" to \"ergo\" in\n  ci.yml and release.yml to match deploy.yml's expected short-name format\n- Replace relative LICENSE link in README footer with absolute URL for\n  npm rendering",
+          "timestamp": "2026-05-29T23:37:16Z",
+          "tree_id": "9420e6bce236ece62323430efd00fb8852c62f7f",
+          "url": "https://github.com/CentralPing/ergo/commit/f3cbc994ce926d05ef65c2a1b871ee1b08f3ad0e"
+        },
+        "date": 1780097847952,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
