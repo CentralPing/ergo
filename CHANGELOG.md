@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- TypeScript usage example alongside the JavaScript Quick Start in `README.md`. (#74)
+
 ## [0.1.0-beta.4] - 2026-05-29
 
 ### Added
