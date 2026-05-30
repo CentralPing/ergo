@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: 22
-      - run: npm install --ignore-scripts
+      - run: npm ci --ignore-scripts
       - run: node benchmarks/ci-bench.js | tee output.txt
       - uses: benchmark-action/github-action-benchmark@52576c92bccf6ac60c8223ec7eb2565637cae9ba # v1.22.1
         with:
