@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780120653534,
+  "lastUpdate": 1780177616669,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4375,6 +4375,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7e1aa18bbf4e02ba0c796512843ddf5e174cb4fc",
+          "message": "fix: use npm ci in benchmark workflow (#77) (#78)",
+          "timestamp": "2026-05-30T21:46:44Z",
+          "tree_id": "a1b92f7ac422125c663bc9c8aab94f61ba3585ca",
+          "url": "https://github.com/CentralPing/ergo/commit/7e1aa18bbf4e02ba0c796512843ddf5e174cb4fc"
+        },
+        "date": 1780177616208,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
