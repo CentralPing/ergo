@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780191056830,
+  "lastUpdate": 1780192561261,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4473,6 +4473,41 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/CentralPing/ergo/commit/d36279674fa69903e3eb0a69c91b2dab96112e5e"
         },
         "date": 1780191056458,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "2657b22b08f19ec95c06c47524ca7007dd20984c",
+          "message": "feat: improve .d.ts type quality for middleware factories and compose utilities (#75)",
+          "timestamp": "2026-05-31T01:30:49Z",
+          "url": "https://github.com/CentralPing/ergo/pull/79/commits/2657b22b08f19ec95c06c47524ca7007dd20984c"
+        },
+        "date": 1780192560947,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
