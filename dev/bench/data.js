@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780193174652,
+  "lastUpdate": 1780193225362,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4548,6 +4548,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0dbce638bcfc55f9665c51ded2f006529143a26f",
+          "message": "feat: improve .d.ts type quality for middleware factories and compose utilities (#75) (#79)\n\nRemove @returns {function} and @returns {object} JSDoc annotations that\nsuppressed TypeScript's declaration emitter inference. All middleware\nfactories now emit fully typed function signatures instead of opaque\nFunction/object. Compose utilities return (...args) => Promise<object>\ninstead of Function.\n\n28 source files changed (JSDoc-only, zero runtime behavior changes).",
+          "timestamp": "2026-05-31T02:06:52Z",
+          "tree_id": "4cf648b5d1d11743ce9815a93b77426fb8dfb60f",
+          "url": "https://github.com/CentralPing/ergo/commit/0dbce638bcfc55f9665c51ded2f006529143a26f"
+        },
+        "date": 1780193224835,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
             "unit": "us/op"
           },
           {
