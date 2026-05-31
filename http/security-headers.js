@@ -52,7 +52,6 @@ import buildSecurityHeaderTuples from '../lib/security-headers.js';
  * @param {string|false} [options.referrerPolicy='no-referrer'] - Referrer-Policy header
  * @param {string|false} [options.xXssProtection='0'] - X-XSS-Protection header (0 disables the browser filter)
  * @param {string} [options.permissionsPolicy] - Permissions-Policy header (omitted by default)
- * @returns {function} - Ergo middleware `() => Array<[string, string]>`
  */
 export default (options = {}) => {
   const headerTuples = buildSecurityHeaderTuples(options);

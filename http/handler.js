@@ -37,7 +37,6 @@ import createSend from './send.js';
  *
  * @param {function} pipeline - Composed middleware pipeline
  * @param {object} [sendOptions] - Options forwarded to `send()`
- * @returns {function} - Async handler `(req, res) => void` for `http.createServer()`
  */
 export default (pipeline, sendOptions = {}) => {
   const send = createSend(sendOptions);

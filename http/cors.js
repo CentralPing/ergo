@@ -39,8 +39,6 @@ import cors from '../lib/cors.js';
  * @param {string|string[]} [options.exposeHeaders] - Headers to expose to the client
  * @param {boolean} [options.allowCredentials=false] - Whether to allow credentials
  * @param {number} [options.maxAge] - Preflight cache duration in seconds
- * @returns {function} - Ergo middleware that returns `undefined` for non-CORS requests,
- *   `{response: {headers}}` when allowed, or `{response: {statusCode: 403}}` when denied
  */
 export default options => {
   const corsValidator = cors(options);

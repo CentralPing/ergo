@@ -44,7 +44,6 @@ import authorize from '../lib/authorization.js';
  *
  * @param {object} [options] - Authorization configuration
  * @param {Array<{type: string, attributes?: object, authorizer: function}>} [options.strategies=[]] - Authentication strategy definitions
- * @returns {function} - Async middleware `(req) => info` on success; on failure `{response: {statusCode: 401|403, headers?}}` with optional `WWW-Authenticate` header tuples from `authenticate`
  */
 export default ({strategies = []} = {}) => {
   const authorizer = authorize(strategies);

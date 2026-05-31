@@ -44,7 +44,6 @@
  * Composes middleware functions into an async pipeline with result accumulation.
  *
  * @param {...function} fns - Middleware functions to compose
- * @returns {function} - Async composed pipeline
  */
 const compose = (...fns) => setup(serial, fns);
 compose.all = (...fns) => setup(concurrent, fns);
@@ -56,7 +55,6 @@ compose.all = (...fns) => setup(concurrent, fns);
  * @param {function} [options.breakWhen] - Predicate `(acc) => boolean`; when truthy,
  *   serial iteration stops after the current step's result is merged
  * @param {...function} fns - Middleware functions to compose
- * @returns {function} - Async composed pipeline
  */
 compose.withOptions = (options, ...fns) => setup(serial, fns, options);
 
@@ -65,7 +63,6 @@ compose.withOptions = (options, ...fns) => setup(serial, fns, options);
  *
  * @param {object} options - Pipeline options
  * @param {...function} fns - Middleware functions to compose
- * @returns {function} - Async composed pipeline
  */
 compose.all.withOptions = (options, ...fns) => setup(concurrent, fns, options);
 
@@ -132,7 +129,6 @@ async function concurrent(fns, args, acc, _options) {
  * @param {function} processor - `serial` or `concurrent`
  * @param {function[]} fns - Middleware functions
  * @param {object} [options] - Pipeline options forwarded to the processor
- * @returns {function} - Async composed function `(...args) => Accumulator`
  */
 function setup(processor, fns, options = {}) {
   return async (...args) => {

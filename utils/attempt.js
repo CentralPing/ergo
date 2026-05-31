@@ -23,7 +23,6 @@
 /**
  * @param {function} fn - Primary async function to execute
  * @param {function} fail - Error handler called with (...originalArgs, error)
- * @returns {function} - Wrapped async function with try/catch behavior
  */
 export default (fn, fail) => {
   return async (...args) => {

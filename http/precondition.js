@@ -37,7 +37,6 @@
  * @param {string[]|Set<string>} [options.methods] - HTTP methods to enforce on.
  *   When omitted, enforces unconditionally (the pipeline builder handles method scoping).
  *   When provided, only activates for the specified methods.
- * @returns {function} - Middleware `(req) => void` that returns `{response: {statusCode: 428}}` if no conditional header is present
  */
 export default function precondition({methods} = {}) {
   const methodSet = methods ? (methods instanceof Set ? methods : new Set(methods)) : undefined;

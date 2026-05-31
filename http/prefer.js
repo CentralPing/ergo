@@ -28,7 +28,6 @@ import parsePrefer from '../lib/prefer.js';
 /**
  * Creates a Prefer header parsing middleware.
  *
- * @returns {function} - Middleware `(req) => object` returning parsed preferences
  */
 export default () => {
   return req => parsePrefer(req.headers?.prefer);

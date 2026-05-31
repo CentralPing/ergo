@@ -31,7 +31,6 @@ import {parse, jar} from '../lib/cookie/index.js';
  * Creates a cookie parsing middleware.
  *
  * @param {object} [options] - Options forwarded to the RFC 6265 cookie parser
- * @returns {function} - Ergo middleware `({headers}) => CookieJar`
  */
 export default options =>
   ({headers: {cookie} = {}} = {}) =>

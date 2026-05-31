@@ -29,7 +29,6 @@
  * @param {object} [options] - Timeout configuration
  * @param {number} [options.ms=30000] - Timeout in milliseconds
  * @param {number} [options.statusCode=408] - HTTP status code on timeout (408 or 504)
- * @returns {function} - Ergo middleware `(req, res, domainAcc, responseAcc) => void`
  */
 export default ({ms = 30000, statusCode = 408} = {}) => {
   return (req, res, domainAcc, responseAcc) => {

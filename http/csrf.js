@@ -46,8 +46,6 @@ import {issue, verify} from '../lib/csrf.js';
  * @param {string} options.secret - HMAC secret for token signing
  * @param {string} [options.encoding] - Token encoding (default: base64)
  * @param {object} [options.cookieOptions={}] - Cookie directives passed to the cookie factory
- * @returns {object} - Object with `issue(req, res, ...rest)` and `verify(req, res, ...rest)` methods;
- *   `verify` returns `{response: {statusCode: 403}}` when CSRF token verification fails
  */
 export default ({
   cookieTokenName = 'CSRF-TOKEN',
