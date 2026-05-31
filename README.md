@@ -72,6 +72,40 @@ const pipeline = compose(
 createServer(handler(pipeline)).listen(3000);
 ```
 
+<details>
+<summary>TypeScript</summary>
+
+```ts
+import {createServer, type IncomingMessage, type ServerResponse} from 'node:http';
+import {compose, handler, logger, cors, authorization, body} from '@centralping/ergo';
+
+interface AuthResult {
+  authorized: boolean;
+  info?: {uid: number};
+}
+
+const pipeline = compose(
+  [logger(), 'log'],
+  [cors(), 'cors'],
+  [authorization({strategies: [{
+    type: 'Bearer' as const,
+    authorizer: (_: Record<string, string>, token: string): AuthResult =>
+      token === 'my-token' ? {authorized: true, info: {uid: 1}} : {authorized: false}
+  }]}), 'auth'],
+  [body(), 'body'],
+  (req: IncomingMessage, res: ServerResponse, acc: {auth: AuthResult['info']; body: {parsed: unknown}}) =>
+    ({response: {body: {user: acc.auth, data: acc.body.parsed}}})
+);
+
+createServer(handler(pipeline)).listen(3000);
+```
+
+> **Note:** The type annotations above represent the expected types for the accumulator
+> properties. As ergo's `.d.ts` type declarations improve, these types will be inferred
+> automatically — removing the need for explicit annotations.
+
+</details>
+
 ## Middleware Overview
 
 | Middleware | Description | Standard |
