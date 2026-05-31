@@ -25,7 +25,7 @@
 import queryParse from '../lib/query.js';
 
 /**
- * Creates a URL parsing middleware that returns `{query, pathname, search}`.
+ * Creates a URL parsing middleware.
  */
 export default () =>
   ({url} = {}) => {
