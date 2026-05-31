@@ -33,8 +33,6 @@ import {MemoryStore, checkRateLimit, defaultKeyGenerator} from '../lib/rate-limi
  * @param {number} [options.windowMs=60000] - Window size in milliseconds (default: 1 minute)
  * @param {object} [options.store] - Pluggable store (must implement `hit(key, windowMs)`)
  * @param {function} [options.keyGenerator] - `(req) => string` client identifier (default: remote IP)
- * @returns {function} - Middleware `(req) => {response}` that returns rate-limit header tuples on allowed
- *   requests and `{response: {statusCode: 429, retryAfter}}` when the limit is exceeded
  */
 export default function rateLimit({max = 100, windowMs = 60000, store, keyGenerator} = {}) {
   const _store = store ?? new MemoryStore();

@@ -108,7 +108,6 @@ function bodyType(body) {
  * @param {boolean|function} [options.envelope=false] - Wrap 2xx Object bodies in a response
  *   envelope. `false` (default) — no envelope. `true` — built-in format `{id, status, data,
  *   count?}`. `function(body, ctx)` — custom envelope.
- * @returns {function} - `(req, res, responseAcc, domainAcc) => void`
  */
 export default ({
   prettify = false,

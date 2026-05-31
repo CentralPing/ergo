@@ -73,7 +73,6 @@ const host = Object.freeze({
  * @param {string} [options.headerRequestIpName] - Client IP header name (default: 'x-real-ip')
  * @param {Set<string>} [options.redactHeaders] - Header names to replace with '[REDACTED]' in logs
  *   (default: authorization, proxy-authorization, cookie, set-cookie)
- * @returns {object} - Log entry with request metadata and host info (statusCode/duration added on finish)
  */
 export default ({
     /* eslint-disable-next-line no-console */

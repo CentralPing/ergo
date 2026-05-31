@@ -42,7 +42,6 @@ const headerMap = {
  * @param {string[]} [options.languages] - Acceptable languages
  * @param {string[]} [options.charsets] - Acceptable character sets
  * @param {string[]} [options.encodings] - Acceptable content encodings
- * @returns {function} - Middleware `(req) => {type, language, charset, encoding}` on success, or `{response: {statusCode: 406, detail: string}}` when `throwIfFail` is true and any negotiation value is undefined
  */
 export default ({throwIfFail = true, ...options} = {}) => {
   const acceptor = accepts(options);

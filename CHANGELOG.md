@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **BREAKING (types only)**: All middleware factory `.d.ts` declarations now emit inferred
+  function signatures instead of `Function`. `compose()`/`composeWith()` return
+  `(...args) => Promise<object>` instead of `Function`. `csrf()` and `logger()` emit
+  full object types instead of `object`. No runtime behavior changes. (#75)
+
 ### Added
 
 - TypeScript usage example alongside the JavaScript Quick Start in `README.md`. (#74)

@@ -40,7 +40,6 @@ const COMPRESSIBLE_RE = /^(text\/|application\/(json|javascript|xml|x-www-form-u
  * @param {object} [options] - Compression configuration
  * @param {number} [options.threshold=1024] - Minimum byte size before compression is applied
  * @param {string[]} [options.encodings=['br','gzip','deflate']] - Supported encodings in priority order
- * @returns {function} - Ergo middleware `(req, res) => void` that wraps `res.write`/`res.end`
  */
 export default ({threshold = 1024, encodings = ['br', 'gzip', 'deflate']} = {}) => {
   return (req, res) => {

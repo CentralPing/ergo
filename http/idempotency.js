@@ -40,7 +40,6 @@ const DEFAULT_METHODS = new Set(['POST', 'PATCH']);
  *   on applicable methods
  * @param {Set<string>|string[]} [options.methods] - HTTP methods to apply idempotency to
  *   (default: POST, PATCH)
- * @returns {function} - Middleware `(req, res, domainAcc) => {value?, response?}`
  */
 export default function idempotency({store, ttlMs, required = false, methods} = {}) {
   const _store = store ?? new IdempotencyStore(ttlMs ? {ttlMs} : undefined);

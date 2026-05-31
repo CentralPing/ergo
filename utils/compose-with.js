@@ -198,7 +198,6 @@ async function concurrent(descriptors, args, domainAcc, responseAcc) {
  * If either is absent, a fresh one is created.
  *
  * @param {...(function|Array)} ops - Operation specs; each is a function or `[fn, setPath]`
- * @returns {function} - Async composed pipeline
  */
 const composeWith = (...ops) => {
   const descriptors = ops.map(normalizeOp);
@@ -215,7 +214,6 @@ const composeWith = (...ops) => {
  * Concurrent variant of composeWith.
  *
  * @param {...(function|Array)} ops - Operation specs
- * @returns {function} - Async composed pipeline
  */
 composeWith.all = (...ops) => {
   const descriptors = ops.map(normalizeOp);

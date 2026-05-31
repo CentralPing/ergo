@@ -118,7 +118,6 @@ const decompressors = new Proxy(
  * @param {number} [options.decompressedLimit] - Maximum decompressed body size (default 10 * limit, capped at MAX_DECOMPRESSED)
  * @param {string[]} [options.types] - Allowed Content-Type MIME types
  * @param {string} [options.charset='utf-8'] - Default character encoding
- * @returns {function} - Async middleware `(req) => {type, charset, encoding, length, received, boundary, raw, parsed}` on success; on error `{response: {statusCode: 400|411|413|415, detail: string}}`. Errors without `statusCode` are rethrown.
  */
 const DEFAULT_LIMIT = 1 << 20; // 1 MiB
 const MAX_DECOMPRESSED = 10 * DEFAULT_LIMIT; // 10 MiB hard cap

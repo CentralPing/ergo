@@ -26,8 +26,6 @@ import queryParse from '../lib/query.js';
 
 /**
  * Creates a URL parsing middleware.
- *
- * @returns {function} - Ergo middleware `({url}) => {query, pathname, search}`
  */
 export default () =>
   ({url} = {}) => {

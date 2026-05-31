@@ -43,7 +43,6 @@
  * @param {number} [options.sMaxAge] - `s-maxage` value in seconds
  * @param {number} [options.staleWhileRevalidate] - `stale-while-revalidate` value in seconds
  * @param {number} [options.staleIfError] - `stale-if-error` value in seconds
- * @returns {function} - Ergo middleware `() => Array<[string, string]>`
  */
 export default ({
   directives,

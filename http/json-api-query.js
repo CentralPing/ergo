@@ -30,8 +30,6 @@ import {validate} from '../lib/json-api-query/index.js';
  * Creates a JSON:API query validation middleware.
  *
  * @param {...*} options - Options forwarded to the underlying JSON:API validator
- * @returns {function} - Ergo middleware `(req, res, acc) => void`; returns
- *   `{response: {statusCode: 400}}` when JSON:API query parameters fail validation
  */
 export default (...options) => {
   const validator = validate(...options);
