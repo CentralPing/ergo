@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780319256701,
+  "lastUpdate": 1780328945330,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4741,6 +4741,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "016fc8b827fee64de93d3ee7c99051c5dcb17b49",
+          "message": "fix: distinguish missing from malformed Idempotency-Key header (#81) (#96)\n\n* fix: distinguish missing from malformed Idempotency-Key header (#81)\n\nSeparate error handling for absent vs. malformed Idempotency-Key headers\nin http/idempotency.js. A malformed header (present but not valid RFC 8941\nsf-string) now always returns 400 with format guidance, regardless of the\n`required` option. Previously, malformed headers with `required: false`\nsilently passed through.\n\nCloses #90\n\n* test: add whitespace-only header edge case (#81)",
+          "timestamp": "2026-06-01T15:48:46Z",
+          "tree_id": "b7721384a63c27f01772f62d18b4a512eca192a3",
+          "url": "https://github.com/CentralPing/ergo/commit/016fc8b827fee64de93d3ee7c99051c5dcb17b49"
+        },
+        "date": 1780328944939,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
