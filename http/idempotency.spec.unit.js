@@ -80,6 +80,13 @@ describe('[Boundary] http/idempotency', () => {
       assert.equal(result.response.statusCode, 400);
       assert.ok(result.response.detail.includes('RFC 8941'));
     });
+
+    it('returns 400 for whitespace-only header value', () => {
+      mw = idempotency();
+      const result = mw(makeReq('POST', '   '), {}, {});
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('RFC 8941'));
+    });
   });
 
   describe('new key', () => {
