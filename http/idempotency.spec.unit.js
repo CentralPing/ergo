@@ -52,6 +52,41 @@ describe('[Boundary] http/idempotency', () => {
       assert.equal(result.response.statusCode, 400);
       assert.ok(result.response.detail.includes('required'));
     });
+
+    it('returns 400 with format guidance when header is present but unquoted', () => {
+      mw = idempotency();
+      const result = mw(makeReq('POST', 'unquoted-key'), {}, {});
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('RFC 8941'));
+    });
+
+    it('returns 400 with format guidance when header is present but malformed', () => {
+      mw = idempotency();
+      const result = mw(makeReq('POST', 'key"value'), {}, {});
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('quoted string'));
+    });
+
+    it('returns 400 for malformed header regardless of required option', () => {
+      mw = idempotency({required: false});
+      const result = mw(makeReq('POST', 'no-quotes'), {}, {});
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('RFC 8941'));
+    });
+
+    it('returns 400 for empty string header value', () => {
+      mw = idempotency();
+      const result = mw(makeReq('POST', ''), {}, {});
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('RFC 8941'));
+    });
+
+    it('returns 400 for whitespace-only header value', () => {
+      mw = idempotency();
+      const result = mw(makeReq('POST', '   '), {}, {});
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('RFC 8941'));
+    });
   });
 
   describe('new key', () => {
