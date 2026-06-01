@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **BREAKING**: `idempotency()` now distinguishes missing from malformed `Idempotency-Key`
+  headers. A malformed header (present but not a valid RFC 8941 sf-string) always returns
+  `400` with format guidance, regardless of the `required` option. Previously, a malformed
+  header with `required: false` silently passed through as if the header were absent. (#90)
 - **BREAKING (types only)**: All middleware factory `.d.ts` declarations now emit inferred
   function signatures instead of `Function`. `compose()`/`composeWith()` return
   `(...args) => Promise<object>` instead of `Function`. `csrf()` and `logger()` emit

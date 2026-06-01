@@ -48,9 +48,19 @@ export default function idempotency({store, ttlMs, required = false, methods} = 
   return (req, _res, domainAcc) => {
     if (!_methods.has(req.method)) return {};
 
-    const key = parseIdempotencyKey(req.headers?.['idempotency-key']);
+    const rawHeader = req.headers?.['idempotency-key'];
+    const key = parseIdempotencyKey(rawHeader);
 
     if (!key) {
+      if (rawHeader != null) {
+        return {
+          response: {
+            statusCode: 400,
+            detail: 'Idempotency-Key header must be a quoted string per RFC 8941 (e.g., "my-key")'
+          }
+        };
+      }
+
       if (required) {
         return {
           response: {
