@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **BREAKING**: `validate()` now returns a 500 response when a body schema is configured but
+  `acc.body` is absent, indicating `body()` was not placed before `validate()` in the pipeline.
+  A one-time `process.emitWarning` diagnostic is emitted with code `ERGO_VALIDATE_NO_BODY`.
+  Previously, body validation was silently skipped, allowing invalid request data to reach
+  the execute handler unchecked. Correctly ordered pipelines are unaffected. (#93)
 - **BREAKING**: `idempotency()` now distinguishes missing from malformed `Idempotency-Key`
   headers. A malformed header (present but not a valid RFC 8941 sf-string) always returns
   `400` with format guidance, regardless of the `required` option. Previously, a malformed
