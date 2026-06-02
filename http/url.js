@@ -28,6 +28,7 @@ import queryParse from '../lib/query.js';
  * Creates a URL parsing middleware.
  */
 export default () =>
+  /** @param {{ url?: string }} [req] - Incoming HTTP request */
   ({url} = {}) => {
     const raw = url ?? '/';
     const qIdx = raw.indexOf('?');
