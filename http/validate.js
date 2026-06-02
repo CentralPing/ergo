@@ -6,7 +6,11 @@
  * performance. Route params are resolved from `acc.route.params` (ergo-router) with
  * fallback to `acc.params` (standalone).
  *
- * Returns `{response: {statusCode: 422, detail: ...}}` with structured error details on validation failure.
+ * Returns `{response: {statusCode: 422, detail: ...}}` with structured error details
+ * on validation failure. When a body schema is configured but `acc.body` is absent
+ * (indicating `body()` was not placed before `validate()` in the pipeline), returns
+ * `{response: {statusCode: 500}}` and emits a one-time `process.emitWarning` diagnostic.
+ *
  * Must be placed after `body()` and/or `url()` in the pipeline so accumulator values
  * are populated before validation runs.
  *
@@ -35,6 +39,9 @@
  */
 import createValidator from '../lib/validate.js';
 
+/** @type {Set<string>} - Tracks emitted warning codes to prevent per-request spam. */
+const emittedWarnings = new Set();
+
 /**
  * Creates a JSON Schema validation middleware.
  *
@@ -61,8 +68,32 @@ export default (schemas = {}, options = {}) => {
 
   return (req, res, acc) => {
     try {
-      if (validators.body && acc.body && acc.body.parsed !== undefined) {
-        validators.body(acc.body.parsed);
+      if (validators.body) {
+        if (!acc.body) {
+          const code = 'ERGO_VALIDATE_NO_BODY';
+
+          if (!emittedWarnings.has(code)) {
+            emittedWarnings.add(code);
+            process.emitWarning(
+              'validate() found no parsed body at acc.body. ' +
+                'Ensure body() runs before validate() in the pipeline.',
+              {type: 'ErgoWarning', code}
+            );
+          }
+
+          return {
+            response: {
+              statusCode: 500,
+              detail:
+                'validate() found no parsed body at acc.body. ' +
+                'Ensure body() runs before validate() in the pipeline.'
+            }
+          };
+        }
+
+        if (acc.body.parsed !== undefined) {
+          validators.body(acc.body.parsed);
+        }
       }
 
       if (validators.query && acc.url?.query) {
