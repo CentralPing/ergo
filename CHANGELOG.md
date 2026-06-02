@@ -19,9 +19,13 @@ All notable changes to this project will be documented in this file.
   function signatures instead of `Function`. `compose()`/`composeWith()` return
   `(...args) => Promise<object>` instead of `Function`. `csrf()` and `logger()` emit
   full object types instead of `object`. No runtime behavior changes. (#75)
+- `.d.ts` declarations now compile with `skipLibCheck: false`. Middleware parameter types
+  for `cookie()`, `cors()`, `url()`, and `lib/cors` are specific instead of `{}`. (#83)
 
 ### Added
 
+- CI type-checking gate validates generated `.d.ts` files with `skipLibCheck: false` and
+  `strict: true` via `npm run check-types`. Prevents shipping broken type declarations. (#83)
 - TypeScript usage example alongside the JavaScript Quick Start in `README.md`. (#74)
 
 ## [0.1.0-beta.4] - 2026-05-29

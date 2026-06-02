@@ -33,5 +33,6 @@ import {parse, jar} from '../lib/cookie/index.js';
  * @param {object} [options] - Options forwarded to the RFC 6265 cookie parser
  */
 export default options =>
+  /** @param {{ headers?: { cookie?: string } }} [req] - Incoming HTTP request */
   ({headers: {cookie} = {}} = {}) =>
     jar(parse(cookie, options));

@@ -43,7 +43,7 @@ import cors from '../lib/cors.js';
 export default options => {
   const corsValidator = cors(options);
 
-  return ({
+  return /** @param {{ headers?: { origin?: string, 'access-control-request-method'?: string, 'access-control-request-headers'?: string }, method?: string }} [req] - Incoming HTTP request */ ({
     headers: {
       origin,
       'access-control-request-method': requestMethod,

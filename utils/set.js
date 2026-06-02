@@ -18,7 +18,7 @@
 
 /**
  * @param {object} obj - Target object
- * @param {string} [path=''] - Dot-delimited property path
+ * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
  */
