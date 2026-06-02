@@ -6,7 +6,7 @@
  * signatures correctly infer accumulator key types from [fn, key] tuples.
  */
 
-import type { UrlResult, BodyResult, LogEntry, CookieJar, AcceptsResult } from '../ergo.js';
+import type { UrlResult, BodyResult, LogEntry, CookieJar, AcceptsResult, PreferResult, RateLimitResult } from '../ergo.js';
 import compose, { createResponseAcc, mergeResponse } from '../utils/compose-with.js';
 
 // ---------------------------------------------------------------------------
@@ -19,6 +19,8 @@ declare function bodyFactory(): () => Promise<BodyResult>;
 declare function loggerFactory(): () => LogEntry;
 declare function cookieFactory(): () => CookieJar;
 declare function acceptsFactory(): () => AcceptsResult;
+declare function preferFactory(): () => PreferResult;
+declare function rateLimitFactory(): () => RateLimitResult;
 
 // ---------------------------------------------------------------------------
 // Positive: compose with typed tuples infers accumulator keys
@@ -99,6 +101,56 @@ async function testConcurrent() {
 }
 
 // ---------------------------------------------------------------------------
+// Positive: compose.all with 7 tuples exercises the overload ceiling
+// ---------------------------------------------------------------------------
+
+const concurrentSeven = compose.all(
+  [loggerFactory(), 'log'] as const,
+  [acceptsFactory(), 'accepts'] as const,
+  [cookieFactory(), 'cookies'] as const,
+  [urlFactory(), 'url'] as const,
+  [bodyFactory(), 'body'] as const,
+  [preferFactory(), 'prefer'] as const,
+  [rateLimitFactory(), 'rateLimit'] as const,
+);
+
+async function testConcurrentSeven() {
+  const acc = await concurrentSeven();
+
+  const l: LogEntry = acc.log;
+  const a: AcceptsResult = acc.accepts;
+  const c: CookieJar = acc.cookies;
+  const u: UrlResult = acc.url;
+  const b: BodyResult = acc.body;
+  const p: PreferResult = acc.prefer;
+  const r: RateLimitResult = acc.rateLimit;
+
+  void l;
+  void a;
+  void c;
+  void u;
+  void b;
+  void p;
+  void r;
+}
+
+// ---------------------------------------------------------------------------
+// Positive: ExtractValue unwraps {value, response} envelopes
+// ---------------------------------------------------------------------------
+
+declare function envelopeMiddleware(): () => { value: string; response: { statusCode: number } };
+
+const envelopePipeline = compose(
+  [envelopeMiddleware(), 'data'] as const,
+);
+
+async function testEnvelopeUnwrap() {
+  const acc = await envelopePipeline();
+  const d: string = acc.data;
+  void d;
+}
+
+// ---------------------------------------------------------------------------
 // Positive: createResponseAcc and mergeResponse still work
 // ---------------------------------------------------------------------------
 
@@ -136,6 +188,8 @@ void testTwoTuple;
 void testFiveTuple;
 void testWithHandler;
 void testConcurrent;
+void testConcurrentSeven;
+void testEnvelopeUnwrap;
 void testResponseAcc;
 void testNegative;
 void testFallback;

@@ -2,9 +2,10 @@
  * Consumer-facing type interfaces for ergo middleware result types.
  *
  * These interfaces describe the success-path `value` that each middleware
- * stores on the domain accumulator via `[fn, setPath]` tuples. The error
- * path (setting `responseAcc.statusCode`) breaks the pipeline before the
- * accumulator key is assigned, so only the success shape is typed here.
+ * stores on the domain accumulator via `[fn, setPath]` tuples. On the
+ * error path, middleware returns `{response: {statusCode}}` with no
+ * `value`, so the accumulator key is not assigned and the pipeline breaks
+ * after merging the response. Only the success shape is typed here.
  */
 
 /** Result stored at `acc.url` by `[url(), 'url']`. */
