@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780420124636,
+  "lastUpdate": 1780422056026,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4914,6 +4914,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1c30a09a878bd1a6649b29f0f7e7ced947e0cbfc",
+          "message": "fix: .d.ts declarations compile with skipLibCheck: false (#83) (#98)\n\n* fix: .d.ts declarations compile with skipLibCheck: false (#83)\n\nAdd JSDoc @param types to inner middleware functions where tsc infers {}\nfrom = {} destructured defaults. Add CI type-checking gate that validates\ngenerated declarations with skipLibCheck: false and strict: true.\n\n* fix: extract inline JSDoc to named const for readability (#83)",
+          "timestamp": "2026-06-02T13:40:39-04:00",
+          "tree_id": "465b8f98552ee7ee9d58a1ed50b29bb3959b4ba0",
+          "url": "https://github.com/CentralPing/ergo/commit/1c30a09a878bd1a6649b29f0f7e7ced947e0cbfc"
+        },
+        "date": 1780422054904,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
             "unit": "us/op"
           },
           {
