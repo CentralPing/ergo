@@ -43,7 +43,8 @@ import cors from '../lib/cors.js';
 export default options => {
   const corsValidator = cors(options);
 
-  return /** @param {{ headers?: { origin?: string, 'access-control-request-method'?: string, 'access-control-request-headers'?: string }, method?: string }} [req] - Incoming HTTP request */ ({
+  /** @param {{ headers?: { origin?: string, 'access-control-request-method'?: string, 'access-control-request-headers'?: string }, method?: string }} [req] - Incoming HTTP request */
+  const middleware = ({
     headers: {
       origin,
       'access-control-request-method': requestMethod,
@@ -73,4 +74,6 @@ export default options => {
       };
     }
   };
+
+  return middleware;
 };
