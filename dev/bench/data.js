@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780432558160,
+  "lastUpdate": 1780433481505,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -4993,6 +4993,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "a51121c45a9efa5e404c6f4c68cc52e4a241c571",
+          "message": "feat: compose() accumulator type inference from [fn, key] tuples (#87)",
+          "timestamp": "2026-06-02T17:40:45Z",
+          "url": "https://github.com/CentralPing/ergo/pull/99/commits/a51121c45a9efa5e404c6f4c68cc52e4a241c571"
+        },
+        "date": 1780433480958,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
             "unit": "us/op"
           },
           {
