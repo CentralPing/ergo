@@ -102,6 +102,16 @@ describe('[Module] http/send', () => {
     assert.ok(typeof body.detail === 'string');
   });
 
+  it('includes instance in 412 when x-request-id header exists', () => {
+    const req = createMockReq({method: 'PUT', headers: {'if-match': '"wrong-etag"'}});
+    const res = createMockRes();
+    res.setHeader('x-request-id', 'req-412-id');
+    send(req, res, {statusCode: 200, body: {data: 'test'}}, {});
+    assert.equal(res.statusCode, 412);
+    const body = JSON.parse(res._body);
+    assert.equal(body.instance, 'urn:uuid:req-412-id');
+  });
+
   it('does NOT return 412 when If-Match matches for PUT', () => {
     const req1 = createMockReq({method: 'GET'});
     const res1 = createMockRes();

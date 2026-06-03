@@ -123,7 +123,12 @@ function normalizeOp(op) {
  * @returns {object} - Final domain accumulator
  */
 async function serial(descriptors, args, domainAcc, responseAcc) {
+  const trace = responseAcc._trace;
+
   for (const {fn, setPath} of descriptors) {
+    const label = setPath ?? (fn.name || '(anonymous)');
+    if (trace) trace.steps.push(label);
+
     const raw = fn(...args, domainAcc, responseAcc);
     const resolved = typeof raw?.then === 'function' ? await raw : raw;
 
@@ -143,7 +148,10 @@ async function serial(descriptors, args, domainAcc, responseAcc) {
       mergeResponse(responseAcc, response);
     }
 
-    if (responseAcc.statusCode !== undefined) break;
+    if (responseAcc.statusCode !== undefined) {
+      if (trace) trace.breakAt = label;
+      break;
+    }
   }
 
   return domainAcc;
@@ -162,16 +170,20 @@ async function serial(descriptors, args, domainAcc, responseAcc) {
  * @returns {object} - Final domain accumulator
  */
 async function concurrent(descriptors, args, domainAcc, responseAcc) {
+  const trace = responseAcc._trace;
+
   const copies = descriptors.map(() => Object.assign(accumulator(), domainAcc));
   const rets = descriptors.map(({fn}, i) => fn(...args, copies[i], responseAcc));
   const hasAsync = rets.some(r => typeof r?.then === 'function');
   const results = hasAsync ? await Promise.all(rets) : rets;
 
   for (let i = 0; i < descriptors.length; i++) {
+    const {fn, setPath} = descriptors[i];
+    if (trace) trace.steps.push(setPath ?? (fn.name || '(anonymous)'));
+
     const resolved = results[i];
     if (resolved == null) continue;
 
-    const {setPath} = descriptors[i];
     const {value, response} = extractReturn(resolved);
 
     if (value !== undefined) {
