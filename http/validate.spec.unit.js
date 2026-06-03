@@ -145,4 +145,58 @@ describe('[Module] http/validate', () => {
     assert.ok(result?.response);
     assert.equal(result.response.statusCode, 422);
   });
+
+  it('does not emit a warning when only valid schema keys are passed', () => {
+    const warn = mock.method(process, 'emitWarning', () => {});
+
+    try {
+      createValidate({
+        body: {type: 'object'},
+        query: {type: 'object'},
+        params: {type: 'object'}
+      });
+
+      const unknownKeyCalls = warn.mock.calls.filter(
+        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
+      );
+      assert.equal(unknownKeyCalls.length, 0);
+    } finally {
+      warn.mock.restore();
+    }
+  });
+
+  it('emits per-key-set warnings and deduplicates identical key sets', () => {
+    const warn = mock.method(process, 'emitWarning', () => {});
+
+    try {
+      createValidate({schemas: {body: {type: 'object'}}});
+
+      const calls = warn.mock.calls.filter(
+        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
+      );
+      assert.equal(calls.length, 1);
+
+      const [message, options] = calls[0].arguments;
+      assert.ok(message.includes('schemas'));
+      assert.ok(message.includes('validate()'));
+      assert.equal(options.type, 'ErgoWarning');
+      assert.equal(options.code, 'ERGO_VALIDATE_UNKNOWN_KEY');
+
+      createValidate({foo: {type: 'object'}});
+
+      const afterCalls = warn.mock.calls.filter(
+        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
+      );
+      assert.equal(afterCalls.length, 2, 'different key set emits a separate warning');
+
+      createValidate({schemas: {body: {type: 'object'}}});
+
+      const dedupCalls = warn.mock.calls.filter(
+        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
+      );
+      assert.equal(dedupCalls.length, 2, 'repeated key set is deduplicated');
+    } finally {
+      warn.mock.restore();
+    }
+  });
 });
