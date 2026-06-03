@@ -178,13 +178,13 @@ async function concurrent(descriptors, args, domainAcc, responseAcc) {
   const results = hasAsync ? await Promise.all(rets) : rets;
 
   for (let i = 0; i < descriptors.length; i++) {
+    const {fn, setPath} = descriptors[i];
+    if (trace) trace.steps.push(setPath ?? (fn.name || '(anonymous)'));
+
     const resolved = results[i];
     if (resolved == null) continue;
 
-    const {fn, setPath} = descriptors[i];
     const {value, response} = extractReturn(resolved);
-
-    if (trace) trace.steps.push(setPath ?? (fn.name || '(anonymous)'));
 
     if (value !== undefined) {
       if (setPath !== undefined) {

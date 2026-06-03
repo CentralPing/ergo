@@ -351,6 +351,19 @@ describe('[Boundary] utils/compose-with', () => {
       assert.deepEqual(responseAcc._trace.steps, ['first', 'second']);
       assert.equal(responseAcc._trace.breakAt, undefined);
     });
+
+    it('records steps for null-returning middleware in concurrent trace', async () => {
+      const responseAcc = createResponseAcc();
+      responseAcc._trace = {steps: [], breakAt: undefined};
+      const domainAcc = accumulator();
+      const pipeline = composeWith.all(
+        [() => ({value: 'a'}), 'first'],
+        [() => null, 'noop'],
+        [() => ({value: 'c'}), 'third']
+      );
+      await pipeline(responseAcc, domainAcc);
+      assert.deepEqual(responseAcc._trace.steps, ['first', 'noop', 'third']);
+    });
   });
 
   describe('pipeline tracing (_trace)', () => {
