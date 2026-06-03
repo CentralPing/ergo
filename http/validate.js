@@ -42,15 +42,15 @@ import createValidator from '../lib/validate.js';
 /** @type {Set<string>} - Recognized keys for the schemas parameter. */
 const VALID_SCHEMA_KEYS = new Set(['body', 'query', 'params']);
 
-/** @type {Set<string>} - Tracks emitted warning codes to prevent per-request spam. */
+/** @type {Set<string>} - Tracks emitted warning keys to prevent duplicate warnings. */
 const emittedWarnings = new Set();
 
 /**
  * Creates a JSON Schema validation middleware.
  *
  * @param {object} [schemas] - Schema map with direct properties `body`, `query`, and/or
- *   `params` (not nested under a wrapper key). Unrecognized keys emit a one-time
- *   `ERGO_VALIDATE_UNKNOWN_KEY` warning
+ *   `params` (not nested under a wrapper key). Unrecognized keys emit a per-key-set
+ *   `ERGO_VALIDATE_UNKNOWN_KEY` warning (each unique set of unknown keys warns once)
  * @param {object} [schemas.body] - JSON Schema for the parsed request body
  * @param {object} [schemas.query] - JSON Schema for parsed query parameters
  * @param {object} [schemas.params] - JSON Schema for route path parameters (reads `acc.route.params` or `acc.params`)
@@ -63,9 +63,10 @@ export default (schemas = {}, options = {}) => {
 
   if (unknownKeys.length > 0) {
     const code = 'ERGO_VALIDATE_UNKNOWN_KEY';
+    const dedupKey = `${code}:${[...unknownKeys].sort().join(',')}`;
 
-    if (!emittedWarnings.has(code)) {
-      emittedWarnings.add(code);
+    if (!emittedWarnings.has(dedupKey)) {
+      emittedWarnings.add(dedupKey);
       process.emitWarning(
         `validate() received unrecognized schema keys: ${unknownKeys.join(', ')}. ` +
           'Valid keys are: body, query, params. ' +

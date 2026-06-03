@@ -165,7 +165,7 @@ describe('[Module] http/validate', () => {
     }
   });
 
-  it('emits a once-only warning when unrecognized schema keys are passed', () => {
+  it('emits per-key-set warnings and deduplicates identical key sets', () => {
     const warn = mock.method(process, 'emitWarning', () => {});
 
     try {
@@ -187,7 +187,14 @@ describe('[Module] http/validate', () => {
       const afterCalls = warn.mock.calls.filter(
         c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
       );
-      assert.equal(afterCalls.length, 1);
+      assert.equal(afterCalls.length, 2, 'different key set emits a separate warning');
+
+      createValidate({schemas: {body: {type: 'object'}}});
+
+      const dedupCalls = warn.mock.calls.filter(
+        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
+      );
+      assert.equal(dedupCalls.length, 2, 'repeated key set is deduplicated');
     } finally {
       warn.mock.restore();
     }
