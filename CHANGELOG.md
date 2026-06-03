@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `validate()` now emits a one-time `process.emitWarning` diagnostic with code
+  `ERGO_VALIDATE_UNKNOWN_KEY` when the schema map contains unrecognized keys (e.g.
+  `validate({schemas: {body: ...}})` instead of `validate({body: ...})`). Previously,
+  unrecognized keys were silently ignored and validation became a no-op. (#84)
 - **BREAKING**: `validate()` now returns a 500 response when a body schema is configured but
   `acc.body` is absent, indicating `body()` was not placed before `validate()` in the pipeline.
   A one-time `process.emitWarning` diagnostic is emitted with code `ERGO_VALIDATE_NO_BODY`.
