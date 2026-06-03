@@ -43,6 +43,11 @@ All notable changes to this project will be documented in this file.
 - CI type-checking gate validates generated `.d.ts` files with `skipLibCheck: false` and
   `strict: true` via `npm run check-types`. Prevents shipping broken type declarations. (#83)
 - TypeScript usage example alongside the JavaScript Quick Start in `README.md`. (#74)
+- **Pagination helpers.** New `paginate` namespace export with `parseOffsetParams`,
+  `parseCursorParams`, `offsetResponse`, and `cursorResponse`. Parses query parameters with
+  bounded defaults, generates RFC 8288 Link headers and `X-Total-Count`, and returns
+  pipeline-compatible response objects. Available via `import {paginate} from '@centralping/ergo'`
+  or `import {parseOffsetParams} from '@centralping/ergo/lib/paginate'`. (#85)
 
 ## [0.1.0-beta.4] - 2026-05-29
 
