@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780496667375,
+  "lastUpdate": 1780503847135,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5247,6 +5247,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4354b1a60c246c810962d38a9f8e3a07dcd2ca45",
+          "message": "fix: warn on unrecognized validate() schema keys (#84) (#100)\n\n* fix: warn on unrecognized validate() schema keys (#84)\n\n* fix: per-key-set dedup for ERGO_VALIDATE_UNKNOWN_KEY (#84)",
+          "timestamp": "2026-06-03T16:23:48Z",
+          "tree_id": "0c6a92c2df136246bb979e73fa6e029de5e2f2c3",
+          "url": "https://github.com/CentralPing/ergo/commit/4354b1a60c246c810962d38a9f8e3a07dcd2ca45"
+        },
+        "date": 1780503846622,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
