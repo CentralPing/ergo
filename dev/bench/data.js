@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780433481505,
+  "lastUpdate": 1780448574028,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5033,6 +5033,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "36818fc3643ef9d317345888757e594127d842b7",
+          "message": "feat: compose() accumulator type inference from [fn, key] tuples (#87) (#99)\n\nHand-written overloaded composeWith() signatures (1–12 tuples) that infer\nthe domain accumulator type from [fn, setPath] tuple arguments. Accessing\nan accumulator key from middleware not in the pipeline is now a compile-time\nerror. Includes consumer-facing result type interfaces (UrlResult, BodyResult,\nLogEntry, etc.) and a type-only test validated by npm run check-types.",
+          "timestamp": "2026-06-03T01:02:42Z",
+          "tree_id": "3c79fa7a21694a203ca50211bce39236e06ec3f8",
+          "url": "https://github.com/CentralPing/ergo/commit/36818fc3643ef9d317345888757e594127d842b7"
+        },
+        "date": 1780448573665,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.018,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
