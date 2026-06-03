@@ -32,7 +32,7 @@
  *
  * const server = http.createServer(handler(pipeline));
  */
-import {createTracer, extractContext, injectContext, context, SpanKind} from '../lib/tracing.js';
+import {createTracer, extractContext, injectContext, trace, SpanKind} from '../lib/tracing.js';
 
 /**
  * Creates a pipeline tracing middleware.
@@ -66,15 +66,17 @@ export default ({serviceName, version, tracer, attributes, perStage = false} = {
       parentContext
     );
 
-    const spanContext = span.spanContext();
-    const activeCtx = context.active();
+    const activeCtx = trace.setSpan(parentContext, span);
 
     injectContext(activeCtx, res);
+
+    const spanContext = span.spanContext();
 
     return {
       value: {
         span,
         tracer: perStage ? resolvedTracer : undefined,
+        activeContext: perStage ? activeCtx : undefined,
         parentContext,
         traceId: spanContext.traceId,
         spanId: spanContext.spanId

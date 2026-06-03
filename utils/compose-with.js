@@ -132,7 +132,11 @@ async function serial(descriptors, args, domainAcc, responseAcc) {
     const otelTracer = domainAcc.trace?.tracer;
     let childSpan;
     if (otelTracer && domainAcc.trace?.span) {
-      childSpan = otelTracer.startSpan(`ergo.middleware.${label}`);
+      childSpan = otelTracer.startSpan(
+        `ergo.middleware.${label}`,
+        {},
+        domainAcc.trace.activeContext
+      );
     }
 
     const raw = fn(...args, domainAcc, responseAcc);
