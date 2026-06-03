@@ -120,6 +120,20 @@ describe('[Module] http/handler', () => {
     assert.equal(body.instance, undefined);
   });
 
+  it('populates instance on pipeline break (return-value, no throw)', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 422;
+      responseAcc.detail = 'Validation failed';
+    };
+    const handler = createHandler(pipeline);
+    const res = createMockRes();
+    res.setHeader('x-request-id', 'break-id-456');
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body.instance, 'urn:uuid:break-id-456');
+    assert.equal(body.status, 422);
+  });
+
   it('forwards sendOptions to send()', async () => {
     const pipeline = async (req, res, responseAcc) => {
       responseAcc.statusCode = 200;
@@ -158,6 +172,45 @@ describe('[Module] http/handler', () => {
     const body = JSON.parse(res._body);
     assert.equal(body.status, 429);
     assert.equal(body.detail, 'Rate limit exceeded');
+  });
+
+  it('includes _trace in error body when debug is true', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 403;
+      responseAcc.detail = 'Forbidden';
+    };
+    const handler = createHandler(pipeline, {debug: true});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body.status, 403);
+    assert.ok(body._trace, '_trace should be present');
+    assert.ok(Array.isArray(body._trace.steps), 'steps should be an array');
+  });
+
+  it('does not include _trace in error body when debug is false', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 403;
+      responseAcc.detail = 'Forbidden';
+    };
+    const handler = createHandler(pipeline);
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body._trace, undefined);
+  });
+
+  it('does not include _trace on 2xx responses', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline, {debug: true});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body._trace, undefined);
+    assert.equal(body.ok, true);
   });
 
   it('safely ends response when send() throws', async () => {

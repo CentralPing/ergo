@@ -4,8 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Pipeline debug tracing.** Pass `{debug: true}` as the second argument to `handler()` to
+  enable pipeline tracing. When enabled, `responseAcc._trace` is initialized with
+  `{steps: [], breakAt: undefined}`. The `compose-with` serial and concurrent runners record
+  each middleware label in `steps` and set `breakAt` to the label that triggered a pipeline
+  break. On error responses (>= 400), `_trace` appears as an RFC 9457 extension member. (#86)
+
 ### Fixed
 
+- **`instance` field on all error paths.** The RFC 9457 `instance` field
+  (`urn:uuid:{requestId}`) is now populated from the `x-request-id` response header on all
+  error paths — pipeline breaks (return-value), caught errors, and `endWithProblem` (412).
+  Previously, `instance` was only populated in the `catch` block, missing the v2 return-value
+  error model entirely. (#95)
 - `validate()` now emits a one-time `process.emitWarning` diagnostic with code
   `ERGO_VALIDATE_UNKNOWN_KEY` when the schema map contains unrecognized keys (e.g.
   `validate({schemas: {body: ...}})` instead of `validate({body: ...})`). Previously,

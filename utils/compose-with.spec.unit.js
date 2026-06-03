@@ -338,5 +338,77 @@ describe('[Boundary] utils/compose-with', () => {
       assert.equal(result.x, 1);
       assert.equal(result.y, 'tupled');
     });
+
+    it('records steps in _trace when enabled (concurrent)', async () => {
+      const responseAcc = createResponseAcc();
+      responseAcc._trace = {steps: [], breakAt: undefined};
+      const domainAcc = accumulator();
+      const pipeline = composeWith.all(
+        [() => ({value: 'a'}), 'first'],
+        [() => ({value: 'b'}), 'second']
+      );
+      await pipeline(responseAcc, domainAcc);
+      assert.deepEqual(responseAcc._trace.steps, ['first', 'second']);
+      assert.equal(responseAcc._trace.breakAt, undefined);
+    });
+  });
+
+  describe('pipeline tracing (_trace)', () => {
+    it('records step labels in declaration order', async () => {
+      const responseAcc = createResponseAcc();
+      responseAcc._trace = {steps: [], breakAt: undefined};
+      const domainAcc = accumulator();
+      const pipeline = composeWith(
+        [() => ({value: 'x'}), 'alpha'],
+        [() => ({value: 'y'}), 'beta'],
+        [() => ({value: 'z'}), 'gamma']
+      );
+      await pipeline(responseAcc, domainAcc);
+      assert.deepEqual(responseAcc._trace.steps, ['alpha', 'beta', 'gamma']);
+      assert.equal(responseAcc._trace.breakAt, undefined);
+    });
+
+    it('sets breakAt to the label of the breaking step', async () => {
+      const responseAcc = createResponseAcc();
+      responseAcc._trace = {steps: [], breakAt: undefined};
+      const domainAcc = accumulator();
+      const pipeline = composeWith(
+        [() => ({value: 'ok'}), 'logger'],
+        [() => ({response: {statusCode: 403, detail: 'Forbidden'}}), 'auth'],
+        [() => ({value: 'never'}), 'body']
+      );
+      await pipeline(responseAcc, domainAcc);
+      assert.deepEqual(responseAcc._trace.steps, ['logger', 'auth']);
+      assert.equal(responseAcc._trace.breakAt, 'auth');
+    });
+
+    it('uses fn.name when setPath is undefined', async () => {
+      const responseAcc = createResponseAcc();
+      responseAcc._trace = {steps: [], breakAt: undefined};
+      const domainAcc = accumulator();
+      function myMiddleware() {
+        return {value: 42};
+      }
+      const pipeline = composeWith(myMiddleware);
+      await pipeline(responseAcc, domainAcc);
+      assert.deepEqual(responseAcc._trace.steps, ['myMiddleware']);
+    });
+
+    it('uses (anonymous) for unnamed functions without setPath', async () => {
+      const responseAcc = createResponseAcc();
+      responseAcc._trace = {steps: [], breakAt: undefined};
+      const domainAcc = accumulator();
+      const pipeline = composeWith(Object.defineProperty(() => ({value: 1}), 'name', {value: ''}));
+      await pipeline(responseAcc, domainAcc);
+      assert.deepEqual(responseAcc._trace.steps, ['(anonymous)']);
+    });
+
+    it('does not add _trace properties when tracing is off', async () => {
+      const responseAcc = createResponseAcc();
+      const domainAcc = accumulator();
+      const pipeline = composeWith([() => ({value: 'x'}), 'alpha'], [() => ({value: 'y'}), 'beta']);
+      await pipeline(responseAcc, domainAcc);
+      assert.equal(responseAcc._trace, undefined);
+    });
   });
 });

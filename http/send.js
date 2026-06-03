@@ -389,9 +389,11 @@ function endNoBody(res) {
  * @param {number} statusCode - HTTP status code for the error
  */
 function endWithProblem(res, statusCode) {
+  const requestId = res.getHeader?.('x-request-id');
+  const opts = requestId ? {instance: `urn:uuid:${requestId}`} : undefined;
   res.statusCode = statusCode;
   res.setHeader('Content-Type', 'application/problem+json; charset=utf-8');
-  const body = JSON.stringify(httpErrors(statusCode));
+  const body = JSON.stringify(httpErrors(statusCode, opts));
   res.setHeader('Content-Length', Buffer.byteLength(body));
   res.end(body);
 }
