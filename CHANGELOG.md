@@ -14,6 +14,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `formatLinkHeader()` now rejects href values containing CR, LF, or NUL characters with a
+  `TypeError`, preventing `ERR_INVALID_CHAR` crashes when malformed hrefs reach
+  `res.setHeader()`. (#103)
 - **`instance` field on all error paths.** The RFC 9457 `instance` field
   (`urn:uuid:{requestId}`) is now populated from the `x-request-id` response header on all
   error paths — pipeline breaks (return-value), caught errors, and `endWithProblem` (412).
