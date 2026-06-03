@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **OpenTelemetry tracing integration.** Optional `@opentelemetry/api` peer dependency with
+- **OpenTelemetry tracing integration.** `@opentelemetry/api` as a regular dependency with
   pipeline-level distributed tracing. New `tracing()` middleware factory starts an
   `ergo.pipeline` span per request, ends it after `send()`, and propagates W3C trace context.
   Logger automatically includes `traceId` and `spanId` when the tracing middleware is active.

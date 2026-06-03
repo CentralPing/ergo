@@ -120,15 +120,8 @@
     "type": "github",
     "url": "https://github.com/sponsors/jasoncust"
   },
-  "peerDependencies": {
-    "@opentelemetry/api": "^1.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@opentelemetry/api": {
-      "optional": true
-    }
-  },
   "dependencies": {
+    "@opentelemetry/api": "^1.0.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "content-type": "^2.0.0",
