@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780508878002,
+  "lastUpdate": 1780508945220,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5395,6 +5395,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.007,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5739705a3c2e98bf691c1fd4e8b301ce365554e8",
+          "message": "feat: instance field on all error paths and pipeline debug tracing (#86) (#102)\n\n* feat: instance field on all error paths and pipeline debug tracing (#86)\n\nPopulate the RFC 9457 `instance` field (`urn:uuid:{requestId}`) from\nthe `x-request-id` response header on all error paths — pipeline breaks\n(return-value model), caught errors, and internal `endWithProblem` (412).\nPreviously, `instance` was only populated in catch blocks, missing the\nv2 return-value error model entirely.\n\nAdd opt-in pipeline debug tracing via `{debug: true}` option on\n`handler()`. When enabled, `responseAcc._trace` records middleware\nexecution labels and the breaking step. On error responses (>= 400),\n`_trace` appears as an RFC 9457 extension member.\n\nCloses #86\nCloses #95\n\n* fix: address review findings (#86)",
+          "timestamp": "2026-06-03T17:48:45Z",
+          "tree_id": "db23e17e9b0d1ad098be894ce5153438a450b8f7",
+          "url": "https://github.com/CentralPing/ergo/commit/5739705a3c2e98bf691c1fd4e8b301ce365554e8"
+        },
+        "date": 1780508944210,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
