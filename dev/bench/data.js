@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780509951617,
+  "lastUpdate": 1780510534953,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5464,6 +5464,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "ed54d9b710e1d46b7eb82950128a1065bb67e0be",
+          "message": "feat: add OpenTelemetry tracing integration (#89)",
+          "timestamp": "2026-06-03T17:48:50Z",
+          "url": "https://github.com/CentralPing/ergo/pull/105/commits/ed54d9b710e1d46b7eb82950128a1065bb67e0be"
+        },
+        "date": 1780510533804,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
             "unit": "us/op"
           },
           {
