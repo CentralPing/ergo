@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780508945220,
+  "lastUpdate": 1780509951617,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5419,6 +5419,41 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/CentralPing/ergo/commit/5739705a3c2e98bf691c1fd4e8b301ce365554e8"
         },
         "date": 1780508944210,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "7ca4964679d46072c6a448cdc7026151a85e72be",
+          "message": "fix: harden formatLinkHeader href against CR/LF/NUL injection (#103)",
+          "timestamp": "2026-06-03T17:48:50Z",
+          "url": "https://github.com/CentralPing/ergo/pull/104/commits/7ca4964679d46072c6a448cdc7026151a85e72be"
+        },
+        "date": 1780509950894,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
