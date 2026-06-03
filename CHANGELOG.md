@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **OpenTelemetry tracing integration.** `@opentelemetry/api` as a regular dependency with
+  pipeline-level distributed tracing. New `tracing()` middleware factory starts an
+  `ergo.pipeline` span per request, ends it after `send()`, and propagates W3C trace context.
+  Logger automatically includes `traceId` and `spanId` when the tracing middleware is active.
+  Per-stage child spans available via `perStage: true` option. Zero overhead when the tracing
+  middleware is not included in the pipeline. (#89)
+
 - **Pipeline debug tracing.** Pass `{debug: true}` as the second argument to `handler()` to
   enable pipeline tracing. When enabled, `responseAcc._trace` is initialized with
   `{steps: [], breakAt: undefined}`. The `compose-with` serial and concurrent runners record

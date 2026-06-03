@@ -27,6 +27,7 @@
  * @requires ./csrf.js
  * @requires ./json-api-query.js
  * @requires ./logger.js
+ * @requires ./tracing.js
  * @requires ./prefer.js
  * @requires ./precondition.js
  * @requires ./rate-limit.js
@@ -74,6 +75,7 @@ import cors from './cors.js';
 import csrf from './csrf.js';
 import jsonApiQuery from './json-api-query.js';
 import logger from './logger.js';
+import tracing from './tracing.js';
 import url from './url.js';
 import prefer from './prefer.js';
 import precondition from './precondition.js';
@@ -110,6 +112,7 @@ export {
   precondition,
   rateLimit,
   securityHeaders,
+  tracing,
   url,
   send,
   timeout,
@@ -139,6 +142,7 @@ export default {
   precondition,
   rateLimit,
   securityHeaders,
+  tracing,
   url,
   send,
   timeout,
