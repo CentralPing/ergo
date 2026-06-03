@@ -24,6 +24,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **compose() accumulator type inference.** `compose()` now infers the domain accumulator
+  type from `[fn, setPath]` tuples. For pipelines with 1–12 tuples, TypeScript infers which
+  keys exist on the accumulator and their types. Accessing a key from middleware not in the
+  pipeline is a compile-time error. Pipelines with >12 tuples or only plain functions fall
+  back to `Promise<object>`. `compose.all()` has the same overloaded inference. (#87)
+- **Middleware result type exports.** New consumer-facing type interfaces for middleware
+  accumulator values: `UrlResult`, `BodyResult`, `CookieJar`, `LogEntry`, `AcceptsResult`,
+  `PreferResult`, `RateLimitResult`, `ResponseAccumulator`, and `MiddlewareTuple`. Import
+  from `@centralping/ergo/types`. (#87)
+- **Hand-written type override system.** `types-override/` directory holds hand-written
+  `.d.ts` files that replace auto-generated declarations after `tsc` runs. Used for
+  `compose-with.d.ts` where JSDoc cannot express the required variadic generic types. (#87)
 - CI type-checking gate validates generated `.d.ts` files with `skipLibCheck: false` and
   `strict: true` via `npm run check-types`. Prevents shipping broken type declarations. (#83)
 - TypeScript usage example alongside the JavaScript Quick Start in `README.md`. (#74)
