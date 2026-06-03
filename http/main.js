@@ -38,6 +38,7 @@
  * @requires ../utils/compose-with.js
  * @requires ../utils/http-errors.js
  * @requires ../lib/from-connect.js
+ * @requires ../lib/paginate.js
  *
  * @example
  * import {compose, handler, logger, cors, authorization, accepts,
@@ -84,6 +85,7 @@ import idempotency from './idempotency.js';
 import validate from './validate.js';
 import httpErrors from '../utils/http-errors.js';
 import fromConnect from '../lib/from-connect.js';
+import * as paginate from '../lib/paginate.js';
 
 export {
   compose,
@@ -101,6 +103,7 @@ export {
   fromConnect,
   httpErrors,
   idempotency,
+  paginate,
   jsonApiQuery,
   logger,
   prefer,
@@ -129,6 +132,7 @@ export default {
   fromConnect,
   httpErrors,
   idempotency,
+  paginate,
   jsonApiQuery,
   logger,
   prefer,

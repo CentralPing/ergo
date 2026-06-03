@@ -17,7 +17,8 @@
  * {@link rateLimit}, {@link securityHeaders}
  *
  * **Composition utilities:** {@link compose}, {@link createResponseAcc},
- * {@link mergeResponse}, {@link httpErrors}, {@link fromConnect}
+ * {@link mergeResponse}, {@link httpErrors}, {@link fromConnect},
+ * {@link paginate}
  *
  * @module @centralping/ergo
  * @since 0.1.0
