@@ -84,7 +84,7 @@ export default ({
     headerRequestIpName = 'x-real-ip',
     redactHeaders = DEFAULT_REDACTED
   } = {}) =>
-  (req, res) => {
+  (req, res, acc) => {
     const time = performance.now();
     const timestamp = Date.now();
     const requestId =
@@ -95,8 +95,13 @@ export default ({
       res.setHeader(headerRequestIdName, requestId);
     }
 
+    const traceId = acc?.trace?.traceId;
+    const spanId = acc?.trace?.spanId;
+
     const info = {
       requestId,
+      ...(traceId !== undefined && {traceId}),
+      ...(spanId !== undefined && {spanId}),
       timestamp,
       ip,
       method: req.method,

@@ -32,6 +32,7 @@
 import {accumulator} from '../utils/compose.js';
 import {createResponseAcc} from '../utils/compose-with.js';
 import attachInstance from '../lib/attach-instance.js';
+import {statusFromHttp} from '../lib/tracing.js';
 import createSend from './send.js';
 
 /**
@@ -67,6 +68,11 @@ export default (pipeline, {debug = false, ...sendOptions} = {}) => {
       if (res.listenerCount('error') > 0) {
         res.emit('error', err);
       }
+
+      const span = domainAcc.trace?.span;
+      if (span) {
+        span.recordException(err);
+      }
     }
 
     attachInstance(responseAcc, res);
@@ -78,6 +84,14 @@ export default (pipeline, {debug = false, ...sendOptions} = {}) => {
         res.statusCode = 500;
         res.end();
       }
+    }
+
+    const span = domainAcc.trace?.span;
+    if (span) {
+      const code = responseAcc.statusCode ?? res.statusCode;
+      span.setAttribute('http.status_code', code);
+      span.setStatus(statusFromHttp(code));
+      span.end();
     }
   };
 };

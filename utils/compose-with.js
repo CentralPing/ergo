@@ -129,10 +129,19 @@ async function serial(descriptors, args, domainAcc, responseAcc) {
     const label = setPath ?? (fn.name || '(anonymous)');
     if (trace) trace.steps.push(label);
 
+    const otelTracer = domainAcc.trace?.tracer;
+    let childSpan;
+    if (otelTracer && domainAcc.trace?.span) {
+      childSpan = otelTracer.startSpan(`ergo.middleware.${label}`);
+    }
+
     const raw = fn(...args, domainAcc, responseAcc);
     const resolved = typeof raw?.then === 'function' ? await raw : raw;
 
-    if (resolved == null) continue;
+    if (resolved == null) {
+      if (childSpan) childSpan.end();
+      continue;
+    }
 
     const {value, response} = extractReturn(resolved);
 
@@ -150,8 +159,14 @@ async function serial(descriptors, args, domainAcc, responseAcc) {
 
     if (responseAcc.statusCode !== undefined) {
       if (trace) trace.breakAt = label;
+      if (childSpan) {
+        childSpan.setAttribute('ergo.pipeline.break', true);
+        childSpan.end();
+      }
       break;
     }
+
+    if (childSpan) childSpan.end();
   }
 
   return domainAcc;

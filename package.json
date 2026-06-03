@@ -103,7 +103,9 @@
     "security",
     "security-headers",
     "owasp",
-    "api-security"
+    "api-security",
+    "opentelemetry",
+    "tracing"
   ],
   "author": "Jason Cust <jason@centralping.com>",
   "license": "MIT",
@@ -118,6 +120,14 @@
     "type": "github",
     "url": "https://github.com/sponsors/jasoncust"
   },
+  "peerDependencies": {
+    "@opentelemetry/api": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
@@ -127,6 +137,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/sdk-trace-node": "^2.0.0",
     "@types/node": "^25.9.1",
     "c8": "^11.0.0",
     "eslint": "^10.0.3",
