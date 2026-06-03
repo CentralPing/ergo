@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780510534953,
+  "lastUpdate": 1780511667977,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5494,6 +5494,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "88e225552802dc6fed39c36cc4ae69cc9cabc8d0",
+          "message": "fix: harden formatLinkHeader href against CR/LF/NUL injection (#103) (#104)",
+          "timestamp": "2026-06-03T14:34:06-04:00",
+          "tree_id": "9e199ff547e2ab53fa5870b0e2403493a7b0eec4",
+          "url": "https://github.com/CentralPing/ergo/commit/88e225552802dc6fed39c36cc4ae69cc9cabc8d0"
+        },
+        "date": 1780511666883,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
             "unit": "us/op"
           },
           {
