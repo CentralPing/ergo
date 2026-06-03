@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780513400881,
+  "lastUpdate": 1780513614410,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5648,6 +5648,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4a7f04716867b6f01755136aedef0206e0b9d21f",
+          "message": "feat: add OpenTelemetry tracing integration (#89) (#105)\n\n* feat: add OpenTelemetry tracing integration (#89)\n\nAdd optional @opentelemetry/api peer dependency with pipeline-level\ndistributed tracing. New tracing() middleware factory starts an\nergo.pipeline span per request, ends it after send(), and propagates\nW3C trace context. Logger includes traceId/spanId when active.\nPer-stage child spans available via perStage option. Zero overhead\nwhen tracing middleware is not in the pipeline.\n\n* fix: move @opentelemetry/api to regular dependencies (#89)\n\n* fix: correct OTEL context propagation for response injection and child spans (#89)\n\n* test: extract headerGetter for full function coverage in lib/tracing (#89)",
+          "timestamp": "2026-06-03T15:06:35-04:00",
+          "tree_id": "2236ee08eaa855ce55e26c3e38837d137154decd",
+          "url": "https://github.com/CentralPing/ergo/commit/4a7f04716867b6f01755136aedef0206e0b9d21f"
+        },
+        "date": 1780513613712,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
