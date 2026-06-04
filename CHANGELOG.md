@@ -4,6 +4,39 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Typed middleware options and results.** All 21 middleware factory functions now have
+  hand-written `.d.ts` overrides in `types-override/http/` with named options interfaces
+  (`AcceptsOptions`, `BodyOptions`, `CorsOptions`, `ValidateOptions`, etc.) and precise
+  return types. Consumers get autocomplete and type-checking for factory parameters and
+  pipeline accumulator values without `as any` casts. Import options/result types from
+  `@centralping/ergo/types`. (#108)
+- New result type interfaces: `AuthorizationResult`, `TracingResult`, `IdempotencyResult`.
+  (#108)
+- New utility types: `AjvFormatName` (26-member string literal union tracking ajv-formats
+  3.x), `AuthorizationStrategy`, `ValidateSchemas`, `CookieJar` (now includes jar methods).
+  (#108)
+- `types-override/http/main.d.ts` override provides typed re-exports for all middleware,
+  `httpErrors`, `fromConnect`, and `paginate` namespace. (#108)
+
+### Fixed
+
+- **`PreferResult` now matches runtime.** Corrected from `{[k: string]: {value?: string}}`
+  to `{[k: string]: string | true}` — the runtime returns flat preference values, not
+  wrapped objects. (#108)
+- **`CookieJar` now includes jar methods.** Added `set()`, `get()`, `clear()`, `toHeader()`,
+  `size`, and `isJar` to match the actual cookie jar API. Previously typed as a bare index
+  signature. (#108)
+- **`LogEntry` now includes trace correlation fields.** Added optional `traceId` and `spanId`
+  properties populated when the tracing middleware is active. (#108)
+
+### Removed
+
+- **`RateLimitResult` removed.** The rate-limit middleware only returns
+  `{response: {headers}}` — it never stores a domain accumulator value. The interface
+  described a shape that did not exist at runtime. (#108)
+
 ---
 
 ## [0.2.0] - 2026-06-04

@@ -6,7 +6,11 @@
  * signatures correctly infer accumulator key types from [fn, key] tuples.
  */
 
-import type { UrlResult, BodyResult, LogEntry, CookieJar, AcceptsResult, PreferResult, RateLimitResult } from '../ergo.js';
+import type {
+  UrlResult, BodyResult, LogEntry, CookieJar, AcceptsResult, PreferResult,
+  TracingResult, IdempotencyResult, AuthorizationResult,
+  AcceptsOptions, BodyOptions, TracingOptions, CookieOptions,
+} from '../ergo.js';
 import compose, { createResponseAcc, mergeResponse } from '../utils/compose-with.js';
 
 // ---------------------------------------------------------------------------
@@ -20,7 +24,7 @@ declare function loggerFactory(): () => LogEntry;
 declare function cookieFactory(): () => CookieJar;
 declare function acceptsFactory(): () => AcceptsResult;
 declare function preferFactory(): () => PreferResult;
-declare function rateLimitFactory(): () => RateLimitResult;
+declare function tracingFactory(): () => { value: TracingResult };
 
 // ---------------------------------------------------------------------------
 // Positive: compose with typed tuples infers accumulator keys
@@ -111,7 +115,7 @@ const concurrentSeven = compose.all(
   [urlFactory(), 'url'] as const,
   [bodyFactory(), 'body'] as const,
   [preferFactory(), 'prefer'] as const,
-  [rateLimitFactory(), 'rateLimit'] as const,
+  [tracingFactory(), 'trace'] as const,
 );
 
 async function testConcurrentSeven() {
@@ -123,7 +127,7 @@ async function testConcurrentSeven() {
   const u: UrlResult = acc.url;
   const b: BodyResult = acc.body;
   const p: PreferResult = acc.prefer;
-  const r: RateLimitResult = acc.rateLimit;
+  const t: TracingResult = acc.trace;
 
   void l;
   void a;
@@ -131,7 +135,7 @@ async function testConcurrentSeven() {
   void u;
   void b;
   void p;
-  void r;
+  void t;
 }
 
 // ---------------------------------------------------------------------------
@@ -183,6 +187,38 @@ async function testFallback() {
   void acc;
 }
 
+// ---------------------------------------------------------------------------
+// Positive: options interfaces are assignable from correct option shapes
+// ---------------------------------------------------------------------------
+
+function testOptionsInterfaces() {
+  const ao: AcceptsOptions = { throwIfFail: true, types: ['application/json'] };
+  const bo: BodyOptions = { limit: 1024, charset: 'utf-8' };
+  const to: TracingOptions = { perStage: true, serviceName: 'my-app' };
+  const co: CookieOptions = { max: 100, loose: false };
+  void ao;
+  void bo;
+  void to;
+  void co;
+}
+
+// ---------------------------------------------------------------------------
+// Positive: result interfaces reflect actual runtime shapes
+// ---------------------------------------------------------------------------
+
+function testResultShapes() {
+  const prefer: PreferResult = { return: 'minimal', 'respond-async': true };
+  const auth: AuthorizationResult = { user: { id: 1 } };
+  const idempNew: IdempotencyResult = { key: 'k', fingerprint: 'f', complete: () => {}, discard: () => {} };
+  const idempReplay: IdempotencyResult = { replayed: true };
+  const idempSkip: IdempotencyResult = {};
+  void prefer;
+  void auth;
+  void idempNew;
+  void idempReplay;
+  void idempSkip;
+}
+
 // Suppress unused-variable warnings
 void testTwoTuple;
 void testFiveTuple;
@@ -193,3 +229,5 @@ void testEnvelopeUnwrap;
 void testResponseAcc;
 void testNegative;
 void testFallback;
+void testOptionsInterfaces;
+void testResultShapes;
