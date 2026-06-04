@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] - 2026-06-04
+
 ### Added
 
 - **OpenTelemetry tracing integration.** `@opentelemetry/api` as a regular dependency with
@@ -12,12 +16,31 @@ All notable changes to this project will be documented in this file.
   Logger automatically includes `traceId` and `spanId` when the tracing middleware is active.
   Per-stage child spans available via `perStage: true` option. Zero overhead when the tracing
   middleware is not included in the pipeline. (#89)
-
 - **Pipeline debug tracing.** Pass `{debug: true}` as the second argument to `handler()` to
   enable pipeline tracing. When enabled, `responseAcc._trace` is initialized with
   `{steps: [], breakAt: undefined}`. The `compose-with` serial and concurrent runners record
   each middleware label in `steps` and set `breakAt` to the label that triggered a pipeline
   break. On error responses (>= 400), `_trace` appears as an RFC 9457 extension member. (#86)
+- **compose() accumulator type inference.** `compose()` now infers the domain accumulator
+  type from `[fn, setPath]` tuples. For pipelines with 1–12 tuples, TypeScript infers which
+  keys exist on the accumulator and their types. Accessing a key from middleware not in the
+  pipeline is a compile-time error. Pipelines with >12 tuples or only plain functions fall
+  back to `Promise<object>`. `compose.all()` has the same overloaded inference. (#87)
+- **Middleware result type exports.** New consumer-facing type interfaces for middleware
+  accumulator values: `UrlResult`, `BodyResult`, `CookieJar`, `LogEntry`, `AcceptsResult`,
+  `PreferResult`, `RateLimitResult`, `ResponseAccumulator`, and `MiddlewareTuple`. Import
+  from `@centralping/ergo/types`. (#87)
+- **Hand-written type override system.** `types-override/` directory holds hand-written
+  `.d.ts` files that replace auto-generated declarations after `tsc` runs. Used for
+  `compose-with.d.ts` where JSDoc cannot express the required variadic generic types. (#87)
+- **Pagination helpers.** New `paginate` namespace export with `parseOffsetParams`,
+  `parseCursorParams`, `offsetResponse`, and `cursorResponse`. Parses query parameters with
+  bounded defaults, generates RFC 8288 Link headers and `X-Total-Count`, and returns
+  pipeline-compatible response objects. Available via `import {paginate} from '@centralping/ergo'`
+  or `import {parseOffsetParams} from '@centralping/ergo/lib/paginate'`. (#85)
+- CI type-checking gate validates generated `.d.ts` files with `skipLibCheck: false` and
+  `strict: true` via `npm run check-types`. Prevents shipping broken type declarations. (#83)
+- TypeScript usage example alongside the JavaScript Quick Start in `README.md`. (#74)
 
 ### Fixed
 
@@ -48,29 +71,6 @@ All notable changes to this project will be documented in this file.
   full object types instead of `object`. No runtime behavior changes. (#75)
 - `.d.ts` declarations now compile with `skipLibCheck: false`. Middleware parameter types
   for `cookie()`, `cors()`, `url()`, and `lib/cors` are specific instead of `{}`. (#83)
-
-### Added
-
-- **compose() accumulator type inference.** `compose()` now infers the domain accumulator
-  type from `[fn, setPath]` tuples. For pipelines with 1–12 tuples, TypeScript infers which
-  keys exist on the accumulator and their types. Accessing a key from middleware not in the
-  pipeline is a compile-time error. Pipelines with >12 tuples or only plain functions fall
-  back to `Promise<object>`. `compose.all()` has the same overloaded inference. (#87)
-- **Middleware result type exports.** New consumer-facing type interfaces for middleware
-  accumulator values: `UrlResult`, `BodyResult`, `CookieJar`, `LogEntry`, `AcceptsResult`,
-  `PreferResult`, `RateLimitResult`, `ResponseAccumulator`, and `MiddlewareTuple`. Import
-  from `@centralping/ergo/types`. (#87)
-- **Hand-written type override system.** `types-override/` directory holds hand-written
-  `.d.ts` files that replace auto-generated declarations after `tsc` runs. Used for
-  `compose-with.d.ts` where JSDoc cannot express the required variadic generic types. (#87)
-- CI type-checking gate validates generated `.d.ts` files with `skipLibCheck: false` and
-  `strict: true` via `npm run check-types`. Prevents shipping broken type declarations. (#83)
-- TypeScript usage example alongside the JavaScript Quick Start in `README.md`. (#74)
-- **Pagination helpers.** New `paginate` namespace export with `parseOffsetParams`,
-  `parseCursorParams`, `offsetResponse`, and `cursorResponse`. Parses query parameters with
-  bounded defaults, generates RFC 8288 Link headers and `X-Total-Count`, and returns
-  pipeline-compatible response objects. Available via `import {paginate} from '@centralping/ergo'`
-  or `import {parseOffsetParams} from '@centralping/ergo/lib/paginate'`. (#85)
 
 ## [0.1.0-beta.4] - 2026-05-29
 
