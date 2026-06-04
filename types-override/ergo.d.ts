@@ -57,7 +57,7 @@ export type AjvFormatName =
 export interface AuthorizationStrategy {
   type: string;
   attributes?: Record<string, string>;
-  authorizer: (...args: any[]) => any;
+  authorizer: (...args: any[]) => unknown;
 }
 
 // ---------------------------------------------------------------------------
