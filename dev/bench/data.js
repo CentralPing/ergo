@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780593446247,
+  "lastUpdate": 1780593561206,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5707,6 +5707,45 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/CentralPing/ergo/pull/107/commits/136be925ba35862a8aef295210523fbc1383525f"
         },
         "date": 1780593445885,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bf277b45711c9dc270c785ff9966bb8f35278dca",
+          "message": "chore: bump version to 0.2.0 (#107)",
+          "timestamp": "2026-06-04T13:19:04-04:00",
+          "tree_id": "85b81acc14ed5c0cd4028121cef54b36e5a04e2c",
+          "url": "https://github.com/CentralPing/ergo/commit/bf277b45711c9dc270c785ff9966bb8f35278dca"
+        },
+        "date": 1780593560188,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
