@@ -1,12 +1,243 @@
 /**
- * Consumer-facing type interfaces for ergo middleware result types.
+ * Consumer-facing type interfaces for ergo middleware.
  *
- * These interfaces describe the success-path `value` that each middleware
- * stores on the domain accumulator via `[fn, setPath]` tuples. On the
- * error path, middleware returns `{response: {statusCode}}` with no
- * `value`, so the accumulator key is not assigned and the pipeline breaks
- * after merging the response. Only the success shape is typed here.
+ * Exports three categories of named interfaces:
+ *
+ * 1. **Options interfaces** — typed parameters for each middleware factory
+ *    function (e.g., `AcceptsOptions`, `BodyOptions`). These replace the
+ *    generic `object` that tsc emits from JSDoc `@param {object}`.
+ *
+ * 2. **Result interfaces** — typed success-path `value` shapes stored on the
+ *    domain accumulator via `[fn, setPath]` tuples. On the error path,
+ *    middleware returns `{response: {statusCode}}` with no `value`, so the
+ *    accumulator key is not assigned and the pipeline breaks.
+ *
+ * 3. **Utility types** — `MiddlewareTuple`, `ResponseAccumulator`,
+ *    `AjvFormatName`, `AuthorizationStrategy`.
  */
+
+// ---------------------------------------------------------------------------
+// AJV format name union (tracks ajv-formats 3.x)
+// ---------------------------------------------------------------------------
+
+/** String literal union of format keywords supported by ajv-formats 3.x. */
+export type AjvFormatName =
+  | 'date'
+  | 'time'
+  | 'date-time'
+  | 'iso-time'
+  | 'iso-date-time'
+  | 'duration'
+  | 'uri'
+  | 'uri-reference'
+  | 'uri-template'
+  | 'url'
+  | 'email'
+  | 'hostname'
+  | 'ipv4'
+  | 'ipv6'
+  | 'regex'
+  | 'uuid'
+  | 'json-pointer'
+  | 'json-pointer-uri-fragment'
+  | 'relative-json-pointer'
+  | 'byte'
+  | 'int32'
+  | 'int64'
+  | 'float'
+  | 'double'
+  | 'password'
+  | 'binary';
+
+// ---------------------------------------------------------------------------
+// Authorization strategy
+// ---------------------------------------------------------------------------
+
+/** A single authentication strategy definition for the authorization middleware. */
+export interface AuthorizationStrategy {
+  type: string;
+  attributes?: Record<string, string>;
+  authorizer: (...args: any[]) => any;
+}
+
+// ---------------------------------------------------------------------------
+// Options interfaces
+// ---------------------------------------------------------------------------
+
+/** Options for `accepts()` — content negotiation middleware. */
+export interface AcceptsOptions {
+  throwIfFail?: boolean;
+  types?: string[];
+  languages?: string[];
+  charsets?: string[];
+  encodings?: string[];
+}
+
+/** Options for `authorization()` — authentication middleware. */
+export interface AuthorizationOptions {
+  strategies?: AuthorizationStrategy[];
+}
+
+/** Options for `body()` — request body parsing middleware. */
+export interface BodyOptions {
+  limit?: number;
+  decompressedLimit?: number;
+  types?: string[];
+  charset?: string;
+}
+
+/** Options for `cacheControl()` — Cache-Control header middleware. */
+export interface CacheControlOptions {
+  directives?: string;
+  public?: boolean;
+  private?: boolean;
+  noCache?: boolean;
+  noStore?: boolean;
+  noTransform?: boolean;
+  mustRevalidate?: boolean;
+  proxyRevalidate?: boolean;
+  immutable?: boolean;
+  maxAge?: number;
+  sMaxAge?: number;
+  staleWhileRevalidate?: number;
+  staleIfError?: number;
+}
+
+/** Options for `compress()` — response compression middleware. */
+export interface CompressOptions {
+  threshold?: number;
+  encodings?: string[];
+}
+
+/** Options for `cookie()` — cookie parsing middleware. */
+export interface CookieOptions {
+  decoder?: (value: string) => string;
+  loose?: boolean;
+  collection?: boolean;
+  max?: number;
+}
+
+/** Options for `cors()` — CORS header injection middleware. */
+export interface CorsOptions {
+  origins?: string | string[] | RegExp | ((origin: string) => boolean);
+  allowMethods?: string[];
+  allowHeaders?: string | string[] | RegExp | ((header: string) => boolean);
+  exposeHeaders?: string | string[];
+  allowCredentials?: boolean;
+  maxAge?: number;
+}
+
+/** Options for `csrf()` — CSRF token issue/verify middleware. */
+export interface CsrfOptions {
+  cookieTokenName?: string;
+  headerTokenName?: string;
+  cookieUuidName?: string;
+  secret: string;
+  encoding?: string;
+  cookieOptions?: Record<string, unknown>;
+}
+
+/** Options for `handler()` — pipeline executor. */
+export interface HandlerOptions {
+  debug?: boolean;
+  prettify?: boolean;
+  vary?: string[];
+  etag?: boolean;
+  prefer?: boolean;
+  envelope?: boolean | ((body: unknown, statusCode: number) => unknown);
+}
+
+/** Options for `idempotency()` — idempotency-key middleware. */
+export interface IdempotencyOptions {
+  store?: {
+    get(key: string): unknown;
+    set(key: string, fingerprint: string): void;
+    complete(key: string, response: unknown): void;
+    delete(key: string): void;
+  };
+  ttlMs?: number;
+  required?: boolean;
+  methods?: Set<string> | string[];
+}
+
+/** Options for `logger()` — structured request logging middleware. */
+export interface LoggerOptions {
+  log?: (...args: any[]) => void;
+  error?: (...args: any[]) => void;
+  uuid?: () => string;
+  headerRequestIdName?: string;
+  headerRequestIpName?: string;
+  redactHeaders?: Set<string>;
+}
+
+/** Options for `precondition()` — conditional request enforcement. */
+export interface PreconditionOptions {
+  methods?: string[] | Set<string>;
+}
+
+/** Options for `rateLimit()` — rate limiting middleware. */
+export interface RateLimitOptions {
+  max?: number;
+  windowMs?: number;
+  store?: { hit(key: string, windowMs: number): { count: number; resetMs: number } };
+  keyGenerator?: (req: import('node:http').IncomingMessage) => string;
+}
+
+/** Options for `securityHeaders()` — security response headers middleware. */
+export interface SecurityHeadersOptions {
+  contentSecurityPolicy?: string | false;
+  strictTransportSecurity?: string | false | {
+    maxAge: number;
+    includeSubDomains?: boolean;
+    preload?: boolean;
+  };
+  xContentTypeOptions?: string | false;
+  xFrameOptions?: string | false;
+  referrerPolicy?: string | false;
+  xXssProtection?: string | false;
+  permissionsPolicy?: string | false;
+}
+
+/** Options for `send()` — response serialization middleware. */
+export interface SendOptions {
+  prettify?: boolean;
+  vary?: string[];
+  etag?: boolean;
+  prefer?: boolean;
+  envelope?: boolean | ((body: unknown, statusCode: number) => unknown);
+}
+
+/** Options for `timeout()` — request timeout middleware. */
+export interface TimeoutOptions {
+  ms?: number;
+  statusCode?: number;
+}
+
+/** Options for `tracing()` — OpenTelemetry pipeline tracing middleware. */
+export interface TracingOptions {
+  serviceName?: string;
+  version?: string;
+  tracer?: import('@opentelemetry/api').Tracer;
+  attributes?: Record<string, string | number | boolean>;
+  perStage?: boolean;
+}
+
+/** Options for `validate()` — AJV JSON Schema validation middleware. */
+export interface ValidateOptions {
+  formats?: boolean | AjvFormatName[] | Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/** JSON Schema objects for `validate()` first parameter. */
+export interface ValidateSchemas {
+  body?: Record<string, unknown>;
+  query?: Record<string, unknown>;
+  params?: Record<string, unknown>;
+}
+
+// ---------------------------------------------------------------------------
+// Result interfaces
+// ---------------------------------------------------------------------------
 
 /** Result stored at `acc.url` by `[url(), 'url']`. */
 export interface UrlResult {
@@ -27,9 +258,20 @@ export interface BodyResult {
   parsed?: unknown;
 }
 
-/** Result stored at `acc.cookies` by `[cookie(), 'cookies']`. */
+/**
+ * Result stored at `acc.cookies` by `[cookie(), 'cookies']`.
+ *
+ * Incoming cookies are available as own properties. Outgoing cookies are
+ * managed via `set()`, `get()`, `clear()`, and serialized by `toHeader()`.
+ */
 export interface CookieJar {
-  [name: string]: string;
+  set(name: string, value: string, options?: Record<string, unknown>): void;
+  get(name: string): unknown;
+  clear(name: string): void;
+  toHeader(): string[];
+  readonly size: number;
+  readonly isJar: true;
+  [name: string]: unknown;
 }
 
 /** Result stored at `acc.log` by `[logger(), 'log']`. */
@@ -52,6 +294,8 @@ export interface LogEntry {
     remoteAddress: string;
     remotePort: number;
   };
+  traceId?: string;
+  spanId?: string;
 }
 
 /** Result stored at `acc.accepts` by `[accepts(), 'accepts']`. */
@@ -62,19 +306,46 @@ export interface AcceptsResult {
   encoding: string | false;
 }
 
-/** Result stored at `acc.prefer` by `[prefer(), 'prefer']`. */
+/**
+ * Result stored at `acc.prefer` by `[prefer(), 'prefer']`.
+ *
+ * Flat map of preference name to value string or `true` for bare tokens.
+ * Example: `{ return: 'minimal', 'respond-async': true }`.
+ */
 export interface PreferResult {
-  [preference: string]: { value?: string };
+  [preference: string]: string | true;
 }
 
-/** Result stored at `acc.rateLimit` by `[rateLimit(), 'rateLimit']`. */
-export interface RateLimitResult {
-  count: number;
-  remaining: number;
-  reset: number;
-  limited: boolean;
-  retryAfter?: number;
+/**
+ * Result stored at `acc.auth` by `[authorization(), 'auth']`.
+ *
+ * The shape is opaque — determined by the user-provided authorizer function.
+ */
+export type AuthorizationResult = Record<string, unknown>;
+
+/**
+ * Result stored at `acc.trace` by `[tracing(), 'trace']`.
+ *
+ * `tracer` and `activeContext` are only populated when `perStage: true`.
+ */
+export interface TracingResult {
+  span: import('@opentelemetry/api').Span;
+  tracer?: import('@opentelemetry/api').Tracer;
+  activeContext?: import('@opentelemetry/api').Context;
+  parentContext: import('@opentelemetry/api').Context;
+  traceId: string;
+  spanId: string;
 }
+
+/** Result stored at `acc.idempotency` by `[idempotency(), 'idempotency']`. */
+export type IdempotencyResult =
+  | Record<string, never>
+  | { key: string; fingerprint: string; complete: (response: unknown) => void; discard: () => void }
+  | { replayed: true };
+
+// ---------------------------------------------------------------------------
+// Utility types
+// ---------------------------------------------------------------------------
 
 /**
  * Middleware tuple: `[fn, key]` where `fn` returns `Value` and
