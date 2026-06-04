@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780616306784,
+  "lastUpdate": 1780616501427,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -5866,6 +5866,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c9a1e12a4fd3a37f220b011597e4ab8d3fee5e33",
+          "message": "feat: add typed middleware options and result interfaces (#108) (#111)\n\nHand-written .d.ts overrides for all 21 middleware factory functions\nwith named options interfaces, precise inner function signatures, and\ntyped return values. Fixes PreferResult and removes inaccurate\nRateLimitResult. Adds AuthorizationResult, TracingResult, and\nIdempotencyResult interfaces. Includes AjvFormatName string literal\nunion tracking ajv-formats 3.x.",
+          "timestamp": "2026-06-04T23:41:28Z",
+          "tree_id": "f64d4eefd32fba69e23ca53d10eadaafbd847328",
+          "url": "https://github.com/CentralPing/ergo/commit/c9a1e12a4fd3a37f220b011597e4ab8d3fee5e33"
+        },
+        "date": 1780616500899,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
