@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780667514006,
+  "lastUpdate": 1780667597678,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6228,6 +6228,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4a14511d5da1d5d2377f0909545d715a3f986cdf",
+          "message": "feat: declarative pagination middleware factory and send() integration (#114) (#115)\n\n* feat: add declarative pagination middleware factory and send() integration (#114)\n\n- Create http/paginate.js factory wrapping lib/paginate.js utilities\n- Add paginate option to send() for RFC 8288 Link header generation\n- Emit X-Total-Count header for offset pagination responses\n- Add 'paginate' to SEND_RESERVED to prevent RFC 9457 leakage\n- Change main barrel paginate export from namespace to factory\n- Bump version to 0.3.0\n\n* fix: address review findings for pagination PR\n\n- Add 8 unit tests for send.js pagination integration (codecov/patch)\n- Remove @returns {function} from paginate factory (type inference)\n- Add paginate?: boolean to SendOptions interface\n- Remove PaginateOptions/PaginateResult from default export object type\n- Add CHANGELOG.md entry for 0.3.0\n- Fix stale @requires in http/main.js",
+          "timestamp": "2026-06-05T13:52:59Z",
+          "tree_id": "15eea5d10ea733b789d99268c3ca3470c1f60e82",
+          "url": "https://github.com/CentralPing/ergo/commit/4a14511d5da1d5d2377f0909545d715a3f986cdf"
+        },
+        "date": 1780667596716,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
