@@ -145,7 +145,13 @@ export interface HandlerOptions {
   vary?: string[];
   etag?: boolean;
   prefer?: boolean;
-  envelope?: boolean | ((body: unknown, statusCode: number) => unknown);
+  envelope?:
+    | boolean
+    | ((body: unknown, ctx: {requestId: string; statusCode: number; method: string}) => unknown);
+  errorFormatter?: (
+    problemDetails: Record<string, unknown>,
+    ctx: {requestId: string; statusCode: number; method: string}
+  ) => unknown;
 }
 
 /** Options for `idempotency()` — idempotency-key middleware. */
@@ -208,7 +214,13 @@ export interface SendOptions {
   vary?: string[];
   etag?: boolean;
   prefer?: boolean;
-  envelope?: boolean | ((body: unknown, statusCode: number) => unknown);
+  envelope?:
+    | boolean
+    | ((body: unknown, ctx: {requestId: string; statusCode: number; method: string}) => unknown);
+  errorFormatter?: (
+    problemDetails: Record<string, unknown>,
+    ctx: {requestId: string; statusCode: number; method: string}
+  ) => unknown;
 }
 
 /** Options for `timeout()` — request timeout middleware. */
