@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780695235873,
+  "lastUpdate": 1780695238686,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6401,6 +6401,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "a2d3d46ee0f26b7e8505705636c76ac6744a8c7e",
+          "message": "build(deps-dev): Bump lint-staged from 17.0.5 to 17.0.7 in the dev-dependencies group",
+          "timestamp": "2026-06-05T14:15:57Z",
+          "url": "https://github.com/CentralPing/ergo/pull/121/commits/a2d3d46ee0f26b7e8505705636c76ac6744a8c7e"
+        },
+        "date": 1780695238180,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
             "unit": "us/op"
           },
           {
