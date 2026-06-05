@@ -29,6 +29,7 @@
  *
  * const server = http.createServer(handler(pipeline));
  */
+import {STATUS_CODES} from 'node:http';
 import {accumulator} from '../utils/compose.js';
 import {createResponseAcc} from '../utils/compose-with.js';
 import attachInstance from '../lib/attach-instance.js';
@@ -43,13 +44,20 @@ import createSend from './send.js';
  * @param {boolean} [options.debug=false] - Enable pipeline debug tracing. When true,
  *   `responseAcc._trace` is initialized before the pipeline runs. On error responses
  *   (>= 400), `_trace` appears as an RFC 9457 extension member with `{steps, breakAt}`.
+ * @param {boolean} [options.redactErrors=true] - Control whether caught 5xx exception
+ *   messages appear in the RFC 9457 response `detail` field. When `true` (default),
+ *   `detail` is set to generic status text (e.g. "Internal Server Error"). When `false`,
+ *   `err.message` is passed through for 5xx responses only — 4xx responses always use
+ *   generic status text regardless of this setting. Stack traces are never exposed.
+ *   **Security:** only set to `false` in development — production deployments should
+ *   always redact to prevent information leakage.
  * @param {boolean} [options.prettify] - Forwarded to `send()`.
  * @param {string[]} [options.vary] - Forwarded to `send()`.
  * @param {boolean} [options.etag] - Forwarded to `send()`.
  * @param {boolean} [options.prefer] - Forwarded to `send()`.
  * @param {boolean|function} [options.envelope] - Forwarded to `send()`.
  */
-export default (pipeline, {debug = false, ...sendOptions} = {}) => {
+export default (pipeline, {debug = false, redactErrors = true, ...sendOptions} = {}) => {
   const send = createSend(sendOptions);
 
   return async (req, res) => {
@@ -62,8 +70,13 @@ export default (pipeline, {debug = false, ...sendOptions} = {}) => {
     } catch (err) {
       if (responseAcc.statusCode === undefined) {
         responseAcc.statusCode = 500;
-        responseAcc.detail = 'Internal Server Error';
       }
+
+      const statusText = STATUS_CODES[responseAcc.statusCode] ?? STATUS_CODES[500];
+      responseAcc.detail ??=
+        !redactErrors && responseAcc.statusCode >= 500
+          ? String(err?.message ?? '') || statusText
+          : statusText;
 
       if (res.listenerCount('error') > 0) {
         res.emit('error', err);

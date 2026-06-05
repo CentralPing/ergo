@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`redactErrors` option for `handler()`.** Controls whether caught 5xx exception messages
+  appear in the RFC 9457 response `detail` field. Defaults to `true` (secure — generic
+  status text only). Set to `false` during development to surface `err.message` in error
+  responses without exposing stack traces. (#109)
 - **Typed middleware options and results.** All 21 middleware factory functions now have
   hand-written `.d.ts` overrides in `types-override/http/` with named options interfaces
   (`AcceptsOptions`, `BodyOptions`, `CorsOptions`, `ValidateOptions`, etc.) and precise
