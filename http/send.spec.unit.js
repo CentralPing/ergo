@@ -924,7 +924,7 @@ describe('[Module] http/send', () => {
       assert.ok(link.includes('filter=active'));
     });
 
-    it('does not emit X-Total-Count when total is not provided', () => {
+    it('does not emit Link or X-Total-Count when total is not provided', () => {
       const req = createMockReq();
       const res = createMockRes();
       const domainAcc = {
@@ -933,6 +933,20 @@ describe('[Module] http/send', () => {
       };
       const responseAcc = {statusCode: 200, body: [{id: 1}], paginate: {}};
       paginateSend(req, res, responseAcc, domainAcc);
+      assert.equal(res._headers['link'], undefined);
+      assert.equal(res._headers['x-total-count'], undefined);
+    });
+
+    it('does not emit Link or X-Total-Count when total is non-finite', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {
+        paginate: {strategy: 'offset', page: 1, perPage: 10, offset: 0, limit: 10},
+        url: {pathname: '/items'}
+      };
+      const responseAcc = {statusCode: 200, body: [{id: 1}], paginate: {total: 'invalid'}};
+      paginateSend(req, res, responseAcc, domainAcc);
+      assert.equal(res._headers['link'], undefined);
       assert.equal(res._headers['x-total-count'], undefined);
     });
   });

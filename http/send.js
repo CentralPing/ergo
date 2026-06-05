@@ -252,18 +252,17 @@ export default ({
           prevCursor: paginateMeta.prevCursor
         });
         res.setHeader('Link', formatLinkHeader(links));
-      } else {
+      } else if (Number.isFinite(Number(paginateMeta.total))) {
+        const total = Number(paginateMeta.total);
         const links = paginationLinks({
           baseUrl,
           page: paginateParams.page,
           perPage: paginateParams.perPage,
-          total: paginateMeta.total,
+          total,
           searchParams
         });
         res.setHeader('Link', formatLinkHeader(links));
-        if (paginateMeta.total != null) {
-          res.setHeader('X-Total-Count', String(paginateMeta.total));
-        }
+        res.setHeader('X-Total-Count', String(total));
       }
     }
 
