@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780644545149,
+  "lastUpdate": 1780645409134,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6049,6 +6049,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "a8eb95a61431c3033416e25e4d9a830fff485071",
+          "message": "feat: declarative pagination middleware factory and send() integration (#114)",
+          "timestamp": "2026-06-05T03:53:29Z",
+          "url": "https://github.com/CentralPing/ergo/pull/115/commits/a8eb95a61431c3033416e25e4d9a830fff485071"
+        },
+        "date": 1780645408661,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
