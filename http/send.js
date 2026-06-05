@@ -155,7 +155,7 @@ export default ({
 
       if (errorFormatter) {
         const problemDetails = httpErrors(statusCode, opts).toJSON();
-        const requestId = res.getHeader('x-request-id');
+        const requestId = res.getHeader?.('x-request-id');
         body = errorFormatter(problemDetails, {requestId, statusCode, method: req.method});
       } else {
         body = httpErrors(statusCode, opts);
@@ -171,7 +171,7 @@ export default ({
       bodyType(body) === 'Object' &&
       !(body instanceof Error)
     ) {
-      const requestId = res.getHeader('x-request-id');
+      const requestId = res.getHeader?.('x-request-id');
       body =
         typeof envelope === 'function'
           ? envelope(body, {requestId, statusCode, method: req.method})

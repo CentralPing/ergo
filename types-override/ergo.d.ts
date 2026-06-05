@@ -147,10 +147,13 @@ export interface HandlerOptions {
   prefer?: boolean;
   envelope?:
     | boolean
-    | ((body: unknown, ctx: {requestId: string; statusCode: number; method: string}) => unknown);
+    | ((
+        body: unknown,
+        ctx: {requestId: string | undefined; statusCode: number; method: string}
+      ) => unknown);
   errorFormatter?: (
     problemDetails: Record<string, unknown>,
-    ctx: {requestId: string; statusCode: number; method: string}
+    ctx: {requestId: string | undefined; statusCode: number; method: string}
   ) => unknown;
 }
 
@@ -216,10 +219,13 @@ export interface SendOptions {
   prefer?: boolean;
   envelope?:
     | boolean
-    | ((body: unknown, ctx: {requestId: string; statusCode: number; method: string}) => unknown);
+    | ((
+        body: unknown,
+        ctx: {requestId: string | undefined; statusCode: number; method: string}
+      ) => unknown);
   errorFormatter?: (
     problemDetails: Record<string, unknown>,
-    ctx: {requestId: string; statusCode: number; method: string}
+    ctx: {requestId: string | undefined; statusCode: number; method: string}
   ) => unknown;
 }
 

@@ -623,6 +623,29 @@ describe('[Module] http/send', () => {
       assert.equal(res._headers['content-type'], 'application/json; charset=utf-8');
     });
 
+    it('applies formatter to endWithProblem (412 via If-Unmodified-Since)', () => {
+      const pastDate = new Date('2020-01-01T00:00:00Z');
+      const futureDate = new Date('2099-01-01T00:00:00Z');
+      const formatter = (problem, ctx) => ({
+        custom412: true,
+        status: problem.status,
+        method: ctx.method
+      });
+      const sendCustom = createSend({errorFormatter: formatter});
+      const req = createMockReq({
+        method: 'PUT',
+        headers: {'if-unmodified-since': pastDate.toUTCString()}
+      });
+      const res = createMockRes();
+      sendCustom(req, res, {statusCode: 200, body: {x: 1}, lastModified: futureDate}, {});
+      assert.equal(res.statusCode, 412);
+      const body = JSON.parse(res._body);
+      assert.equal(body.custom412, true);
+      assert.equal(body.status, 412);
+      assert.equal(body.method, 'PUT');
+      assert.equal(res._headers['content-type'], 'application/json; charset=utf-8');
+    });
+
     it('handles formatter returning null without crashing', () => {
       const formatter = () => null;
       const sendCustom = createSend({errorFormatter: formatter, etag: false});
