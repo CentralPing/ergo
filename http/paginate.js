@@ -42,7 +42,6 @@ const STRATEGY_CURSOR = 'cursor';
  * @param {number} [options.maxPerPage] - Maximum items per page (offset strategy).
  * @param {number} [options.defaultLimit] - Default item limit (cursor strategy).
  * @param {number} [options.maxLimit] - Maximum item limit (cursor strategy).
- * @returns {function} - Pipeline middleware function.
  */
 export default (options = {}) => {
   const {strategy = STRATEGY_OFFSET, ...parseOpts} = options;

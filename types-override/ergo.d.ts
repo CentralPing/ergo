@@ -232,6 +232,7 @@ export interface SendOptions {
   vary?: string[];
   etag?: boolean;
   prefer?: boolean;
+  paginate?: boolean;
   envelope?:
     | boolean
     | ((

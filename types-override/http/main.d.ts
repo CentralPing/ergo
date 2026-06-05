@@ -66,8 +66,6 @@ declare const _default: {
   httpErrors: typeof httpErrors;
   idempotency: typeof import('./idempotency.js').default;
   paginate: typeof paginate;
-  PaginateOptions: PaginateOptions;
-  PaginateResult: PaginateResult;
   jsonApiQuery: typeof import('./json-api-query.js').default;
   logger: typeof import('./logger.js').default;
   prefer: typeof import('./prefer.js').default;

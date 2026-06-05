@@ -2,7 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.3.0] — Unreleased
+
+### Added
+
+- **`http/paginate.js` declarative pagination middleware factory.** Wraps `lib/paginate.js`
+  utilities into a pipeline-compatible middleware supporting offset and cursor strategies.
+  Placed in Stage 1 (Negotiation) after `url`. Reads parsed query from `domainAcc.url.query`
+  and stores structured pagination parameters at `acc.paginate`. (#114)
+- **`send()` `paginate` option.** When `true`, reads `domainAcc.paginate` and
+  `responseAcc.paginate` to auto-generate RFC 8288 Link headers (`first`, `prev`, `next`,
+  `last`) and `X-Total-Count` for offset pagination responses. Supports both offset and
+  cursor strategies. (#114)
+- `'paginate'` added to `SEND_RESERVED` to prevent pagination metadata from leaking as
+  RFC 9457 extension members. (#114)
+
+### Changed
+
+- **Breaking:** `paginate` export from `@centralping/ergo` changed from `lib/paginate.js`
+  utility namespace (`{parseOffsetParams, parseCursorParams, offsetResponse, cursorResponse}`)
+  to `http/paginate.js` factory function. Consumers using `paginate.parseOffsetParams()` must
+  switch to deep import: `import {parseOffsetParams} from '@centralping/ergo/lib/paginate'`.
+  (#114)
+
+## [0.2.0]
 
 ### Added
 

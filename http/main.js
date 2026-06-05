@@ -39,7 +39,7 @@
  * @requires ../utils/compose-with.js
  * @requires ../utils/http-errors.js
  * @requires ../lib/from-connect.js
- * @requires ../lib/paginate.js
+ * @requires ./paginate.js
  *
  * @example
  * import {compose, handler, logger, cors, authorization, accepts,

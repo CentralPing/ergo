@@ -816,4 +816,124 @@ describe('[Module] http/send', () => {
       assert.equal(res._body, 'ok');
     });
   });
+
+  describe('paginate option', () => {
+    const paginateSend = createSend({paginate: true, etag: false});
+
+    it('emits Link and X-Total-Count for offset pagination', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {
+        paginate: {strategy: 'offset', page: 2, perPage: 10, offset: 10, limit: 10},
+        url: {pathname: '/items', search: '?page=2&per_page=10'}
+      };
+      const responseAcc = {statusCode: 200, body: [{id: 1}], paginate: {total: 50}};
+      paginateSend(req, res, responseAcc, domainAcc);
+      assert.equal(res._headers['x-total-count'], '50');
+      const link = res._headers['link'];
+      assert.ok(link, 'Link header should be present');
+      assert.ok(link.includes('rel="first"'));
+      assert.ok(link.includes('rel="last"'));
+      assert.ok(link.includes('rel="prev"'));
+      assert.ok(link.includes('rel="next"'));
+    });
+
+    it('emits Link header for cursor pagination', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {
+        paginate: {strategy: 'cursor', cursor: 'abc', limit: 10},
+        url: {pathname: '/items', search: '?cursor=abc&limit=10'}
+      };
+      const responseAcc = {
+        statusCode: 200,
+        body: [{id: 1}],
+        paginate: {nextCursor: 'def', prevCursor: 'xyz'}
+      };
+      paginateSend(req, res, responseAcc, domainAcc);
+      const link = res._headers['link'];
+      assert.ok(link, 'Link header should be present');
+      assert.ok(link.includes('rel="next"'));
+      assert.ok(link.includes('rel="prev"'));
+      assert.ok(link.includes('cursor=def'));
+      assert.ok(link.includes('cursor=xyz'));
+      assert.equal(res._headers['x-total-count'], undefined);
+    });
+
+    it('does not emit headers when paginate option is false', () => {
+      const noPageSend = createSend({paginate: false, etag: false});
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {
+        paginate: {strategy: 'offset', page: 1, perPage: 20, offset: 0, limit: 20},
+        url: {pathname: '/items'}
+      };
+      const responseAcc = {statusCode: 200, body: [{id: 1}], paginate: {total: 100}};
+      noPageSend(req, res, responseAcc, domainAcc);
+      assert.equal(res._headers['link'], undefined);
+      assert.equal(res._headers['x-total-count'], undefined);
+    });
+
+    it('skips pagination headers for 4xx responses', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {
+        paginate: {strategy: 'offset', page: 1, perPage: 20, offset: 0, limit: 20},
+        url: {pathname: '/items'}
+      };
+      const responseAcc = {statusCode: 404, body: null, paginate: {total: 0}};
+      paginateSend(req, res, responseAcc, domainAcc);
+      assert.equal(res._headers['link'], undefined);
+      assert.equal(res._headers['x-total-count'], undefined);
+    });
+
+    it('skips pagination headers when domainAcc.paginate is absent', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {url: {pathname: '/items'}};
+      const responseAcc = {statusCode: 200, body: [{id: 1}], paginate: {total: 10}};
+      paginateSend(req, res, responseAcc, domainAcc);
+      assert.equal(res._headers['link'], undefined);
+      assert.equal(res._headers['x-total-count'], undefined);
+    });
+
+    it('skips pagination headers when responseAcc.paginate is absent', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {
+        paginate: {strategy: 'offset', page: 1, perPage: 20, offset: 0, limit: 20},
+        url: {pathname: '/items'}
+      };
+      const responseAcc = {statusCode: 200, body: [{id: 1}]};
+      paginateSend(req, res, responseAcc, domainAcc);
+      assert.equal(res._headers['link'], undefined);
+      assert.equal(res._headers['x-total-count'], undefined);
+    });
+
+    it('preserves non-pagination query params in Link URLs', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {
+        paginate: {strategy: 'offset', page: 1, perPage: 10, offset: 0, limit: 10},
+        url: {pathname: '/items', search: '?page=1&per_page=10&sort=name&filter=active'}
+      };
+      const responseAcc = {statusCode: 200, body: [{id: 1}], paginate: {total: 30}};
+      paginateSend(req, res, responseAcc, domainAcc);
+      const link = res._headers['link'];
+      assert.ok(link.includes('sort=name'));
+      assert.ok(link.includes('filter=active'));
+    });
+
+    it('does not emit X-Total-Count when total is not provided', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      const domainAcc = {
+        paginate: {strategy: 'offset', page: 1, perPage: 10, offset: 0, limit: 10},
+        url: {pathname: '/items'}
+      };
+      const responseAcc = {statusCode: 200, body: [{id: 1}], paginate: {}};
+      paginateSend(req, res, responseAcc, domainAcc);
+      assert.equal(res._headers['x-total-count'], undefined);
+    });
+  });
 });
