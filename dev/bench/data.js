@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780668134929,
+  "lastUpdate": 1780668961483,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6302,6 +6302,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e2c050f1e764450381910361f141b4ba554ff364",
+          "message": "chore: consolidate CHANGELOG for 0.3.0 release (#116)\n\nMove #108, #109, #110 entries from duplicate [0.2.0] section into\n[0.3.0] — these features were committed after the v0.2.0 tag.\nAdd empty [Unreleased] section for future work.",
+          "timestamp": "2026-06-05T10:15:45-04:00",
+          "tree_id": "01b36b34e935da912c546bc89da69534db924eaf",
+          "url": "https://github.com/CentralPing/ergo/commit/e2c050f1e764450381910361f141b4ba554ff364"
+        },
+        "date": 1780668960863,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
