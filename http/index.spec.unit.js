@@ -34,5 +34,5 @@ describe('[Module] http/index - package entry point', () => {
   it('exports idempotency', () => assert.equal(typeof ergo.idempotency, 'function'));
   it('exports createResponseAcc', () => assert.equal(typeof ergo.createResponseAcc, 'function'));
   it('exports mergeResponse', () => assert.equal(typeof ergo.mergeResponse, 'function'));
-  it('exports paginate', () => assert.equal(typeof ergo.paginate, 'object'));
+  it('exports paginate', () => assert.equal(typeof ergo.paginate, 'function'));
 });

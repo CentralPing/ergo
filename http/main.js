@@ -39,7 +39,7 @@
  * @requires ../utils/compose-with.js
  * @requires ../utils/http-errors.js
  * @requires ../lib/from-connect.js
- * @requires ../lib/paginate.js
+ * @requires ./paginate.js
  *
  * @example
  * import {compose, handler, logger, cors, authorization, accepts,
@@ -87,7 +87,7 @@ import idempotency from './idempotency.js';
 import validate from './validate.js';
 import httpErrors from '../utils/http-errors.js';
 import fromConnect from '../lib/from-connect.js';
-import * as paginate from '../lib/paginate.js';
+import paginate from './paginate.js';
 
 export {
   compose,

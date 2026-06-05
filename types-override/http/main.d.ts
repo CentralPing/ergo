@@ -36,48 +36,20 @@ export declare function httpErrors(statusCode: number, detail?: string, extra?: 
 
 export declare function fromConnect(middleware: (req: any, res: any, next: (err?: any) => void) => void): (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => Promise<undefined>;
 
-export declare namespace paginate {
-  function parseOffsetParams(query?: Record<string, string | string[]>, options?: { defaultPage?: number; defaultPerPage?: number; maxPerPage?: number }): {
-    page: number;
-    perPage: number;
-    offset: number;
-  };
+export declare function paginate(options?: PaginateOptions): (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse, domainAcc: Record<string, unknown>) => { value: PaginateResult };
 
-  function parseCursorParams(query?: Record<string, string | string[]>, options?: { defaultLimit?: number; maxLimit?: number }): {
-    cursor: string | undefined;
-    limit: number;
-  };
-
-  function offsetResponse(items: unknown[], options: {
-    page: number;
-    perPage: number;
-    total: number;
-    baseUrl: string;
-    searchParams?: Record<string, string>;
-    statusCode?: number;
-  }): {
-    response: {
-      body: unknown[];
-      statusCode: number;
-      headers: [string, string][];
-    };
-  };
-
-  function cursorResponse(items: unknown[], options: {
-    limit: number;
-    baseUrl: string;
-    searchParams?: Record<string, string>;
-    nextCursor?: string;
-    prevCursor?: string;
-    statusCode?: number;
-  }): {
-    response: {
-      body: unknown[];
-      statusCode: number;
-      headers: [string, string][];
-    };
-  };
+export interface PaginateOptions {
+  strategy?: 'offset' | 'cursor';
+  defaultPage?: number;
+  defaultPerPage?: number;
+  maxPerPage?: number;
+  defaultLimit?: number;
+  maxLimit?: number;
 }
+
+export type PaginateResult =
+  | { strategy: 'offset'; page: number; perPage: number; offset: number; limit: number }
+  | { strategy: 'cursor'; cursor: string | undefined; limit: number };
 
 declare const _default: {
   compose: typeof import('../utils/compose-with.js').default;

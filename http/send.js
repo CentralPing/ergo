@@ -51,6 +51,7 @@ import {STATUS_CODES} from 'node:http';
 import generateETag from 'etag';
 import httpErrors from '../utils/http-errors.js';
 import appendVary from '../lib/vary.js';
+import {paginationLinks, cursorPaginationLinks, formatLinkHeader} from '../lib/link.js';
 
 const isHTML = /<[a-z][^>]*>/i;
 
@@ -66,8 +67,12 @@ const SEND_RESERVED = new Set([
   'instance',
   'type',
   'lastModified',
-  'location'
+  'location',
+  'paginate'
 ]);
+
+const OFFSET_STRIP_KEYS = new Set(['page', 'per_page']);
+const CURSOR_STRIP_KEYS = new Set(['cursor', 'limit']);
 
 /**
  * Built-in response envelope format.
@@ -105,6 +110,9 @@ function bodyType(body) {
  * @param {boolean} [options.etag=true] - Generate and evaluate ETags for conditional responses
  * @param {boolean} [options.prefer=false] - When true, read `domainAcc.prefer` for RFC 7240
  *   handling. Adds `Prefer` to the Vary header.
+ * @param {boolean} [options.paginate=false] - When true, read `domainAcc.paginate` (parsed
+ *   params) and `responseAcc.paginate` (response metadata) to auto-generate RFC 8288 Link
+ *   headers and X-Total-Count for paginated responses.
  * @param {boolean|function} [options.envelope=false] - Wrap 2xx Object bodies in a response
  *   envelope. `false` (default) — no envelope. `true` — built-in format `{id, status, data,
  *   count?}`. `function(body, ctx)` — custom envelope.
@@ -119,6 +127,7 @@ export default ({
   vary = ['Accept'],
   etag = true,
   prefer = false,
+  paginate = false,
   envelope = false,
   errorFormatter
 } = {}) => {
@@ -222,6 +231,38 @@ export default ({
       }
       if (preferData?.return === 'representation' && statusCode >= 200 && statusCode < 300) {
         res.setHeader('Preference-Applied', 'return=representation');
+      }
+    }
+
+    // RFC 8288: Pagination Link headers
+    if (paginate && domainAcc.paginate && responseAcc.paginate && statusCode < 400) {
+      const paginateParams = domainAcc.paginate;
+      const paginateMeta = responseAcc.paginate;
+      const baseUrl = domainAcc.url?.pathname ?? '/';
+      const searchParams = stripPaginationKeys(
+        domainAcc.url?.search,
+        paginateParams.strategy === 'cursor' ? CURSOR_STRIP_KEYS : OFFSET_STRIP_KEYS
+      );
+
+      if (paginateParams.strategy === 'cursor') {
+        const links = cursorPaginationLinks({
+          baseUrl,
+          searchParams,
+          nextCursor: paginateMeta.nextCursor,
+          prevCursor: paginateMeta.prevCursor
+        });
+        res.setHeader('Link', formatLinkHeader(links));
+      } else if (Number.isFinite(Number(paginateMeta.total))) {
+        const total = Number(paginateMeta.total);
+        const links = paginationLinks({
+          baseUrl,
+          page: paginateParams.page,
+          perPage: paginateParams.perPage,
+          total,
+          searchParams
+        });
+        res.setHeader('Link', formatLinkHeader(links));
+        res.setHeader('X-Total-Count', String(total));
       }
     }
 
@@ -379,6 +420,30 @@ function isModifiedSince(lastModified, headerValue) {
   const since = new Date(headerValue);
   if (Number.isNaN(since.getTime())) return true;
   return Math.floor(lastModified.getTime() / 1000) > Math.floor(since.getTime() / 1000);
+}
+
+/**
+ * Strip pagination-specific query keys from a raw search string.
+ *
+ * Removes keys used by the active pagination strategy so that Link header
+ * URLs preserve non-pagination query parameters (e.g., sort, filter).
+ *
+ * @param {string|undefined} search - Raw query string (with or without `?` prefix).
+ * @param {Set<string>} keysToStrip - Set of parameter names to remove.
+ * @returns {string} - Cleaned search string without the `?` prefix, or empty string.
+ */
+function stripPaginationKeys(search, keysToStrip) {
+  if (!search) return '';
+  const raw = search.startsWith('?') ? search.slice(1) : search;
+  if (!raw) return '';
+
+  const kept = raw.split('&').filter(pair => {
+    const eqIdx = pair.indexOf('=');
+    const key = eqIdx === -1 ? pair : pair.slice(0, eqIdx);
+    return !keysToStrip.has(key);
+  });
+
+  return kept.join('&');
 }
 
 /**
