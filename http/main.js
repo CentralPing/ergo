@@ -87,7 +87,7 @@ import idempotency from './idempotency.js';
 import validate from './validate.js';
 import httpErrors from '../utils/http-errors.js';
 import fromConnect from '../lib/from-connect.js';
-import * as paginate from '../lib/paginate.js';
+import paginate from './paginate.js';
 
 export {
   compose,

@@ -170,6 +170,21 @@ export interface IdempotencyOptions {
   methods?: Set<string> | string[];
 }
 
+/** Options for `paginate()` — pagination parameter parsing middleware. */
+export interface PaginateOptions {
+  strategy?: 'offset' | 'cursor';
+  defaultPage?: number;
+  defaultPerPage?: number;
+  maxPerPage?: number;
+  defaultLimit?: number;
+  maxLimit?: number;
+}
+
+/** Result stored at `acc.paginate` by the pagination middleware. */
+export type PaginateResult =
+  | { strategy: 'offset'; page: number; perPage: number; offset: number; limit: number }
+  | { strategy: 'cursor'; cursor: string | undefined; limit: number };
+
 /** Options for `logger()` — structured request logging middleware. */
 export interface LoggerOptions {
   log?: (...args: any[]) => void;
