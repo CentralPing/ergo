@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780666828991,
+  "lastUpdate": 1780667148027,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6154,6 +6154,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a880472384f881a681007f24575827713347b85c",
+          "message": "feat: add pluggable errorFormatter option to send() (#110) (#113)\n\n* feat: add pluggable errorFormatter option to send() (#110)\n\n* fix: address review findings (#110)\n\n- Type `ctx.requestId` as `string | undefined` in envelope and\n  errorFormatter callback signatures (CodeRabbit)\n- Align optional chaining on `res.getHeader?.()` in the main error\n  and envelope paths for consistency with endWithProblem\n- Add errorFormatter test for the If-Unmodified-Since → 412 path",
+          "timestamp": "2026-06-05T09:45:33-04:00",
+          "tree_id": "31d6fabf8a08616b61b30dc43af47edaec32cc01",
+          "url": "https://github.com/CentralPing/ergo/commit/a880472384f881a681007f24575827713347b85c"
+        },
+        "date": 1780667147599,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
