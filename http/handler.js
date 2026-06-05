@@ -47,9 +47,10 @@ import createSend from './send.js';
  * @param {boolean} [options.redactErrors=true] - Control whether caught 5xx exception
  *   messages appear in the RFC 9457 response `detail` field. When `true` (default),
  *   `detail` is set to generic status text (e.g. "Internal Server Error"). When `false`,
- *   `err.message` is passed through. Stack traces are never exposed regardless of this
- *   setting. **Security:** only set to `false` in development — production deployments
- *   should always redact to prevent information leakage.
+ *   `err.message` is passed through for 5xx responses only — 4xx responses always use
+ *   generic status text regardless of this setting. Stack traces are never exposed.
+ *   **Security:** only set to `false` in development — production deployments should
+ *   always redact to prevent information leakage.
  * @param {boolean} [options.prettify] - Forwarded to `send()`.
  * @param {string[]} [options.vary] - Forwarded to `send()`.
  * @param {boolean} [options.etag] - Forwarded to `send()`.
@@ -71,9 +72,11 @@ export default (pipeline, {debug = false, redactErrors = true, ...sendOptions} =
         responseAcc.statusCode = 500;
       }
 
-      responseAcc.detail ??= redactErrors
-        ? STATUS_CODES[responseAcc.statusCode]
-        : String(err?.message ?? '') || STATUS_CODES[responseAcc.statusCode];
+      const statusText = STATUS_CODES[responseAcc.statusCode] ?? STATUS_CODES[500];
+      responseAcc.detail ??=
+        !redactErrors && responseAcc.statusCode >= 500
+          ? String(err?.message ?? '') || statusText
+          : statusText;
 
       if (res.listenerCount('error') > 0) {
         res.emit('error', err);

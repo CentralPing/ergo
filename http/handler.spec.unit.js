@@ -280,6 +280,20 @@ describe('[Module] http/handler', () => {
     assert.equal(body.detail, 'Internal Server Error');
   });
 
+  it('uses generic status text for 4xx even when redactErrors is false', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 403;
+      throw new Error('internal permission check detail');
+    };
+    const handler = createHandler(pipeline, {redactErrors: false});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body.status, 403);
+    assert.equal(body.detail, 'Forbidden');
+    assert.ok(!res._body.includes('internal permission check detail'));
+  });
+
   it('redacts err.message when redactErrors is explicitly true', async () => {
     const pipeline = async () => {
       throw new Error('secret internal detail');
