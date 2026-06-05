@@ -2,7 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.0] — Unreleased
+## [Unreleased]
+
+## [0.3.0] - 2026-06-05
 
 ### Added
 
@@ -16,19 +18,6 @@ All notable changes to this project will be documented in this file.
   cursor strategies. (#114)
 - `'paginate'` added to `SEND_RESERVED` to prevent pagination metadata from leaking as
   RFC 9457 extension members. (#114)
-
-### Changed
-
-- **Breaking:** `paginate` export from `@centralping/ergo` changed from `lib/paginate.js`
-  utility namespace (`{parseOffsetParams, parseCursorParams, offsetResponse, cursorResponse}`)
-  to `http/paginate.js` factory function. Consumers using `paginate.parseOffsetParams()` must
-  switch to deep import: `import {parseOffsetParams} from '@centralping/ergo/lib/paginate'`.
-  (#114)
-
-## [0.2.0]
-
-### Added
-
 - **`errorFormatter` option for `send()` and `handler()`.** Pluggable error body formatter
   for `statusCode >= 400` responses. When provided, receives the RFC 9457 Problem Details
   object (plain object) and `{requestId, statusCode, method}` context. The return value
@@ -53,6 +42,14 @@ All notable changes to this project will be documented in this file.
   (#108)
 - `types-override/http/main.d.ts` override provides typed re-exports for all middleware,
   `httpErrors`, `fromConnect`, and `paginate` namespace. (#108)
+
+### Changed
+
+- **Breaking:** `paginate` export from `@centralping/ergo` changed from `lib/paginate.js`
+  utility namespace (`{parseOffsetParams, parseCursorParams, offsetResponse, cursorResponse}`)
+  to `http/paginate.js` factory function. Consumers using `paginate.parseOffsetParams()` must
+  switch to deep import: `import {parseOffsetParams} from '@centralping/ergo/lib/paginate'`.
+  (#114)
 
 ### Fixed
 
