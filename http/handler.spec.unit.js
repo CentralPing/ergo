@@ -231,4 +231,64 @@ describe('[Module] http/handler', () => {
     assert.equal(res.statusCode, 500);
     assert.ok(res.writableEnded, 'response should still end');
   });
+
+  it('passes err.message through when redactErrors is false', async () => {
+    const pipeline = async () => {
+      throw new Error('database connection failed');
+    };
+    const handler = createHandler(pipeline, {redactErrors: false});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body.detail, 'database connection failed');
+    assert.equal(body.status, 500);
+  });
+
+  it('does not include stack traces when redactErrors is false', async () => {
+    const pipeline = async () => {
+      throw new Error('something broke');
+    };
+    const handler = createHandler(pipeline, {redactErrors: false});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    assert.ok(!res._body.includes('at '), 'stack trace must not appear in response');
+    assert.ok(!res._body.includes('handler.spec'), 'test file path must not appear');
+  });
+
+  it('preserves middleware-set detail when redactErrors is false', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 504;
+      responseAcc.detail = 'Upstream gateway timed out';
+      throw new Error('socket hang up');
+    };
+    const handler = createHandler(pipeline, {redactErrors: false});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body.status, 504);
+    assert.equal(body.detail, 'Upstream gateway timed out');
+  });
+
+  it('falls back to status text when err.message is empty and redactErrors is false', async () => {
+    const pipeline = async () => {
+      throw new Error('');
+    };
+    const handler = createHandler(pipeline, {redactErrors: false});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body.detail, 'Internal Server Error');
+  });
+
+  it('redacts err.message when redactErrors is explicitly true', async () => {
+    const pipeline = async () => {
+      throw new Error('secret internal detail');
+    };
+    const handler = createHandler(pipeline, {redactErrors: true});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const body = JSON.parse(res._body);
+    assert.equal(body.detail, 'Internal Server Error');
+    assert.ok(!res._body.includes('secret internal detail'));
+  });
 });

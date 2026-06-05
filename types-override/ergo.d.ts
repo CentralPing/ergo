@@ -140,6 +140,7 @@ export interface CsrfOptions {
 /** Options for `handler()` — pipeline executor. */
 export interface HandlerOptions {
   debug?: boolean;
+  redactErrors?: boolean;
   prettify?: boolean;
   vary?: string[];
   etag?: boolean;
@@ -179,18 +180,21 @@ export interface PreconditionOptions {
 export interface RateLimitOptions {
   max?: number;
   windowMs?: number;
-  store?: { hit(key: string, windowMs: number): { count: number; resetMs: number } };
+  store?: {hit(key: string, windowMs: number): {count: number; resetMs: number}};
   keyGenerator?: (req: import('node:http').IncomingMessage) => string;
 }
 
 /** Options for `securityHeaders()` — security response headers middleware. */
 export interface SecurityHeadersOptions {
   contentSecurityPolicy?: string | false;
-  strictTransportSecurity?: string | false | {
-    maxAge: number;
-    includeSubDomains?: boolean;
-    preload?: boolean;
-  };
+  strictTransportSecurity?:
+    | string
+    | false
+    | {
+        maxAge: number;
+        includeSubDomains?: boolean;
+        preload?: boolean;
+      };
   xContentTypeOptions?: string | false;
   xFrameOptions?: string | false;
   referrerPolicy?: string | false;
@@ -340,8 +344,8 @@ export interface TracingResult {
 /** Result stored at `acc.idempotency` by `[idempotency(), 'idempotency']`. */
 export type IdempotencyResult =
   | Record<string, never>
-  | { key: string; fingerprint: string; complete: (response: unknown) => void; discard: () => void }
-  | { replayed: true };
+  | {key: string; fingerprint: string; complete: (response: unknown) => void; discard: () => void}
+  | {replayed: true};
 
 // ---------------------------------------------------------------------------
 // Utility types
@@ -352,8 +356,14 @@ export type IdempotencyResult =
  * `key` is the string literal under which it is stored on the accumulator.
  */
 export type MiddlewareTuple<Value, Key extends string> = readonly [
-  (...args: any[]) => Value | Promise<Value> | { value?: Value; response?: any } | Promise<{ value?: Value; response?: any }>,
-  Key,
+  (
+    ...args: any[]
+  ) =>
+    | Value
+    | Promise<Value>
+    | {value?: Value; response?: any}
+    | Promise<{value?: Value; response?: any}>,
+  Key
 ];
 
 /** The response accumulator shape. */
