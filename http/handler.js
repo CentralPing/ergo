@@ -56,6 +56,8 @@ import createSend from './send.js';
  * @param {boolean} [options.etag] - Forwarded to `send()`.
  * @param {boolean} [options.prefer] - Forwarded to `send()`.
  * @param {boolean|function} [options.envelope] - Forwarded to `send()`.
+ * @param {function} [options.errorFormatter] - Forwarded to `send()`. Custom error body
+ *   formatter for 4xx/5xx responses.
  */
 export default (pipeline, {debug = false, redactErrors = true, ...sendOptions} = {}) => {
   const send = createSend(sendOptions);

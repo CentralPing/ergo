@@ -108,13 +108,19 @@ function bodyType(body) {
  * @param {boolean|function} [options.envelope=false] - Wrap 2xx Object bodies in a response
  *   envelope. `false` (default) — no envelope. `true` — built-in format `{id, status, data,
  *   count?}`. `function(body, ctx)` — custom envelope.
+ * @param {function} [options.errorFormatter] - Custom error body formatter for 4xx/5xx
+ *   responses. When provided, receives the RFC 9457 Problem Details object (plain object from
+ *   `toJSON()`) and a context object `{requestId, statusCode, method}`. The return value
+ *   becomes the response body, serialized as `application/json` instead of
+ *   `application/problem+json`. When absent, the default RFC 9457 formatting is used.
  */
 export default ({
   prettify = false,
   vary = ['Accept'],
   etag = true,
   prefer = false,
-  envelope = false
+  envelope = false,
+  errorFormatter
 } = {}) => {
   const effectiveVary = prefer ? [...(vary || []), 'Prefer'] : vary;
   const varyValue = effectiveVary?.length ? effectiveVary.join(', ') : undefined;
@@ -147,7 +153,13 @@ export default ({
         }
       }
 
-      body = httpErrors(statusCode, opts);
+      if (errorFormatter) {
+        const problemDetails = httpErrors(statusCode, opts).toJSON();
+        const requestId = res.getHeader?.('x-request-id');
+        body = errorFormatter(problemDetails, {requestId, statusCode, method: req.method});
+      } else {
+        body = httpErrors(statusCode, opts);
+      }
     } else if (body === undefined) {
       body = STATUS_CODES[statusCode] ?? String(statusCode);
     }
@@ -159,7 +171,7 @@ export default ({
       bodyType(body) === 'Object' &&
       !(body instanceof Error)
     ) {
-      const requestId = res.getHeader('x-request-id');
+      const requestId = res.getHeader?.('x-request-id');
       body =
         typeof envelope === 'function'
           ? envelope(body, {requestId, statusCode, method: req.method})
@@ -293,7 +305,7 @@ export default ({
       // If-Match -> 412 (strong comparison per RFC 9110 §8.8.3.2)
       if (ifMatch && ETAG_UNSAFE_METHODS.has(req.method)) {
         if (!strongMatchesETag(ifMatch, tag)) {
-          endWithProblem(res, 412);
+          endWithProblem(res, 412, errorFormatter, req.method);
           return;
         }
       }
@@ -315,7 +327,7 @@ export default ({
       if (!ifMatch && ETAG_UNSAFE_METHODS.has(req.method)) {
         const ifUnmodifiedSince = req.headers?.['if-unmodified-since'];
         if (ifUnmodifiedSince && isModifiedSince(lastModifiedDate, ifUnmodifiedSince)) {
-          endWithProblem(res, 412);
+          endWithProblem(res, 412, errorFormatter, req.method);
           return;
         }
       }
@@ -383,17 +395,29 @@ function endNoBody(res) {
 
 /**
  * End the response with an RFC 9457 Problem Details body for conditional
- * request failures (412 Precondition Failed).
+ * request failures (412 Precondition Failed). When an errorFormatter is
+ * provided, delegates body construction to it.
  *
  * @param {import('node:http').ServerResponse} res - HTTP response object
  * @param {number} statusCode - HTTP status code for the error
+ * @param {function} [formatter] - Optional error formatter from factory closure
+ * @param {string} [method] - HTTP method (passed to formatter context)
  */
-function endWithProblem(res, statusCode) {
+function endWithProblem(res, statusCode, formatter, method) {
   const requestId = res.getHeader?.('x-request-id');
   const opts = requestId ? {instance: `urn:uuid:${requestId}`} : undefined;
   res.statusCode = statusCode;
-  res.setHeader('Content-Type', 'application/problem+json; charset=utf-8');
-  const body = JSON.stringify(httpErrors(statusCode, opts));
+
+  let body;
+  if (formatter) {
+    const problemDetails = httpErrors(statusCode, opts).toJSON();
+    body = JSON.stringify(formatter(problemDetails, {requestId, statusCode, method}));
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  } else {
+    body = JSON.stringify(httpErrors(statusCode, opts));
+    res.setHeader('Content-Type', 'application/problem+json; charset=utf-8');
+  }
+
   res.setHeader('Content-Length', Buffer.byteLength(body));
   res.end(body);
 }

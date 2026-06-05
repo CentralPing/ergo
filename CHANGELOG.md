@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`errorFormatter` option for `send()` and `handler()`.** Pluggable error body formatter
+  for `statusCode >= 400` responses. When provided, receives the RFC 9457 Problem Details
+  object (plain object) and `{requestId, statusCode, method}` context. The return value
+  becomes the response body, serialized as `application/json` instead of
+  `application/problem+json`. Applies to both the main error path and 412 conditional
+  responses (`endWithProblem`). Teams with existing error contracts can adopt ergo without
+  changing their client-facing error format. (#110)
 - **`redactErrors` option for `handler()`.** Controls whether caught 5xx exception messages
   appear in the RFC 9457 response `detail` field. Defaults to `true` (secure — generic
   status text only). Set to `false` during development to surface `err.message` in error
@@ -26,6 +33,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`envelope` callback type signature corrected.** Changed from
+  `(body: unknown, statusCode: number) => unknown` to
+  `(body: unknown, ctx: {requestId: string; statusCode: number; method: string}) => unknown`
+  to match the actual implementation which passes a context object, not a bare status code.
+  Affects `SendOptions` and `HandlerOptions`. (#110)
 - **`PreferResult` now matches runtime.** Corrected from `{[k: string]: {value?: string}}`
   to `{[k: string]: string | true}` — the runtime returns flat preference values, not
   wrapped objects. (#108)

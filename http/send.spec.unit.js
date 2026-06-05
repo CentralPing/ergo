@@ -527,6 +527,136 @@ describe('[Module] http/send', () => {
     });
   });
 
+  describe('errorFormatter option', () => {
+    it('preserves default RFC 9457 formatting when no errorFormatter is provided', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      send(req, res, {statusCode: 404, detail: 'Resource not found'}, {});
+      const body = JSON.parse(res._body);
+      assert.equal(body.status, 404);
+      assert.equal(body.title, 'Not Found');
+      assert.equal(body.detail, 'Resource not found');
+      assert.equal(res._headers['content-type'], 'application/problem+json; charset=utf-8');
+    });
+
+    it('calls custom formatter with Problem Details and context', () => {
+      const formatter = (problem, ctx) => ({
+        error: {code: problem.status, message: problem.detail},
+        meta: {requestId: ctx.requestId, method: ctx.method}
+      });
+      const sendCustom = createSend({errorFormatter: formatter, etag: false});
+      const req = createMockReq({method: 'POST'});
+      const res = createMockRes();
+      res.setHeader('x-request-id', 'err-req-1');
+      sendCustom(req, res, {statusCode: 422, detail: 'Invalid email'}, {});
+      const body = JSON.parse(res._body);
+      assert.deepEqual(body.error, {code: 422, message: 'Invalid email'});
+      assert.deepEqual(body.meta, {requestId: 'err-req-1', method: 'POST'});
+    });
+
+    it('sets Content-Type to application/json when custom formatter is used', () => {
+      const formatter = problem => ({error: problem.detail});
+      const sendCustom = createSend({errorFormatter: formatter, etag: false});
+      const req = createMockReq();
+      const res = createMockRes();
+      sendCustom(req, res, {statusCode: 400, detail: 'bad'}, {});
+      assert.equal(res._headers['content-type'], 'application/json; charset=utf-8');
+    });
+
+    it('includes extension members in the problemDetails argument', () => {
+      let received;
+      const formatter = problem => {
+        received = problem;
+        return problem;
+      };
+      const sendCustom = createSend({errorFormatter: formatter, etag: false});
+      const req = createMockReq();
+      const res = createMockRes();
+      sendCustom(req, res, {statusCode: 400, detail: 'bad', _trace: {steps: ['a']}}, {});
+      assert.deepEqual(received._trace, {steps: ['a']});
+    });
+
+    it('receives {requestId, statusCode, method} context', () => {
+      let receivedCtx;
+      const formatter = (problem, ctx) => {
+        receivedCtx = ctx;
+        return {err: true};
+      };
+      const sendCustom = createSend({errorFormatter: formatter, etag: false});
+      const req = createMockReq({method: 'DELETE'});
+      const res = createMockRes();
+      res.setHeader('x-request-id', 'ctx-test-id');
+      sendCustom(req, res, {statusCode: 403}, {});
+      assert.equal(receivedCtx.requestId, 'ctx-test-id');
+      assert.equal(receivedCtx.statusCode, 403);
+      assert.equal(receivedCtx.method, 'DELETE');
+    });
+
+    it('is not called for success responses (statusCode < 400)', () => {
+      let called = false;
+      const formatter = () => {
+        called = true;
+        return {};
+      };
+      const sendCustom = createSend({errorFormatter: formatter, etag: false});
+      const req = createMockReq();
+      const res = createMockRes();
+      sendCustom(req, res, {statusCode: 200, body: {ok: true}}, {});
+      assert.equal(called, false);
+    });
+
+    it('applies formatter to endWithProblem (412 via If-Match)', () => {
+      const formatter = (problem, ctx) => ({
+        custom412: true,
+        status: problem.status,
+        method: ctx.method
+      });
+      const sendCustom = createSend({errorFormatter: formatter});
+      const req = createMockReq({method: 'PUT', headers: {'if-match': '"wrong"'}});
+      const res = createMockRes();
+      sendCustom(req, res, {statusCode: 200, body: {x: 1}}, {});
+      assert.equal(res.statusCode, 412);
+      const body = JSON.parse(res._body);
+      assert.equal(body.custom412, true);
+      assert.equal(body.status, 412);
+      assert.equal(body.method, 'PUT');
+      assert.equal(res._headers['content-type'], 'application/json; charset=utf-8');
+    });
+
+    it('applies formatter to endWithProblem (412 via If-Unmodified-Since)', () => {
+      const pastDate = new Date('2020-01-01T00:00:00Z');
+      const futureDate = new Date('2099-01-01T00:00:00Z');
+      const formatter = (problem, ctx) => ({
+        custom412: true,
+        status: problem.status,
+        method: ctx.method
+      });
+      const sendCustom = createSend({errorFormatter: formatter});
+      const req = createMockReq({
+        method: 'PUT',
+        headers: {'if-unmodified-since': pastDate.toUTCString()}
+      });
+      const res = createMockRes();
+      sendCustom(req, res, {statusCode: 200, body: {x: 1}, lastModified: futureDate}, {});
+      assert.equal(res.statusCode, 412);
+      const body = JSON.parse(res._body);
+      assert.equal(body.custom412, true);
+      assert.equal(body.status, 412);
+      assert.equal(body.method, 'PUT');
+      assert.equal(res._headers['content-type'], 'application/json; charset=utf-8');
+    });
+
+    it('handles formatter returning null without crashing', () => {
+      const formatter = () => null;
+      const sendCustom = createSend({errorFormatter: formatter, etag: false});
+      const req = createMockReq();
+      const res = createMockRes();
+      sendCustom(req, res, {statusCode: 500}, {});
+      assert.equal(res.statusCode, 500);
+      assert.equal(res._body, 'null');
+    });
+  });
+
   describe('appendVary deduplication', () => {
     it('appends Vary value without duplication', () => {
       const sendWithVary = createSend({vary: ['Accept-Encoding']});

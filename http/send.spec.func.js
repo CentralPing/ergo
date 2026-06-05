@@ -204,4 +204,64 @@ describe('[Contract] http/send', () => {
       assert.equal(text, 'text');
     });
   });
+
+  describe('errorFormatter option', () => {
+    let fmtUrl, fmtClose;
+
+    const fmtPipeline = compose(
+      (req, res) => {
+        res.setHeader('x-request-id', 'fmt-trace-id');
+      },
+      req => {
+        const url = new URL(req.url, 'http://localhost');
+        const scenario = url.searchParams.get('scenario') ?? 'error';
+
+        switch (scenario) {
+          case 'success':
+            return {response: {body: {ok: true}}};
+          case 'error':
+            return {response: {statusCode: 422, detail: 'Validation failed'}};
+          default:
+            return {response: {statusCode: 500}};
+        }
+      }
+    );
+
+    const customFormatter = (problem, ctx) => ({
+      error: {code: problem.status, message: problem.detail},
+      requestId: ctx.requestId
+    });
+
+    before(async () => {
+      ({baseUrl: fmtUrl, close: fmtClose} = await setupServer(
+        createHandler(fmtPipeline, {errorFormatter: customFormatter})
+      ));
+    });
+
+    after(() => fmtClose());
+
+    it('formats error response with custom formatter over HTTP', async () => {
+      const res = await fetch(`${fmtUrl}/?scenario=error`);
+      assert.equal(res.status, 422);
+      assert.equal(res.headers.get('content-type'), 'application/json; charset=utf-8');
+      const body = await res.json();
+      assert.deepEqual(body.error, {code: 422, message: 'Validation failed'});
+      assert.equal(body.requestId, 'fmt-trace-id');
+    });
+
+    it('preserves default RFC 9457 formatting when no formatter is configured', async () => {
+      let defaultUrl, defaultClose;
+      ({baseUrl: defaultUrl, close: defaultClose} = await setupServer(createHandler(fmtPipeline)));
+      try {
+        const res = await fetch(`${defaultUrl}/?scenario=error`);
+        assert.equal(res.status, 422);
+        assert.equal(res.headers.get('content-type'), 'application/problem+json; charset=utf-8');
+        const body = await res.json();
+        assert.equal(body.title, 'Unprocessable Entity');
+        assert.equal(body.status, 422);
+      } finally {
+        defaultClose();
+      }
+    });
+  });
 });
