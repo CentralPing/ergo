@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **handler.js** JSDoc and `HandlerOptions` type now document the `paginate` option forwarded to `send()`. (#118)
+
 ## [0.3.0] - 2026-06-05
 
 ### Added
