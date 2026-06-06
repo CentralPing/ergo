@@ -48,7 +48,7 @@ import authorize from '../lib/authorization.js';
 export default ({strategies = []} = {}) => {
   const authorizer = authorize(strategies);
 
-  return async ({headers: {authorization = ''} = {}} = {}) => {
+  return async function authorizationMiddleware({headers: {authorization = ''} = {}} = {}) {
     const {authorized, info} = await authorizer(authorization);
 
     if (authorized === false) {

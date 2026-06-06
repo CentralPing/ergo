@@ -21,9 +21,9 @@
  * import {handler, compose, logger, authorization, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [logger(), 'log'],
- *   [authorization({strategies}), 'auth'],
- *   [body(), 'body'],
+ *   {fn: logger(), setPath: 'log'},
+ *   {fn: authorization({strategies}), setPath: 'auth'},
+ *   {fn: body(), setPath: 'body'},
  *   (req, res, acc) => ({response: {body: processRequest(acc), statusCode: 200}})
  * );
  *

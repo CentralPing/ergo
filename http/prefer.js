@@ -15,7 +15,7 @@
  * import {compose, prefer} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [prefer(), 'prefer'],
+ *   {fn: prefer(), setPath: 'prefer'},
  *   (req, res, acc) => ({response: {body: {id: 1, name: 'item'}}}),
  * );
  * // Client sends: Prefer: return=minimal
@@ -30,5 +30,7 @@ import parsePrefer from '../lib/prefer.js';
  *
  */
 export default () => {
-  return req => parsePrefer(req.headers?.prefer);
+  return function preferMiddleware(req) {
+    return parsePrefer(req.headers?.prefer);
+  };
 };

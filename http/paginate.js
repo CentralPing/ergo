@@ -20,8 +20,8 @@
  * import {compose, url, paginate} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [url(), 'url'],
- *   [paginate(), 'paginate'],
+ *   {fn: url(), setPath: 'url'},
+ *   {fn: paginate(), setPath: 'paginate'},
  *   // acc.paginate => {strategy: 'offset', page: 1, perPage: 20, offset: 0, limit: 20}
  * );
  */
@@ -46,7 +46,7 @@ const STRATEGY_CURSOR = 'cursor';
 export default (options = {}) => {
   const {strategy = STRATEGY_OFFSET, ...parseOpts} = options;
 
-  return (_req, _res, domainAcc) => {
+  return function paginateMiddleware(_req, _res, domainAcc) {
     const query = domainAcc?.url?.query;
 
     if (strategy === STRATEGY_CURSOR) {

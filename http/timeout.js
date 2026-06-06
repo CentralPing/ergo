@@ -31,7 +31,7 @@
  * @param {number} [options.statusCode=408] - HTTP status code on timeout (408 or 504)
  */
 export default ({ms = 30000, statusCode = 408} = {}) => {
-  return (req, res, domainAcc, responseAcc) => {
+  return function timeoutMiddleware(req, res, domainAcc, responseAcc) {
     const timer = setTimeout(() => {
       if (!req.destroyed) {
         responseAcc.statusCode = statusCode;

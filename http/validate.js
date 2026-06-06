@@ -22,9 +22,9 @@
  * import {compose, body, url, validate} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [body(), 'body'],
- *   [url(), 'url'],
- *   [validate({
+ *   {fn: body(), setPath: 'body'},
+ *   {fn: url(), setPath: 'url'},
+ *   validate({
  *     body: {
  *       type: 'object',
  *       properties: {name: {type: 'string'}},
@@ -34,7 +34,7 @@
  *       type: 'object',
  *       properties: {page: {type: 'string', pattern: '^[0-9]+$'}}
  *     }
- *   }), 'validation'],
+ *   }),
  * );
  */
 import createValidator from '../lib/validate.js';
@@ -88,7 +88,7 @@ export default (schemas = {}, options = {}) => {
     validators.params = createValidator(schemas.params, options);
   }
 
-  return (req, res, acc) => {
+  return function validateMiddleware(req, res, acc) {
     try {
       if (validators.body) {
         if (!acc.body) {

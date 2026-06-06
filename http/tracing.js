@@ -25,8 +25,8 @@
  * import {compose, tracing, logger, handler} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [tracing(), 'trace'],
- *   [logger(), 'log'],
+ *   {fn: tracing(), setPath: 'trace'},
+ *   {fn: logger(), setPath: 'log'},
  *   // ... remaining middleware
  * );
  *
@@ -50,7 +50,7 @@ import {createTracer, extractContext, injectContext, trace, SpanKind} from '../l
 export default ({serviceName, version, tracer, attributes, perStage = false} = {}) => {
   const resolvedTracer = tracer ?? createTracer(serviceName, version);
 
-  return (req, res) => {
+  return function tracingMiddleware(req, res) {
     const parentContext = extractContext(req.headers);
 
     const span = resolvedTracer.startSpan(

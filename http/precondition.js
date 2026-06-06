@@ -17,13 +17,13 @@
  *
  * // Enforce on all requests (method scoping handled by pipeline builder)
  * const pipeline = compose(
- *   [precondition(), 'precondition'],
+ *   precondition(),
  *   (req, res, acc) => ({response: {statusCode: 200, body: {updated: true}}})
  * );
  *
  * // Enforce only on specific methods (standalone usage)
  * const pipeline = compose(
- *   [precondition({methods: ['PUT', 'PATCH']}), 'precondition'],
+ *   precondition({methods: ['PUT', 'PATCH']}),
  *   (req, res, acc) => ({response: {statusCode: 200, body: {updated: true}}})
  * );
  *
@@ -41,7 +41,7 @@
 export default function precondition({methods} = {}) {
   const methodSet = methods ? (methods instanceof Set ? methods : new Set(methods)) : undefined;
 
-  return req => {
+  return function preconditionMiddleware(req) {
     if (methodSet && !methodSet.has(req.method)) return;
 
     if (!req.headers['if-match'] && !req.headers['if-unmodified-since']) {

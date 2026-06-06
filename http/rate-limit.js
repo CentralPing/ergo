@@ -38,7 +38,7 @@ export default function rateLimit({max = 100, windowMs = 60000, store, keyGenera
   const _store = store ?? new MemoryStore();
   const _keyGen = keyGenerator ?? defaultKeyGenerator;
 
-  return req => {
+  return function rateLimitMiddleware(req) {
     const result = checkRateLimit(_store, _keyGen(req), max, windowMs);
 
     if (result.limited) {

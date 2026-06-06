@@ -22,14 +22,14 @@
  *
  * // Issue a token on GET (e.g. page load)
  * const issuePipeline = compose(
- *   [cookie(), 'cookies'],
- *   [csrfMiddleware.issue, 'csrf'],
+ *   {fn: cookie(), setPath: 'cookies'},
+ *   {fn: csrfMiddleware.issue, setPath: 'csrf'},
  * );
  *
  * // Verify on state-mutating requests
  * const verifyPipeline = compose(
- *   [cookie(), 'cookies'],
- *   [csrfMiddleware.verify, 'csrf'],
+ *   {fn: cookie(), setPath: 'cookies'},
+ *   {fn: csrfMiddleware.verify, setPath: 'csrf'},
  * );
  *
  * @see {@link https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html OWASP CSRF Prevention Cheat Sheet}

@@ -19,7 +19,7 @@ describe('[Contract] http/body', () => {
   let baseUrl;
   let close;
 
-  const pipeline = compose([createBody(), 'body'], (req, res, acc) => ({
+  const pipeline = compose({fn: createBody(), setPath: 'body'}, (req, res, acc) => ({
     response: {body: acc.body.parsed}
   }));
   const handlerFn = createHandler(pipeline);
@@ -97,7 +97,7 @@ describe('[Contract] http/body', () => {
     it('returns 413 when body exceeds limit', async () => {
       let baseUrl2;
       let close2;
-      const smallPipeline = compose([createBody({limit: 5}), 'body']);
+      const smallPipeline = compose({fn: createBody({limit: 5}), setPath: 'body'});
       const smallHandler = createHandler(smallPipeline);
       ({baseUrl: baseUrl2, close: close2} = await setupServer(smallHandler));
       try {
@@ -227,10 +227,10 @@ describe('[Contract] http/body', () => {
       let u, c;
       const bigJson = JSON.stringify({data: 'x'.repeat(2000)});
       const compressed = await gzip(Buffer.from(bigJson));
-      const p = compose([
-        createBody({limit: compressed.length + 100, decompressedLimit: 100}),
-        'body'
-      ]);
+      const p = compose({
+        fn: createBody({limit: compressed.length + 100, decompressedLimit: 100}),
+        setPath: 'body'
+      });
       ({baseUrl: u, close: c} = await setupServer(createHandler(p)));
       try {
         const res = await fetch(`${u}/`, {
@@ -252,9 +252,12 @@ describe('[Contract] http/body', () => {
       const payload = JSON.stringify({ok: true});
       const compressed = await gzip(Buffer.from(payload));
       let u, c;
-      const p = compose([createBody({decompressedLimit: 1024}), 'body'], (req, res, acc) => ({
-        response: {body: acc.body.parsed}
-      }));
+      const p = compose(
+        {fn: createBody({decompressedLimit: 1024}), setPath: 'body'},
+        (req, res, acc) => ({
+          response: {body: acc.body.parsed}
+        })
+      );
       ({baseUrl: u, close: c} = await setupServer(createHandler(p)));
       try {
         const res = await fetch(`${u}/`, {
@@ -332,7 +335,7 @@ describe('[Contract] http/body', () => {
   describe('Content-Length mismatch (readBodyDirect guards)', () => {
     it('returns 413 when actual body exceeds the configured limit', async () => {
       let u, c;
-      const p = compose([createBody({limit: 5}), 'body']);
+      const p = compose({fn: createBody({limit: 5}), setPath: 'body'});
       ({baseUrl: u, close: c} = await setupServer(createHandler(p)));
       try {
         const payload = '{"x":1,"y":2,"z":3}';

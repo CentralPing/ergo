@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING: Middleware composition uses config objects instead of tuples.** (#117)
+  Domain-producing middleware now uses `{fn, setPath}` config objects instead of
+  `[fn, setPath]` tuples. Response-only middleware (cors, securityHeaders, cacheControl,
+  rateLimit, precondition, validate, jsonApiQuery) are plain functions — no wrapper needed.
+  - `normalizeOp()` now discriminates via `typeof op === 'function'` (was `Array.isArray`)
+  - `MiddlewareTuple` type renamed to `MiddlewareOp` with `{fn, setPath}` shape
+  - All 20 middleware inner functions are now named (`fn.name` provides trace labels)
+  - Migration: `[myFn(), 'key']` → `{fn: myFn(), setPath: 'key'}`
+
 ### Fixed
 
 - **handler.js** JSDoc and `HandlerOptions` type now document the `paginate` option forwarded to `send()`. (#118)

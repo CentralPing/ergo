@@ -60,12 +60,12 @@ import {createServer} from 'node:http';
 import {compose, handler, logger, cors, authorization, body} from '@centralping/ergo';
 
 const pipeline = compose(
-  [logger(), 'log'],
-  [cors(), 'cors'],
-  [authorization({strategies: [{type: 'Bearer', authorizer: (_, token) =>
+  {fn: logger(), setPath: 'log'},
+  cors(),
+  {fn: authorization({strategies: [{type: 'Bearer', authorizer: (_, token) =>
     token === 'my-token' ? {authorized: true, info: {uid: 1}} : {}
-  }]}), 'auth'],
-  [body(), 'body'],
+  }]}), setPath: 'auth'},
+  {fn: body(), setPath: 'body'},
   (req, res, acc) => ({response: {body: {user: acc.auth, data: acc.body.parsed}}})
 );
 
@@ -85,14 +85,14 @@ interface AuthResult {
 }
 
 const pipeline = compose(
-  [logger(), 'log'],
-  [cors(), 'cors'],
-  [authorization({strategies: [{
+  {fn: logger(), setPath: 'log'},
+  cors(),
+  {fn: authorization({strategies: [{
     type: 'Bearer' as const,
     authorizer: (_: Record<string, string>, token: string): AuthResult =>
       token === 'my-token' ? {authorized: true, info: {uid: 1}} : {authorized: false}
-  }]}), 'auth'],
-  [body(), 'body'],
+  }]}), setPath: 'auth'},
+  {fn: body(), setPath: 'body'},
   (req: IncomingMessage, res: ServerResponse, acc: {auth: AuthResult['info']; body: {parsed: unknown}}) =>
     ({response: {body: {user: acc.auth, data: acc.body.parsed}}})
 );
