@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780772007163,
+  "lastUpdate": 1780778465390,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6995,6 +6995,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "baddb93714144e5a678eee9472d992d48b195224",
+          "message": "chore: bump version to 0.4.0 and finalize CHANGELOG",
+          "timestamp": "2026-06-06T18:53:19Z",
+          "url": "https://github.com/CentralPing/ergo/pull/125/commits/baddb93714144e5a678eee9472d992d48b195224"
+        },
+        "date": 1780778464422,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.015,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.004,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
