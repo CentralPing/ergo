@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780771615772,
+  "lastUpdate": 1780772007163,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6956,6 +6956,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3b97782122a6d620fcd5eb8870a1ac3b72ad0de4",
+          "message": "feat: replace [fn, setPath] tuples with {fn, setPath} config objects (#117) (#124)\n\nBREAKING CHANGE: compose-with middleware dispatch now uses typeof instead\nof Array.isArray. Domain-producing middleware uses {fn, setPath} config\nobjects; response-only middleware are plain functions. All 20 middleware\ninner functions named for trace labeling. MiddlewareTuple type renamed\nto MiddlewareOp.",
+          "timestamp": "2026-06-06T18:53:14Z",
+          "tree_id": "2bb1f5fc0e2164da13088e8d67232e867bd8e654",
+          "url": "https://github.com/CentralPing/ergo/commit/3b97782122a6d620fcd5eb8870a1ac3b72ad0de4"
+        },
+        "date": 1780772006758,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
