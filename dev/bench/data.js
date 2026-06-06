@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780765274038,
+  "lastUpdate": 1780765814509,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6877,6 +6877,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "593825c3ee6b8e85b6c34cf59ab049e4f88b86d4",
+          "message": "docs: add missing paginate option to handler JSDoc and HandlerOptions (#118) (#123)",
+          "timestamp": "2026-06-06T13:10:02-04:00",
+          "tree_id": "3d37219d3310b07be10e782e7ae81d9b17dc24a5",
+          "url": "https://github.com/CentralPing/ergo/commit/593825c3ee6b8e85b6c34cf59ab049e4f88b86d4"
+        },
+        "date": 1780765814139,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
