@@ -145,6 +145,7 @@ export interface HandlerOptions {
   vary?: string[];
   etag?: boolean;
   prefer?: boolean;
+  paginate?: boolean;
   envelope?:
     | boolean
     | ((
