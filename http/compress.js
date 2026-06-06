@@ -42,7 +42,7 @@ const COMPRESSIBLE_RE = /^(text\/|application\/(json|javascript|xml|x-www-form-u
  * @param {string[]} [options.encodings=['br','gzip','deflate']] - Supported encodings in priority order
  */
 export default ({threshold = 1024, encodings = ['br', 'gzip', 'deflate']} = {}) => {
-  return (req, res) => {
+  return function compressMiddleware(req, res) {
     const acceptEncoding = req.headers['accept-encoding'] ?? '';
     const encoding = negotiate(acceptEncoding, encodings);
 

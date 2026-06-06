@@ -32,7 +32,7 @@
  * import {compose, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [body({limit: 2 * 1024 * 1024}), 'body'],
+ *   {fn: body({limit: 2 * 1024 * 1024}), setPath: 'body'},
  *   // acc.body => {type, charset, encoding, length, received, raw, parsed}
  *   // For JSON types, acc.body.parsed is the decoded object
  * );
@@ -123,19 +123,19 @@ const DEFAULT_LIMIT = 1 << 20; // 1 MiB
 const MAX_DECOMPRESSED = 10 * DEFAULT_LIMIT; // 10 MiB hard cap
 
 export default ({
-    limit = DEFAULT_LIMIT,
-    decompressedLimit = Math.min(10 * limit, MAX_DECOMPRESSED),
-    types = [
-      'application/vnd.api+json',
-      'application/json',
-      'application/merge-patch+json',
-      'application/json-patch+json',
-      'application/x-www-form-urlencoded',
-      'multipart/form-data'
-    ],
-    charset = 'utf-8'
-  } = {}) =>
-  async req => {
+  limit = DEFAULT_LIMIT,
+  decompressedLimit = Math.min(10 * limit, MAX_DECOMPRESSED),
+  types = [
+    'application/vnd.api+json',
+    'application/json',
+    'application/merge-patch+json',
+    'application/json-patch+json',
+    'application/x-www-form-urlencoded',
+    'multipart/form-data'
+  ],
+  charset = 'utf-8'
+} = {}) => {
+  return async function bodyMiddleware(req) {
     try {
       let type;
       let boundary;
@@ -234,6 +234,7 @@ export default ({
       throw err;
     }
   };
+};
 
 /**
  * Fast path: buffer the request body directly without creating intermediate

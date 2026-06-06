@@ -9,8 +9,8 @@ describe('[Contract] http/authorization', () => {
   let baseUrl, close;
 
   const pipeline = compose(
-    [
-      createAuthorization({
+    {
+      fn: createAuthorization({
         strategies: [
           {
             type: 'Bearer',
@@ -32,8 +32,8 @@ describe('[Contract] http/authorization', () => {
           }
         ]
       }),
-      'auth'
-    ],
+      setPath: 'auth'
+    },
     (req, res, acc) => ({response: {body: acc.auth}})
   );
 

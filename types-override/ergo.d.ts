@@ -8,11 +8,11 @@
  *    generic `object` that tsc emits from JSDoc `@param {object}`.
  *
  * 2. **Result interfaces** — typed success-path `value` shapes stored on the
- *    domain accumulator via `[fn, setPath]` tuples. On the error path,
+ *    domain accumulator via `{fn, setPath}` middleware ops. On the error path,
  *    middleware returns `{response: {statusCode}}` with no `value`, so the
  *    accumulator key is not assigned and the pipeline breaks.
  *
- * 3. **Utility types** — `MiddlewareTuple`, `ResponseAccumulator`,
+ * 3. **Utility types** — `MiddlewareOp`, `ResponseAccumulator`,
  *    `AjvFormatName`, `AuthorizationStrategy`.
  */
 
@@ -387,19 +387,20 @@ export type IdempotencyResult =
 // ---------------------------------------------------------------------------
 
 /**
- * Middleware tuple: `[fn, key]` where `fn` returns `Value` and
- * `key` is the string literal under which it is stored on the accumulator.
+ * Middleware operation: `{fn, setPath}` where `fn` may return a `Value`
+ * (or a `{value?, response?}` envelope) and `setPath` is the string literal
+ * under which the extracted value is stored on the accumulator.
  */
-export type MiddlewareTuple<Value, Key extends string> = readonly [
-  (
+export type MiddlewareOp<Value, Key extends string> = {
+  fn: (
     ...args: any[]
   ) =>
     | Value
     | Promise<Value>
     | {value?: Value; response?: any}
-    | Promise<{value?: Value; response?: any}>,
-  Key
-];
+    | Promise<{value?: Value; response?: any}>;
+  setPath: Key;
+};
 
 /** The response accumulator shape. */
 export interface ResponseAccumulator {

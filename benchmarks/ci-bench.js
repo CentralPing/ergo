@@ -51,10 +51,10 @@ async function bench(name, fn) {
 async function run() {
   const results = [];
 
-  const negotiation = compose(
-    [cors(), 'cors'],
-    [accepts({types: ['application/json']}), 'accepts']
-  );
+  const negotiation = compose(cors(), {
+    fn: accepts({types: ['application/json']}),
+    setPath: 'accepts'
+  });
 
   results.push(
     await bench('compose: negotiation (cors + accepts)', async () => {
@@ -67,8 +67,8 @@ async function run() {
     })
   );
 
-  const authPipeline = compose([
-    authorization({
+  const authPipeline = compose({
+    fn: authorization({
       strategies: [
         {
           type: 'bearer',
@@ -77,8 +77,8 @@ async function run() {
         }
       ]
     }),
-    'auth'
-  ]);
+    setPath: 'auth'
+  });
 
   results.push(
     await bench('compose: authorization (bearer)', async () => {
@@ -91,10 +91,10 @@ async function run() {
   );
 
   const fullPipeline = compose(
-    [cors(), 'cors'],
-    [accepts({types: ['application/json']}), 'accepts'],
-    [
-      authorization({
+    cors(),
+    {fn: accepts({types: ['application/json']}), setPath: 'accepts'},
+    {
+      fn: authorization({
         strategies: [
           {
             type: 'bearer',
@@ -103,8 +103,8 @@ async function run() {
           }
         ]
       }),
-      'auth'
-    ],
+      setPath: 'auth'
+    },
     () => ({response: {body: {ok: true}}})
   );
 

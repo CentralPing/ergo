@@ -3,7 +3,7 @@
  *
  * This file is compiled by tsconfig.check-types.json (noEmit: true) and
  * never executed at runtime. It validates that the overloaded composeWith
- * signatures correctly infer accumulator key types from [fn, key] tuples.
+ * signatures correctly infer accumulator key types from {fn, setPath} ops.
  */
 
 import type {
@@ -27,16 +27,16 @@ declare function preferFactory(): () => PreferResult;
 declare function tracingFactory(): () => { value: TracingResult };
 
 // ---------------------------------------------------------------------------
-// Positive: compose with typed tuples infers accumulator keys
+// Positive: compose with typed ops infers accumulator keys
 // ---------------------------------------------------------------------------
 
-const twoTuple = compose(
-  [urlFactory(), 'url'] as const,
-  [bodyFactory(), 'body'] as const,
+const twoOp = compose(
+  { fn: urlFactory(), setPath: 'url' } as const,
+  { fn: bodyFactory(), setPath: 'body' } as const,
 );
 
-async function testTwoTuple() {
-  const acc = await twoTuple();
+async function testTwoOp() {
+  const acc = await twoOp();
 
   const u: UrlResult = acc.url;
   const b: BodyResult = acc.body;
@@ -45,16 +45,16 @@ async function testTwoTuple() {
   void b;
 }
 
-const fiveTuple = compose(
-  [loggerFactory(), 'log'] as const,
-  [acceptsFactory(), 'accepts'] as const,
-  [cookieFactory(), 'cookies'] as const,
-  [urlFactory(), 'url'] as const,
-  [bodyFactory(), 'body'] as const,
+const fiveOp = compose(
+  { fn: loggerFactory(), setPath: 'log' } as const,
+  { fn: acceptsFactory(), setPath: 'accepts' } as const,
+  { fn: cookieFactory(), setPath: 'cookies' } as const,
+  { fn: urlFactory(), setPath: 'url' } as const,
+  { fn: bodyFactory(), setPath: 'body' } as const,
 );
 
-async function testFiveTuple() {
-  const acc = await fiveTuple();
+async function testFiveOp() {
+  const acc = await fiveOp();
 
   const l: LogEntry = acc.log;
   const a: AcceptsResult = acc.accepts;
@@ -70,12 +70,12 @@ async function testFiveTuple() {
 }
 
 // ---------------------------------------------------------------------------
-// Positive: tuples + trailing plain function (execute handler pattern)
+// Positive: ops + trailing plain function (execute handler pattern)
 // ---------------------------------------------------------------------------
 
 const withHandler = compose(
-  [urlFactory(), 'url'] as const,
-  [bodyFactory(), 'body'] as const,
+  { fn: urlFactory(), setPath: 'url' } as const,
+  { fn: bodyFactory(), setPath: 'body' } as const,
   (_req: any, _res: any, acc: { url: UrlResult; body: BodyResult }) => ({
     response: { body: acc.body.parsed, statusCode: 200 },
   }),
@@ -92,8 +92,8 @@ async function testWithHandler() {
 // ---------------------------------------------------------------------------
 
 const concurrent = compose.all(
-  [urlFactory(), 'url'] as const,
-  [cookieFactory(), 'cookies'] as const,
+  { fn: urlFactory(), setPath: 'url' } as const,
+  { fn: cookieFactory(), setPath: 'cookies' } as const,
 );
 
 async function testConcurrent() {
@@ -105,17 +105,17 @@ async function testConcurrent() {
 }
 
 // ---------------------------------------------------------------------------
-// Positive: compose.all with 7 tuples exercises the overload ceiling
+// Positive: compose.all with 7 ops exercises the overload ceiling
 // ---------------------------------------------------------------------------
 
 const concurrentSeven = compose.all(
-  [loggerFactory(), 'log'] as const,
-  [acceptsFactory(), 'accepts'] as const,
-  [cookieFactory(), 'cookies'] as const,
-  [urlFactory(), 'url'] as const,
-  [bodyFactory(), 'body'] as const,
-  [preferFactory(), 'prefer'] as const,
-  [tracingFactory(), 'trace'] as const,
+  { fn: loggerFactory(), setPath: 'log' } as const,
+  { fn: acceptsFactory(), setPath: 'accepts' } as const,
+  { fn: cookieFactory(), setPath: 'cookies' } as const,
+  { fn: urlFactory(), setPath: 'url' } as const,
+  { fn: bodyFactory(), setPath: 'body' } as const,
+  { fn: preferFactory(), setPath: 'prefer' } as const,
+  { fn: tracingFactory(), setPath: 'trace' } as const,
 );
 
 async function testConcurrentSeven() {
@@ -145,7 +145,7 @@ async function testConcurrentSeven() {
 declare function envelopeMiddleware(): () => { value: string; response: { statusCode: number } };
 
 const envelopePipeline = compose(
-  [envelopeMiddleware(), 'data'] as const,
+  { fn: envelopeMiddleware(), setPath: 'data' } as const,
 );
 
 async function testEnvelopeUnwrap() {
@@ -168,14 +168,14 @@ function testResponseAcc() {
 // ---------------------------------------------------------------------------
 
 async function testNegative() {
-  const acc = await twoTuple();
+  const acc = await twoOp();
 
   // @ts-expect-error — 'cookies' is not a key of {url: UrlResult} & {body: BodyResult}
   const _bad = acc.cookies;
 }
 
 // ---------------------------------------------------------------------------
-// Positive: fallback (>12 tuples or plain functions only) returns object
+// Positive: fallback (>12 ops or plain functions only) returns object
 // ---------------------------------------------------------------------------
 
 const fallback = compose(
@@ -220,8 +220,8 @@ function testResultShapes() {
 }
 
 // Suppress unused-variable warnings
-void testTwoTuple;
-void testFiveTuple;
+void testTwoOp;
+void testFiveOp;
 void testWithHandler;
 void testConcurrent;
 void testConcurrentSeven;

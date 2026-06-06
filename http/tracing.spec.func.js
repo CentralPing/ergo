@@ -59,7 +59,7 @@ describe('http/tracing contract', () => {
   });
 
   it('creates a pipeline span for each request', async () => {
-    const pipeline = compose([tracing(), 'trace'], () => ({
+    const pipeline = compose({fn: tracing(), setPath: 'trace'}, () => ({
       response: {body: {ok: true}, statusCode: 200}
     }));
 
@@ -79,7 +79,7 @@ describe('http/tracing contract', () => {
     const parentTraceId = '0af7651916cd43dd8448eb211c80319c';
     const parentSpanId = 'b7ad6b7169203331';
 
-    const pipeline = compose([tracing(), 'trace'], () => ({
+    const pipeline = compose({fn: tracing(), setPath: 'trace'}, () => ({
       response: {body: {ok: true}, statusCode: 200}
     }));
 
@@ -96,7 +96,7 @@ describe('http/tracing contract', () => {
   });
 
   it('sets span status ERROR for 5xx responses', async () => {
-    const pipeline = compose([tracing(), 'trace'], () => ({
+    const pipeline = compose({fn: tracing(), setPath: 'trace'}, () => ({
       response: {statusCode: 503, detail: 'Service Unavailable'}
     }));
 
@@ -111,7 +111,7 @@ describe('http/tracing contract', () => {
   });
 
   it('sets span status UNSET for 4xx responses', async () => {
-    const pipeline = compose([tracing(), 'trace'], () => ({
+    const pipeline = compose({fn: tracing(), setPath: 'trace'}, () => ({
       response: {statusCode: 404, detail: 'Not Found'}
     }));
 
@@ -125,7 +125,7 @@ describe('http/tracing contract', () => {
   });
 
   it('records exception on caught pipeline error', async () => {
-    const pipeline = compose([tracing(), 'trace'], () => {
+    const pipeline = compose({fn: tracing(), setPath: 'trace'}, () => {
       throw new Error('boom');
     });
 
@@ -148,9 +148,13 @@ describe('http/tracing contract', () => {
       logOutput = info;
     };
 
-    const pipeline = compose([tracing(), 'trace'], [logger({log: logFn}), 'log'], () => ({
-      response: {body: {ok: true}, statusCode: 200}
-    }));
+    const pipeline = compose(
+      {fn: tracing(), setPath: 'trace'},
+      {fn: logger({log: logFn}), setPath: 'log'},
+      () => ({
+        response: {body: {ok: true}, statusCode: 200}
+      })
+    );
 
     ctx = await setupServer(handler(pipeline));
     const res = await fetch(`${ctx.baseUrl}/`);
@@ -170,9 +174,9 @@ describe('http/tracing contract', () => {
 
   it('creates per-stage child spans when perStage is true', async () => {
     const pipeline = compose(
-      [tracing({perStage: true}), 'trace'],
-      [() => ({value: 'hello'}), 'greeting'],
-      [() => ({response: {body: {ok: true}, statusCode: 200}}), 'exec']
+      {fn: tracing({perStage: true}), setPath: 'trace'},
+      {fn: () => ({value: 'hello'}), setPath: 'greeting'},
+      {fn: () => ({response: {body: {ok: true}, statusCode: 200}}), setPath: 'exec'}
     );
 
     ctx = await setupServer(handler(pipeline));

@@ -19,7 +19,7 @@
  * import {compose, cookie} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [cookie(), 'cookies'],
+ *   {fn: cookie(), setPath: 'cookies'},
  *   // acc.cookies.session => 'abc123' (incoming cookie, own property)
  * );
  *
@@ -32,7 +32,9 @@ import {parse, jar} from '../lib/cookie/index.js';
  *
  * @param {object} [options] - Options forwarded to the RFC 6265 cookie parser
  */
-export default options =>
+export default options => {
   /** @param {{ headers?: { cookie?: string } }} [req] - Incoming HTTP request */
-  ({headers: {cookie} = {}} = {}) =>
-    jar(parse(cookie, options));
+  return function cookieMiddleware({headers: {cookie} = {}} = {}) {
+    return jar(parse(cookie, options));
+  };
+};

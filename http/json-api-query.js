@@ -19,8 +19,8 @@
  * import {compose, url, jsonApiQuery} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [url(), 'url'],
- *   [jsonApiQuery(), 'jsonApiQuery'],
+ *   {fn: url(), setPath: 'url'},
+ *   jsonApiQuery(),
  *   // Returns 400 response if query params are not JSON:API compliant
  * );
  */
@@ -34,7 +34,7 @@ import {validate} from '../lib/json-api-query/index.js';
 export default (...options) => {
   const validator = validate(...options);
 
-  return (req, res, acc) => {
+  return function jsonApiQueryMiddleware(req, res, acc) {
     const query = acc.url?.query;
     const valid = validator(query);
 

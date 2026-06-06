@@ -2,9 +2,9 @@
  * Hand-written type declarations for compose-with.
  *
  * Auto-generated declarations cannot express the variadic generic
- * relationship between [fn, setPath] tuples and the accumulated result
- * type. This file provides overloaded signatures for 1–12 tuples that
- * infer the accumulator shape from the tuple arguments.
+ * relationship between {fn, setPath} config objects and the accumulated result
+ * type. This file provides overloaded signatures for 1–12 ops that
+ * infer the accumulator shape from the config object arguments.
  *
  * Maintenance: when adding a new middleware to ergo, add a corresponding
  * result type to types/ergo.d.ts. These overloads do not need updating
@@ -55,11 +55,11 @@ export function createResponseAcc(): ResponseAccumulator;
 export function mergeResponse(responseAcc: ResponseAccumulator, patch: Partial<ResponseAccumulator>): void;
 
 // ---------------------------------------------------------------------------
-// composeWith overloads (1–12 tuples + optional trailing plain functions)
+// composeWith overloads (1–12 ops + optional trailing plain functions)
 // ---------------------------------------------------------------------------
 
 declare function composeWith<K1 extends string, F1 extends (...args: any[]) => any>(
-  op1: readonly [F1, K1] | [F1, K1],
+  op1: {fn: F1; setPath: K1},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> }>;
 
@@ -67,8 +67,8 @@ declare function composeWith<
   K1 extends string, F1 extends (...args: any[]) => any,
   K2 extends string, F2 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> }>;
 
@@ -77,9 +77,9 @@ declare function composeWith<
   K2 extends string, F2 extends (...args: any[]) => any,
   K3 extends string, F3 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } & { [P in K3]: ExtractValue<F3> }>;
 
@@ -89,10 +89,10 @@ declare function composeWith<
   K3 extends string, F3 extends (...args: any[]) => any,
   K4 extends string, F4 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -106,11 +106,11 @@ declare function composeWith<
   K4 extends string, F4 extends (...args: any[]) => any,
   K5 extends string, F5 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
-  op5: readonly [F5, K5] | [F5, K5],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
+  op5: {fn: F5; setPath: K5},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -126,12 +126,12 @@ declare function composeWith<
   K5 extends string, F5 extends (...args: any[]) => any,
   K6 extends string, F6 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
-  op5: readonly [F5, K5] | [F5, K5],
-  op6: readonly [F6, K6] | [F6, K6],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
+  op5: {fn: F5; setPath: K5},
+  op6: {fn: F6; setPath: K6},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -148,13 +148,13 @@ declare function composeWith<
   K6 extends string, F6 extends (...args: any[]) => any,
   K7 extends string, F7 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
-  op5: readonly [F5, K5] | [F5, K5],
-  op6: readonly [F6, K6] | [F6, K6],
-  op7: readonly [F7, K7] | [F7, K7],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
+  op5: {fn: F5; setPath: K5},
+  op6: {fn: F6; setPath: K6},
+  op7: {fn: F7; setPath: K7},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -173,14 +173,14 @@ declare function composeWith<
   K7 extends string, F7 extends (...args: any[]) => any,
   K8 extends string, F8 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
-  op5: readonly [F5, K5] | [F5, K5],
-  op6: readonly [F6, K6] | [F6, K6],
-  op7: readonly [F7, K7] | [F7, K7],
-  op8: readonly [F8, K8] | [F8, K8],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
+  op5: {fn: F5; setPath: K5},
+  op6: {fn: F6; setPath: K6},
+  op7: {fn: F7; setPath: K7},
+  op8: {fn: F8; setPath: K8},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -200,15 +200,15 @@ declare function composeWith<
   K8 extends string, F8 extends (...args: any[]) => any,
   K9 extends string, F9 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
-  op5: readonly [F5, K5] | [F5, K5],
-  op6: readonly [F6, K6] | [F6, K6],
-  op7: readonly [F7, K7] | [F7, K7],
-  op8: readonly [F8, K8] | [F8, K8],
-  op9: readonly [F9, K9] | [F9, K9],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
+  op5: {fn: F5; setPath: K5},
+  op6: {fn: F6; setPath: K6},
+  op7: {fn: F7; setPath: K7},
+  op8: {fn: F8; setPath: K8},
+  op9: {fn: F9; setPath: K9},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -230,16 +230,16 @@ declare function composeWith<
   K9 extends string, F9 extends (...args: any[]) => any,
   K10 extends string, F10 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
-  op5: readonly [F5, K5] | [F5, K5],
-  op6: readonly [F6, K6] | [F6, K6],
-  op7: readonly [F7, K7] | [F7, K7],
-  op8: readonly [F8, K8] | [F8, K8],
-  op9: readonly [F9, K9] | [F9, K9],
-  op10: readonly [F10, K10] | [F10, K10],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
+  op5: {fn: F5; setPath: K5},
+  op6: {fn: F6; setPath: K6},
+  op7: {fn: F7; setPath: K7},
+  op8: {fn: F8; setPath: K8},
+  op9: {fn: F9; setPath: K9},
+  op10: {fn: F10; setPath: K10},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -262,17 +262,17 @@ declare function composeWith<
   K10 extends string, F10 extends (...args: any[]) => any,
   K11 extends string, F11 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
-  op5: readonly [F5, K5] | [F5, K5],
-  op6: readonly [F6, K6] | [F6, K6],
-  op7: readonly [F7, K7] | [F7, K7],
-  op8: readonly [F8, K8] | [F8, K8],
-  op9: readonly [F9, K9] | [F9, K9],
-  op10: readonly [F10, K10] | [F10, K10],
-  op11: readonly [F11, K11] | [F11, K11],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
+  op5: {fn: F5; setPath: K5},
+  op6: {fn: F6; setPath: K6},
+  op7: {fn: F7; setPath: K7},
+  op8: {fn: F8; setPath: K8},
+  op9: {fn: F9; setPath: K9},
+  op10: {fn: F10; setPath: K10},
+  op11: {fn: F11; setPath: K11},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -297,18 +297,18 @@ declare function composeWith<
   K11 extends string, F11 extends (...args: any[]) => any,
   K12 extends string, F12 extends (...args: any[]) => any,
 >(
-  op1: readonly [F1, K1] | [F1, K1],
-  op2: readonly [F2, K2] | [F2, K2],
-  op3: readonly [F3, K3] | [F3, K3],
-  op4: readonly [F4, K4] | [F4, K4],
-  op5: readonly [F5, K5] | [F5, K5],
-  op6: readonly [F6, K6] | [F6, K6],
-  op7: readonly [F7, K7] | [F7, K7],
-  op8: readonly [F8, K8] | [F8, K8],
-  op9: readonly [F9, K9] | [F9, K9],
-  op10: readonly [F10, K10] | [F10, K10],
-  op11: readonly [F11, K11] | [F11, K11],
-  op12: readonly [F12, K12] | [F12, K12],
+  op1: {fn: F1; setPath: K1},
+  op2: {fn: F2; setPath: K2},
+  op3: {fn: F3; setPath: K3},
+  op4: {fn: F4; setPath: K4},
+  op5: {fn: F5; setPath: K5},
+  op6: {fn: F6; setPath: K6},
+  op7: {fn: F7; setPath: K7},
+  op8: {fn: F8; setPath: K8},
+  op9: {fn: F9; setPath: K9},
+  op10: {fn: F10; setPath: K10},
+  op11: {fn: F11; setPath: K11},
+  op12: {fn: F12; setPath: K12},
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
   { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -319,18 +319,18 @@ declare function composeWith<
   { [P in K11]: ExtractValue<F11> } & { [P in K12]: ExtractValue<F12> }
 >;
 
-// Fallback for >12 tuples or all-plain-function calls
+// Fallback for >12 ops or all-plain-function calls
 declare function composeWith(
-  ...ops: (readonly [(...args: any[]) => any, string] | [(...args: any[]) => any, string] | ((...args: any[]) => any))[]
+  ...ops: ({fn: (...args: any[]) => any; setPath: string} | ((...args: any[]) => any))[]
 ): (...args: any[]) => Promise<object>;
 
 // ---------------------------------------------------------------------------
-// composeWith.all overloads (1–12 tuples, mirroring top-level)
+// composeWith.all overloads (1–12 ops, mirroring top-level)
 // ---------------------------------------------------------------------------
 
 declare namespace composeWith {
   function all<K1 extends string, F1 extends (...args: any[]) => any>(
-    op1: readonly [F1, K1] | [F1, K1],
+    op1: {fn: F1; setPath: K1},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> }>;
 
@@ -338,8 +338,8 @@ declare namespace composeWith {
     K1 extends string, F1 extends (...args: any[]) => any,
     K2 extends string, F2 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> }>;
 
@@ -348,9 +348,9 @@ declare namespace composeWith {
     K2 extends string, F2 extends (...args: any[]) => any,
     K3 extends string, F3 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } & { [P in K3]: ExtractValue<F3> }>;
 
@@ -360,10 +360,10 @@ declare namespace composeWith {
     K3 extends string, F3 extends (...args: any[]) => any,
     K4 extends string, F4 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -377,11 +377,11 @@ declare namespace composeWith {
     K4 extends string, F4 extends (...args: any[]) => any,
     K5 extends string, F5 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
-    op5: readonly [F5, K5] | [F5, K5],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
+    op5: {fn: F5; setPath: K5},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -397,12 +397,12 @@ declare namespace composeWith {
     K5 extends string, F5 extends (...args: any[]) => any,
     K6 extends string, F6 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
-    op5: readonly [F5, K5] | [F5, K5],
-    op6: readonly [F6, K6] | [F6, K6],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
+    op5: {fn: F5; setPath: K5},
+    op6: {fn: F6; setPath: K6},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -419,13 +419,13 @@ declare namespace composeWith {
     K6 extends string, F6 extends (...args: any[]) => any,
     K7 extends string, F7 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
-    op5: readonly [F5, K5] | [F5, K5],
-    op6: readonly [F6, K6] | [F6, K6],
-    op7: readonly [F7, K7] | [F7, K7],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
+    op5: {fn: F5; setPath: K5},
+    op6: {fn: F6; setPath: K6},
+    op7: {fn: F7; setPath: K7},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -444,14 +444,14 @@ declare namespace composeWith {
     K7 extends string, F7 extends (...args: any[]) => any,
     K8 extends string, F8 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
-    op5: readonly [F5, K5] | [F5, K5],
-    op6: readonly [F6, K6] | [F6, K6],
-    op7: readonly [F7, K7] | [F7, K7],
-    op8: readonly [F8, K8] | [F8, K8],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
+    op5: {fn: F5; setPath: K5},
+    op6: {fn: F6; setPath: K6},
+    op7: {fn: F7; setPath: K7},
+    op8: {fn: F8; setPath: K8},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -471,15 +471,15 @@ declare namespace composeWith {
     K8 extends string, F8 extends (...args: any[]) => any,
     K9 extends string, F9 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
-    op5: readonly [F5, K5] | [F5, K5],
-    op6: readonly [F6, K6] | [F6, K6],
-    op7: readonly [F7, K7] | [F7, K7],
-    op8: readonly [F8, K8] | [F8, K8],
-    op9: readonly [F9, K9] | [F9, K9],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
+    op5: {fn: F5; setPath: K5},
+    op6: {fn: F6; setPath: K6},
+    op7: {fn: F7; setPath: K7},
+    op8: {fn: F8; setPath: K8},
+    op9: {fn: F9; setPath: K9},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -501,16 +501,16 @@ declare namespace composeWith {
     K9 extends string, F9 extends (...args: any[]) => any,
     K10 extends string, F10 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
-    op5: readonly [F5, K5] | [F5, K5],
-    op6: readonly [F6, K6] | [F6, K6],
-    op7: readonly [F7, K7] | [F7, K7],
-    op8: readonly [F8, K8] | [F8, K8],
-    op9: readonly [F9, K9] | [F9, K9],
-    op10: readonly [F10, K10] | [F10, K10],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
+    op5: {fn: F5; setPath: K5},
+    op6: {fn: F6; setPath: K6},
+    op7: {fn: F7; setPath: K7},
+    op8: {fn: F8; setPath: K8},
+    op9: {fn: F9; setPath: K9},
+    op10: {fn: F10; setPath: K10},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -533,17 +533,17 @@ declare namespace composeWith {
     K10 extends string, F10 extends (...args: any[]) => any,
     K11 extends string, F11 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
-    op5: readonly [F5, K5] | [F5, K5],
-    op6: readonly [F6, K6] | [F6, K6],
-    op7: readonly [F7, K7] | [F7, K7],
-    op8: readonly [F8, K8] | [F8, K8],
-    op9: readonly [F9, K9] | [F9, K9],
-    op10: readonly [F10, K10] | [F10, K10],
-    op11: readonly [F11, K11] | [F11, K11],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
+    op5: {fn: F5; setPath: K5},
+    op6: {fn: F6; setPath: K6},
+    op7: {fn: F7; setPath: K7},
+    op8: {fn: F8; setPath: K8},
+    op9: {fn: F9; setPath: K9},
+    op10: {fn: F10; setPath: K10},
+    op11: {fn: F11; setPath: K11},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -568,18 +568,18 @@ declare namespace composeWith {
     K11 extends string, F11 extends (...args: any[]) => any,
     K12 extends string, F12 extends (...args: any[]) => any,
   >(
-    op1: readonly [F1, K1] | [F1, K1],
-    op2: readonly [F2, K2] | [F2, K2],
-    op3: readonly [F3, K3] | [F3, K3],
-    op4: readonly [F4, K4] | [F4, K4],
-    op5: readonly [F5, K5] | [F5, K5],
-    op6: readonly [F6, K6] | [F6, K6],
-    op7: readonly [F7, K7] | [F7, K7],
-    op8: readonly [F8, K8] | [F8, K8],
-    op9: readonly [F9, K9] | [F9, K9],
-    op10: readonly [F10, K10] | [F10, K10],
-    op11: readonly [F11, K11] | [F11, K11],
-    op12: readonly [F12, K12] | [F12, K12],
+    op1: {fn: F1; setPath: K1},
+    op2: {fn: F2; setPath: K2},
+    op3: {fn: F3; setPath: K3},
+    op4: {fn: F4; setPath: K4},
+    op5: {fn: F5; setPath: K5},
+    op6: {fn: F6; setPath: K6},
+    op7: {fn: F7; setPath: K7},
+    op8: {fn: F8; setPath: K8},
+    op9: {fn: F9; setPath: K9},
+    op10: {fn: F10; setPath: K10},
+    op11: {fn: F11; setPath: K11},
+    op12: {fn: F12; setPath: K12},
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
     { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
@@ -591,7 +591,7 @@ declare namespace composeWith {
   >;
 
   function all(
-    ...ops: (readonly [(...args: any[]) => any, string] | [(...args: any[]) => any, string] | ((...args: any[]) => any))[]
+    ...ops: ({fn: (...args: any[]) => any; setPath: string} | ((...args: any[]) => any))[]
   ): (...args: any[]) => Promise<object>;
 }
 

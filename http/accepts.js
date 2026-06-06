@@ -18,7 +18,7 @@
  * import {compose, accepts} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [accepts({types: ['application/json']}), 'accepts'],
+ *   {fn: accepts({types: ['application/json']}), setPath: 'accepts'},
  *   // acc.accepts => {type: 'application/json', language: 'en', charset: 'utf-8', encoding: 'identity'}
  * );
  *
@@ -46,7 +46,7 @@ const headerMap = {
 export default ({throwIfFail = true, ...options} = {}) => {
   const acceptor = accepts(options);
 
-  return ({headers = {}} = {}) => {
+  return function acceptsMiddleware({headers = {}} = {}) {
     const accepted = acceptor(headers);
 
     if (throwIfFail) {

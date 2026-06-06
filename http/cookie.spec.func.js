@@ -8,7 +8,7 @@ import compose from '../utils/compose-with.js';
 describe('[Contract] http/cookie', () => {
   let baseUrl, close;
 
-  const pipeline = compose([createCookieMw(), 'cookies'], (req, res, acc) => {
+  const pipeline = compose({fn: createCookieMw(), setPath: 'cookies'}, (req, res, acc) => {
     const cookies = acc.cookies;
     cookies.set('response-cookie', 'set-by-server', {httpOnly: true});
     res.setHeader('Set-Cookie', cookies.toHeader());

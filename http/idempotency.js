@@ -17,8 +17,8 @@
  * import {compose, body, idempotency} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [body(), 'body'],
- *   [idempotency({required: true}), 'idempotency'],
+ *   {fn: body(), setPath: 'body'},
+ *   {fn: idempotency({required: true}), setPath: 'idempotency'},
  *   (req, res, acc) => ({response: {statusCode: 201, body: {created: true}}})
  * );
  *
@@ -45,7 +45,7 @@ export default function idempotency({store, ttlMs, required = false, methods} = 
   const _store = store ?? new IdempotencyStore(ttlMs ? {ttlMs} : undefined);
   const _methods = methods instanceof Set ? methods : new Set(methods ?? DEFAULT_METHODS);
 
-  return (req, _res, domainAcc) => {
+  return function idempotencyMiddleware(req, _res, domainAcc) {
     if (!_methods.has(req.method)) return {};
 
     const rawHeader = req.headers?.['idempotency-key'];

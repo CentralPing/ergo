@@ -18,7 +18,7 @@
  * import {compose, authorization} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [authorization({
+ *   {fn: authorization({
  *     strategies: [{
  *       type: 'Bearer',
  *       authorizer: async (attributes, token) => {
@@ -28,7 +28,7 @@
  *           : {authorized: false, info: {statusCode: 401}};
  *       }
  *     }]
- *   }), 'auth'],
+ *   }), setPath: 'auth'},
  *   // acc.auth => {user: {...}} on success
  * );
  *
@@ -48,7 +48,7 @@ import authorize from '../lib/authorization.js';
 export default ({strategies = []} = {}) => {
   const authorizer = authorize(strategies);
 
-  return async ({headers: {authorization = ''} = {}} = {}) => {
+  return async function authorizationMiddleware({headers: {authorization = ''} = {}} = {}) {
     const {authorized, info} = await authorizer(authorization);
 
     if (authorized === false) {

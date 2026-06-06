@@ -17,12 +17,13 @@
  * @example
  * import {compose, cors} from '@centralping/ergo';
  *
+ * // cors is response-only — use as a plain function (no config object needed)
  * const pipeline = compose(
- *   [cors({
+ *   cors({
  *     origins: ['https://app.example.com'],
  *     allowMethods: ['GET', 'POST'],
  *     allowHeaders: ['Authorization', 'Content-Type']
- *   }), 'cors'],
+ *   }),
  * );
  *
  * @see {@link https://fetch.spec.whatwg.org/#http-cors-protocol Fetch Standard - CORS Protocol}
@@ -44,14 +45,14 @@ export default options => {
   const corsValidator = cors(options);
 
   /** @param {{ headers?: { origin?: string, 'access-control-request-method'?: string, 'access-control-request-headers'?: string }, method?: string }} [req] - Incoming HTTP request */
-  const middleware = ({
+  return function corsMiddleware({
     headers: {
       origin,
       'access-control-request-method': requestMethod,
       'access-control-request-headers': requestHeadersRaw
     } = {},
     method
-  } = {}) => {
+  } = {}) {
     // Only if Origin is defined is it CORS
     if (origin !== undefined) {
       const requestHeaders = requestHeadersRaw
@@ -74,6 +75,4 @@ export default options => {
       };
     }
   };
-
-  return middleware;
 };

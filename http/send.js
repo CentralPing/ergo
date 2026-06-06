@@ -134,7 +134,7 @@ export default ({
   const effectiveVary = prefer ? [...(vary || []), 'Prefer'] : vary;
   const varyValue = effectiveVary?.length ? effectiveVary.join(', ') : undefined;
 
-  return (req, res, responseAcc, domainAcc = {}) => {
+  return function sendMiddleware(req, res, responseAcc, domainAcc = {}) {
     if (res.writableEnded || !res.writable) return;
 
     let {

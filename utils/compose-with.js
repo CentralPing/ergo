@@ -5,8 +5,8 @@
  * inter-middleware data and a **response accumulator** for HTTP response construction.
  *
  * Each operation can be expressed as:
- * - A plain function: `fn` (receives `(...args, domainAcc)`)
- * - A tuple: `[fn, setPath]` where:
+ * - A plain function: `fn` (receives `(...args, domainAcc)`) — for response-only/gate/side-effect middleware
+ * - A config object: `{fn, setPath}` where:
  *   - `fn` — the middleware function
  *   - `setPath` — the domain accumulator key to store the return value under
  *
@@ -30,9 +30,9 @@
  *
  * const responseAcc = createResponseAcc();
  * const pipeline = compose(
- *   [logger(), 'log'],
- *   [authorization({...}), 'auth'],
- *   [body(), 'body'],
+ *   {fn: logger(), setPath: 'log'},
+ *   {fn: authorization({...}), setPath: 'auth'},
+ *   {fn: body(), setPath: 'body'},
  *   (req, res, acc) => ({response: {body: process(acc.body), statusCode: 200}})
  * );
  *
@@ -102,12 +102,13 @@ function extractReturn(resolved) {
 /**
  * Converts an operation spec into a normalized descriptor.
  *
- * @param {function|Array} op - A plain function or `[fn, setPath]` tuple
+ * @param {function|{fn: function, setPath: string}} op - A plain function or config object `{fn, setPath}`
  * @returns {{fn: function, setPath: string|undefined}} - Normalized descriptor
  */
 function normalizeOp(op) {
-  if (!Array.isArray(op)) return {fn: op, setPath: undefined};
-  return {fn: op[0], setPath: op[1]};
+  if (typeof op === 'function') return {fn: op, setPath: undefined};
+  if (op != null && typeof op.fn === 'function') return op;
+  throw new TypeError('Invalid compose op: expected function or {fn, setPath}.');
 }
 
 /**
@@ -228,7 +229,7 @@ async function concurrent(descriptors, args, domainAcc, responseAcc) {
  * and response accumulator (last arg with `isResponseAcc`) from its arguments.
  * If either is absent, a fresh one is created.
  *
- * @param {...(function|Array)} ops - Operation specs; each is a function or `[fn, setPath]`
+ * @param {...(function|{fn: function, setPath: string})} ops - Operation specs; each is a function or `{fn, setPath}` config object
  */
 const composeWith = (...ops) => {
   const descriptors = ops.map(normalizeOp);
@@ -244,7 +245,7 @@ const composeWith = (...ops) => {
 /**
  * Concurrent variant of composeWith.
  *
- * @param {...(function|Array)} ops - Operation specs
+ * @param {...(function|{fn: function, setPath: string})} ops - Operation specs
  */
 composeWith.all = (...ops) => {
   const descriptors = ops.map(normalizeOp);

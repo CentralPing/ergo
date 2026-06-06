@@ -31,7 +31,7 @@
  * import {compose, logger} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [logger(), 'log'],
+ *   {fn: logger(), setPath: 'log'},
  *   // On finish logs: {"requestId":"...","method":"GET","url":"/users","statusCode":200,"duration":12,...}
  * );
  */
@@ -75,16 +75,16 @@ const host = Object.freeze({
  *   (default: authorization, proxy-authorization, cookie, set-cookie)
  */
 export default ({
-    /* eslint-disable-next-line no-console */
-    log = console.log,
-    /* eslint-disable-next-line no-console */
-    error: logError = console.error,
-    uuid = randomUUID,
-    headerRequestIdName = 'x-request-id',
-    headerRequestIpName = 'x-real-ip',
-    redactHeaders = DEFAULT_REDACTED
-  } = {}) =>
-  (req, res, acc) => {
+  /* eslint-disable-next-line no-console */
+  log = console.log,
+  /* eslint-disable-next-line no-console */
+  error: logError = console.error,
+  uuid = randomUUID,
+  headerRequestIdName = 'x-request-id',
+  headerRequestIpName = 'x-real-ip',
+  redactHeaders = DEFAULT_REDACTED
+} = {}) => {
+  return function loggerMiddleware(req, res, acc) {
     const time = performance.now();
     const timestamp = Date.now();
     const requestId =
@@ -168,3 +168,4 @@ export default ({
       });
     }
   };
+};

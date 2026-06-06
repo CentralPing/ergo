@@ -46,16 +46,16 @@
  *         cookie, url, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   // Stage 1: Negotiation
- *   [logger(), 'log'],
- *   [cors(), 'cors'],
- *   [accepts({types: ['application/json']}), 'accepts'],
- *   [cookie(), 'cookies'],
- *   [url(), 'url'],
+ *   // Stage 1: Negotiation (domain-producing use config objects)
+ *   {fn: logger(), setPath: 'log'},
+ *   cors(),                                          // response-only: plain function
+ *   {fn: accepts({types: ['application/json']}), setPath: 'accepts'},
+ *   {fn: cookie(), setPath: 'cookies'},
+ *   {fn: url(), setPath: 'url'},
  *   // Stage 2: Authorization
- *   [authorization({strategies: [...]}), 'auth'],
+ *   {fn: authorization({strategies: [...]}), setPath: 'auth'},
  *   // Stage 3: Validation
- *   [body(), 'body'],
+ *   {fn: body(), setPath: 'body'},
  *   // Stage 4: Execution
  *   (req, res, acc) => ({response: {body: acc.body.parsed}}),
  * );

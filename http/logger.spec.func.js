@@ -11,13 +11,13 @@ describe('[Contract] http/logger', () => {
   let logEntries = [];
 
   const pipeline = compose(
-    [
-      createLogger({
+    {
+      fn: createLogger({
         log: entry => logEntries.push(entry),
         error: () => {}
       }),
-      'log'
-    ],
+      setPath: 'log'
+    },
     () => ({response: {body: {ok: true}}})
   );
 
@@ -46,13 +46,13 @@ describe('[Contract] http/logger', () => {
       (req, res) => {
         res.setHeader('x-request-id', 'transport-uuid');
       },
-      [
-        createLogger({
+      {
+        fn: createLogger({
           log: entry => logEntries.push(entry),
           error: () => {}
         }),
-        'log'
-      ],
+        setPath: 'log'
+      },
       () => ({response: {body: {ok: true}}})
     );
 
