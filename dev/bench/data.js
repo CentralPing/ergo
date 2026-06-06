@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780761421029,
+  "lastUpdate": 1780762479344,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -6802,6 +6802,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "e60e41c9f08c67c632828eab279b39df49c69f87",
+          "message": "docs: add missing paginate option to handler JSDoc and HandlerOptions (#118)",
+          "timestamp": "2026-06-06T15:56:47Z",
+          "url": "https://github.com/CentralPing/ergo/pull/123/commits/e60e41c9f08c67c632828eab279b39df49c69f87"
+        },
+        "date": 1780762478994,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.018,
             "unit": "us/op"
           },
           {
