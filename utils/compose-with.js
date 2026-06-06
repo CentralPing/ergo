@@ -107,7 +107,8 @@ function extractReturn(resolved) {
  */
 function normalizeOp(op) {
   if (typeof op === 'function') return {fn: op, setPath: undefined};
-  return op;
+  if (op != null && typeof op.fn === 'function') return op;
+  throw new TypeError('Invalid compose op: expected function or {fn, setPath}.');
 }
 
 /**

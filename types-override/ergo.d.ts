@@ -8,7 +8,7 @@
  *    generic `object` that tsc emits from JSDoc `@param {object}`.
  *
  * 2. **Result interfaces** — typed success-path `value` shapes stored on the
- *    domain accumulator via `[fn, setPath]` tuples. On the error path,
+ *    domain accumulator via `{fn, setPath}` middleware ops. On the error path,
  *    middleware returns `{response: {statusCode}}` with no `value`, so the
  *    accumulator key is not assigned and the pipeline breaks.
  *
@@ -387,8 +387,9 @@ export type IdempotencyResult =
 // ---------------------------------------------------------------------------
 
 /**
- * Middleware operation: `{fn, setPath}` where `fn` returns `Value` and
- * `setPath` is the string literal under which it is stored on the accumulator.
+ * Middleware operation: `{fn, setPath}` where `fn` may return a `Value`
+ * (or a `{value?, response?}` envelope) and `setPath` is the string literal
+ * under which the extracted value is stored on the accumulator.
  */
 export type MiddlewareOp<Value, Key extends string> = {
   fn: (

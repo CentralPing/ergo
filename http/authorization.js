@@ -18,7 +18,7 @@
  * import {compose, authorization} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [authorization({
+ *   {fn: authorization({
  *     strategies: [{
  *       type: 'Bearer',
  *       authorizer: async (attributes, token) => {
@@ -28,7 +28,7 @@
  *           : {authorized: false, info: {statusCode: 401}};
  *       }
  *     }]
- *   }), 'auth'],
+ *   }), setPath: 'auth'},
  *   // acc.auth => {user: {...}} on success
  * );
  *

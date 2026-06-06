@@ -11,15 +11,15 @@
  * @example
  * import {compose, cacheControl} from '@centralping/ergo';
  *
- * // String shorthand
+ * // String shorthand (response-only — use as plain function)
  * const pipeline = compose(
- *   [cacheControl({directives: 'public, max-age=3600'}), 'cache'],
+ *   cacheControl({directives: 'public, max-age=3600'}),
  *   // ...
  * );
  *
  * // Structured options
  * const pipeline = compose(
- *   [cacheControl({private: true, maxAge: 0, mustRevalidate: true}), 'cache'],
+ *   cacheControl({private: true, maxAge: 0, mustRevalidate: true}),
  *   // ...
  * );
  *

@@ -18,7 +18,7 @@
  * import {compose, timeout} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [timeout({ms: 10000, statusCode: 504}), 'timeout'],
+ *   {fn: timeout({ms: 10000, statusCode: 504}), setPath: 'timeout'},
  *   (req, res, acc) => ({response: {body: await slowCall(), statusCode: 200}})
  * );
  */

@@ -32,7 +32,7 @@
  * import {compose, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   [body({limit: 2 * 1024 * 1024}), 'body'],
+ *   {fn: body({limit: 2 * 1024 * 1024}), setPath: 'body'},
  *   // acc.body => {type, charset, encoding, length, received, raw, parsed}
  *   // For JSON types, acc.body.parsed is the decoded object
  * );
