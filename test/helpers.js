@@ -79,12 +79,12 @@ export function createMockRes(overrides = {}) {
       if (hdrs) {
         for (const [k, v] of Object.entries(hdrs)) this.setHeader(k, v);
       }
+      this.headersSent = true;
       return this;
     },
     end(chunk) {
       if (!this.headersSent) {
         this.writeHead(this.statusCode);
-        this.headersSent = true;
       }
       if (chunk != null) {
         this._body = typeof chunk === 'string' ? chunk : Buffer.from(chunk).toString();
