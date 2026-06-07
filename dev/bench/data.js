@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780797791708,
+  "lastUpdate": 1780797870946,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7283,6 +7283,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "55383ce59fb6552e4722a1fb187871023684f770",
+          "message": "feat: add factory-time option key validation with Levenshtein suggestions (#126) (#130)\n\n* feat: add factory-time option key validation with Levenshtein suggestions (#126)\n\nAll 18 middleware factories now validate incoming option keys at factory\ninvocation time via a shared lib/validate-options.js utility. Unknown keys\nemit a deduplicated process.emitWarning with {type: 'ErgoWarning'} and a\n\"did you mean?\" suggestion when the Levenshtein edit distance is within\nthreshold. handler() validates the union of its own keys and send() keys.\n\n* fix: mark validateOptions options param as required for valid .d.ts\n\n* fix: filter forwarded options to prevent double-warning (#126)",
+          "timestamp": "2026-06-06T22:04:13-04:00",
+          "tree_id": "55f73698b59368b2233603bfa84371c9101b626a",
+          "url": "https://github.com/CentralPing/ergo/commit/55383ce59fb6552e4722a1fb187871023684f770"
+        },
+        "date": 1780797870109,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.028,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
