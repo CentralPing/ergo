@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **README TypeScript Quick Start updated to reflect shipped type infrastructure.** (#131)
+  Removed the forward-looking caveat about future type inference improvements — all
+  prerequisite features have shipped (compose overloads #87, typed middleware #108,
+  ergo-router accumulator inference ergo-router#91). Simplified the TS example by removing
+  the `AuthResult` interface and explicit `IncomingMessage`/`ServerResponse` imports.
+  Replaced the caveat with a factual note explaining when `acc` annotations are needed
+  (standalone `compose()` with interleaved bare functions) and directing users to
+  `@centralping/ergo-router`'s `defineGet`/`definePost` helpers for annotation-free
+  inference.
+
 ### Added
 
 - **Factory-time option key validation with Levenshtein suggestions.** (#126)
