@@ -26,11 +26,22 @@
  * );
  */
 import {parseOffsetParams, parseCursorParams} from '../lib/paginate.js';
+import {validateOptions} from '../lib/validate-options.js';
 
 /** @type {string} */
 const STRATEGY_OFFSET = 'offset';
 /** @type {string} */
 const STRATEGY_CURSOR = 'cursor';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set([
+  'strategy',
+  'defaultPage',
+  'defaultPerPage',
+  'maxPerPage',
+  'defaultLimit',
+  'maxLimit'
+]);
 
 /**
  * Creates a pagination parameter parsing middleware.
@@ -44,6 +55,7 @@ const STRATEGY_CURSOR = 'cursor';
  * @param {number} [options.maxLimit] - Maximum item limit (cursor strategy).
  */
 export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'paginate');
   const {strategy = STRATEGY_OFFSET, ...parseOpts} = options;
 
   return function paginateMiddleware(_req, _res, domainAcc) {

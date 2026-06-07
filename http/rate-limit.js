@@ -25,6 +25,10 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc6585#section-4 RFC 6585 Section 4 - 429 Too Many Requests}
  */
 import {MemoryStore, checkRateLimit, defaultKeyGenerator} from '../lib/rate-limit.js';
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set(['max', 'windowMs', 'store', 'keyGenerator']);
 
 /**
  * Create a rate limiting middleware.
@@ -35,7 +39,9 @@ import {MemoryStore, checkRateLimit, defaultKeyGenerator} from '../lib/rate-limi
  * @param {object} [options.store] - Pluggable store (must implement `hit(key, windowMs)`)
  * @param {function} [options.keyGenerator] - `(req) => string` client identifier (default: remote IP)
  */
-export default function rateLimit({max = 100, windowMs = 60000, store, keyGenerator} = {}) {
+export default function rateLimit(options = {}) {
+  validateOptions(options, VALID_OPTIONS, 'rateLimit');
+  const {max = 100, windowMs = 60000, store, keyGenerator} = options;
   const _store = store ?? new MemoryStore();
   const _keyGen = keyGenerator ?? defaultKeyGenerator;
 

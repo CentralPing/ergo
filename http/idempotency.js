@@ -25,8 +25,12 @@
  * @see {@link https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/ Idempotency-Key Header (IETF Draft)}
  */
 import {IdempotencyStore, parseIdempotencyKey, generateFingerprint} from '../lib/idempotency.js';
+import {validateOptions} from '../lib/validate-options.js';
 
 const DEFAULT_METHODS = new Set(['POST', 'PATCH']);
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set(['store', 'ttlMs', 'required', 'methods']);
 
 /**
  * Create an idempotency middleware.
@@ -41,7 +45,9 @@ const DEFAULT_METHODS = new Set(['POST', 'PATCH']);
  * @param {Set<string>|string[]} [options.methods] - HTTP methods to apply idempotency to
  *   (default: POST, PATCH)
  */
-export default function idempotency({store, ttlMs, required = false, methods} = {}) {
+export default function idempotency(options = {}) {
+  validateOptions(options, VALID_OPTIONS, 'idempotency');
+  const {store, ttlMs, required = false, methods} = options;
   const _store = store ?? new IdempotencyStore(ttlMs ? {ttlMs} : undefined);
   const _methods = methods instanceof Set ? methods : new Set(methods ?? DEFAULT_METHODS);
 

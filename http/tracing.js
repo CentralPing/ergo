@@ -33,6 +33,10 @@
  * const server = http.createServer(handler(pipeline));
  */
 import {createTracer, extractContext, injectContext, trace, SpanKind} from '../lib/tracing.js';
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set(['serviceName', 'version', 'tracer', 'attributes', 'perStage']);
 
 /**
  * Creates a pipeline tracing middleware.
@@ -47,7 +51,9 @@ import {createTracer, extractContext, injectContext, trace, SpanKind} from '../l
  *   When true, `domainAcc.trace.tracer` is populated so compose-with creates child spans
  *   per middleware step.
  */
-export default ({serviceName, version, tracer, attributes, perStage = false} = {}) => {
+export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'tracing');
+  const {serviceName, version, tracer, attributes, perStage = false} = options;
   const resolvedTracer = tracer ?? createTracer(serviceName, version);
 
   return function tracingMiddleware(req, res) {

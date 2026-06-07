@@ -37,6 +37,10 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc7235 RFC 7235 - HTTP Authentication}
  */
 import authorize from '../lib/authorization.js';
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set(['strategies']);
 
 /**
  * Creates an authorization middleware that parses the Authorization header
@@ -45,7 +49,9 @@ import authorize from '../lib/authorization.js';
  * @param {object} [options] - Authorization configuration
  * @param {Array<{type: string, attributes?: object, authorizer: function}>} [options.strategies=[]] - Authentication strategy definitions
  */
-export default ({strategies = []} = {}) => {
+export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'authorization');
+  const {strategies = []} = options;
   const authorizer = authorize(strategies);
 
   return async function authorizationMiddleware({headers: {authorization = ''} = {}} = {}) {

@@ -25,6 +25,7 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc9110#section-12.5 RFC 9110 Section 12.5 - Content Negotiation}
  */
 import accepts from '../lib/accepts.js';
+import {validateOptions} from '../lib/validate-options.js';
 
 const headerMap = {
   type: 'Accept',
@@ -32,6 +33,9 @@ const headerMap = {
   charset: 'Accept-Charset',
   encoding: 'Accept-Encoding'
 };
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set(['throwIfFail', 'types', 'languages', 'charsets', 'encodings']);
 
 /**
  * Creates a content negotiation middleware.
@@ -43,8 +47,10 @@ const headerMap = {
  * @param {string[]} [options.charsets] - Acceptable character sets
  * @param {string[]} [options.encodings] - Acceptable content encodings
  */
-export default ({throwIfFail = true, ...options} = {}) => {
-  const acceptor = accepts(options);
+export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'accepts');
+  const {throwIfFail = true, ...rest} = options;
+  const acceptor = accepts(rest);
 
   return function acceptsMiddleware({headers = {}} = {}) {
     const accepted = acceptor(headers);
