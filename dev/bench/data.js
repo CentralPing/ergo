@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780778706172,
+  "lastUpdate": 1780790883958,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7069,6 +7069,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "2d3d27516a765ff560a14249062655bad6bba6c4",
+          "message": "feat: add timing option to handler() for X-Response-Time header (#127)",
+          "timestamp": "2026-06-06T20:44:55Z",
+          "url": "https://github.com/CentralPing/ergo/pull/129/commits/2d3d27516a765ff560a14249062655bad6bba6c4"
+        },
+        "date": 1780790882981,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
