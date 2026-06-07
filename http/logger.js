@@ -37,8 +37,19 @@
  */
 import {hostname} from 'node:os';
 import {randomUUID} from 'node:crypto';
+import {validateOptions} from '../lib/validate-options.js';
 
 const DEFAULT_REDACTED = new Set(['authorization', 'proxy-authorization', 'cookie', 'set-cookie']);
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set([
+  'log',
+  'error',
+  'uuid',
+  'headerRequestIdName',
+  'headerRequestIpName',
+  'redactHeaders'
+]);
 
 /**
  * @param {object} headers - Header object to redact
@@ -74,16 +85,18 @@ const host = Object.freeze({
  * @param {Set<string>} [options.redactHeaders] - Header names to replace with '[REDACTED]' in logs
  *   (default: authorization, proxy-authorization, cookie, set-cookie)
  */
-export default ({
-  /* eslint-disable-next-line no-console */
-  log = console.log,
-  /* eslint-disable-next-line no-console */
-  error: logError = console.error,
-  uuid = randomUUID,
-  headerRequestIdName = 'x-request-id',
-  headerRequestIpName = 'x-real-ip',
-  redactHeaders = DEFAULT_REDACTED
-} = {}) => {
+export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'logger');
+  const {
+    /* eslint-disable-next-line no-console */
+    log = console.log,
+    /* eslint-disable-next-line no-console */
+    error: logError = console.error,
+    uuid = randomUUID,
+    headerRequestIdName = 'x-request-id',
+    headerRequestIpName = 'x-real-ip',
+    redactHeaders = DEFAULT_REDACTED
+  } = options;
   return function loggerMiddleware(req, res, acc) {
     const time = performance.now();
     const timestamp = Date.now();

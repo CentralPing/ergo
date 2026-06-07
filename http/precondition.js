@@ -30,6 +30,11 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc6585#section-3 RFC 6585 Section 3 - 428 Precondition Required}
  */
 
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set(['methods']);
+
 /**
  * Create a precondition enforcement middleware.
  *
@@ -38,7 +43,9 @@
  *   When omitted, enforces unconditionally (the pipeline builder handles method scoping).
  *   When provided, only activates for the specified methods.
  */
-export default function precondition({methods} = {}) {
+export default function precondition(options = {}) {
+  validateOptions(options, VALID_OPTIONS, 'precondition');
+  const {methods} = options;
   const methodSet = methods ? (methods instanceof Set ? methods : new Set(methods)) : undefined;
 
   return function preconditionMiddleware(req) {

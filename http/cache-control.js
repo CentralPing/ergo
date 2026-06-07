@@ -26,6 +26,25 @@
  * @see {@link https://www.rfc-editor.org/rfc/rfc9111 RFC 9111 - HTTP Caching}
  */
 
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set([
+  'directives',
+  'public',
+  'private',
+  'noCache',
+  'noStore',
+  'noTransform',
+  'mustRevalidate',
+  'proxyRevalidate',
+  'immutable',
+  'maxAge',
+  'sMaxAge',
+  'staleWhileRevalidate',
+  'staleIfError'
+]);
+
 /**
  * Creates a Cache-Control middleware that returns a pre-computed header tuple.
  *
@@ -44,21 +63,23 @@
  * @param {number} [options.staleWhileRevalidate] - `stale-while-revalidate` value in seconds
  * @param {number} [options.staleIfError] - `stale-if-error` value in seconds
  */
-export default ({
-  directives,
-  public: isPublic = false,
-  private: isPrivate = false,
-  noCache = false,
-  noStore = false,
-  noTransform = false,
-  mustRevalidate = false,
-  proxyRevalidate = false,
-  immutable = false,
-  maxAge,
-  sMaxAge,
-  staleWhileRevalidate,
-  staleIfError
-} = {}) => {
+export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'cacheControl');
+  const {
+    directives,
+    public: isPublic = false,
+    private: isPrivate = false,
+    noCache = false,
+    noStore = false,
+    noTransform = false,
+    mustRevalidate = false,
+    proxyRevalidate = false,
+    immutable = false,
+    maxAge,
+    sMaxAge,
+    staleWhileRevalidate,
+    staleIfError
+  } = options;
   const value =
     directives ??
     buildDirectives({

@@ -29,6 +29,17 @@
  * @see {@link https://fetch.spec.whatwg.org/#http-cors-protocol Fetch Standard - CORS Protocol}
  */
 import cors from '../lib/cors.js';
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set([
+  'origins',
+  'allowMethods',
+  'allowCredentials',
+  'allowHeaders',
+  'exposeHeaders',
+  'maxAge'
+]);
 
 /**
  * Creates a CORS validation middleware.
@@ -42,6 +53,7 @@ import cors from '../lib/cors.js';
  * @param {number} [options.maxAge] - Preflight cache duration in seconds
  */
 export default options => {
+  validateOptions(options, VALID_OPTIONS, 'cors');
   const corsValidator = cors(options);
 
   /** @param {{ headers?: { origin?: string, 'access-control-request-method'?: string, 'access-control-request-headers'?: string }, method?: string }} [req] - Incoming HTTP request */

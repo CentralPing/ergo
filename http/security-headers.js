@@ -33,6 +33,18 @@
  * @see {@link https://www.w3.org/TR/CSP3/ W3C Content Security Policy Level 3}
  */
 import buildSecurityHeaderTuples from '../lib/security-headers.js';
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set([
+  'contentSecurityPolicy',
+  'strictTransportSecurity',
+  'xContentTypeOptions',
+  'xFrameOptions',
+  'referrerPolicy',
+  'xXssProtection',
+  'permissionsPolicy'
+]);
 
 /**
  * Creates a security headers middleware that returns pre-computed header tuples.
@@ -54,6 +66,7 @@ import buildSecurityHeaderTuples from '../lib/security-headers.js';
  * @param {string} [options.permissionsPolicy] - Permissions-Policy header (omitted by default)
  */
 export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'securityHeaders');
   const headerTuples = buildSecurityHeaderTuples(options);
   const response = {response: {headers: headerTuples}};
   return function securityHeadersMiddleware() {

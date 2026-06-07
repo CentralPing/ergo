@@ -35,6 +35,17 @@
  * @see {@link https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html OWASP CSRF Prevention Cheat Sheet}
  */
 import {issue, verify} from '../lib/csrf.js';
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set([
+  'cookieTokenName',
+  'headerTokenName',
+  'cookieUuidName',
+  'secret',
+  'encoding',
+  'cookieOptions'
+]);
 
 /**
  * Creates a CSRF token issuance and verification middleware.
@@ -47,27 +58,32 @@ import {issue, verify} from '../lib/csrf.js';
  * @param {string} [options.encoding] - Token encoding (default: base64)
  * @param {object} [options.cookieOptions={}] - Cookie directives passed to the cookie factory
  */
-export default ({
-  cookieTokenName = 'CSRF-TOKEN',
-  headerTokenName = 'X-CSRF-TOKEN',
-  cookieUuidName = 'CSRF-UUID',
-  secret,
-  encoding,
-  cookieOptions = {}
-} = {}) => ({
-  issue(req, res, acc) {
-    const {cookies} = acc;
+export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'csrf');
+  const {
+    cookieTokenName = 'CSRF-TOKEN',
+    headerTokenName = 'X-CSRF-TOKEN',
+    cookieUuidName = 'CSRF-UUID',
+    secret,
+    encoding,
+    cookieOptions = {}
+  } = options;
 
-    const {token, uuid} = issue(secret, undefined, encoding);
+  return {
+    issue(req, res, acc) {
+      const {cookies} = acc;
 
-    cookies.set(cookieTokenName, token, {...cookieOptions, httpOnly: false, sameSite: 'Strict'});
-    cookies.set(cookieUuidName, uuid, {...cookieOptions, sameSite: 'Strict'});
-  },
-  verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, res, acc) {
-    const {cookies: {[cookieUuidName]: uuid} = {}} = acc;
+      const {token, uuid} = issue(secret, undefined, encoding);
 
-    if (headerToken === undefined || uuid === undefined || !verify(headerToken, {secret, uuid})) {
-      return {response: {statusCode: 403, detail: 'CSRF verification failed'}};
+      cookies.set(cookieTokenName, token, {...cookieOptions, httpOnly: false, sameSite: 'Strict'});
+      cookies.set(cookieUuidName, uuid, {...cookieOptions, sameSite: 'Strict'});
+    },
+    verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, res, acc) {
+      const {cookies: {[cookieUuidName]: uuid} = {}} = acc;
+
+      if (headerToken === undefined || uuid === undefined || !verify(headerToken, {secret, uuid})) {
+        return {response: {statusCode: 403, detail: 'CSRF verification failed'}};
+      }
     }
-  }
-});
+  };
+};

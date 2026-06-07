@@ -52,6 +52,18 @@ import generateETag from 'etag';
 import httpErrors from '../utils/http-errors.js';
 import appendVary from '../lib/vary.js';
 import {paginationLinks, cursorPaginationLinks, formatLinkHeader} from '../lib/link.js';
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+export const SEND_VALID_OPTIONS = new Set([
+  'prettify',
+  'vary',
+  'etag',
+  'prefer',
+  'paginate',
+  'envelope',
+  'errorFormatter'
+]);
 
 const isHTML = /<[a-z][^>]*>/i;
 
@@ -122,15 +134,17 @@ function bodyType(body) {
  *   becomes the response body, serialized as `application/json` instead of
  *   `application/problem+json`. When absent, the default RFC 9457 formatting is used.
  */
-export default ({
-  prettify = false,
-  vary = ['Accept'],
-  etag = true,
-  prefer = false,
-  paginate = false,
-  envelope = false,
-  errorFormatter
-} = {}) => {
+export default (options = {}) => {
+  validateOptions(options, SEND_VALID_OPTIONS, 'send');
+  const {
+    prettify = false,
+    vary = ['Accept'],
+    etag = true,
+    prefer = false,
+    paginate = false,
+    envelope = false,
+    errorFormatter
+  } = options;
   const effectiveVary = prefer ? [...(vary || []), 'Prefer'] : vary;
   const varyValue = effectiveVary?.length ? effectiveVary.join(', ') : undefined;
 

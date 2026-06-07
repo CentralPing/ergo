@@ -38,7 +38,11 @@ import applyResponseTiming, {
   DEFAULT_TIMING_PRECISION
 } from '../lib/response-time.js';
 import {statusFromHttp} from '../lib/tracing.js';
-import createSend from './send.js';
+import createSend, {SEND_VALID_OPTIONS} from './send.js';
+import {validateOptions} from '../lib/validate-options.js';
+
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set(['debug', 'redactErrors', 'timing', ...SEND_VALID_OPTIONS]);
 
 /**
  * Creates the outermost request handler.
@@ -68,10 +72,9 @@ import createSend from './send.js';
  * @param {function} [options.errorFormatter] - Forwarded to `send()`. Custom error body
  *   formatter for 4xx/5xx responses.
  */
-export default (
-  pipeline,
-  {debug = false, redactErrors = true, timing = false, ...sendOptions} = {}
-) => {
+export default (pipeline, options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'handler');
+  const {debug = false, redactErrors = true, timing = false, ...sendOptions} = options;
   const send = createSend(sendOptions);
 
   const timingHeader =

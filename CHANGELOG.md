@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Factory-time option key validation with Levenshtein suggestions.** (#126)
+  All 18 middleware factories now validate incoming option keys at factory invocation
+  time via a shared `lib/validate-options.js` utility. Unknown keys emit a deduplicated
+  `process.emitWarning` with `{type: 'ErgoWarning'}` and a "did you mean?" suggestion
+  when the Levenshtein edit distance is within threshold. `handler()` validates the union
+  of its own keys and `send()` keys; `send()` validates independently.
 - **`timing` option on `handler()` for `X-Response-Time` header.** (#127)
   Pass `timing: true` for defaults or `timing: {header?, precision?}` for custom
   configuration. Measures the full request lifecycle (pipeline + error handling + send)

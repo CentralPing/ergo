@@ -49,6 +49,7 @@ import writer from '../lib/body/writer.js';
 import formParse from '../lib/query.js';
 import multiParse from '../lib/body/multiparse.js';
 import httpErrors from '../utils/http-errors.js';
+import {validateOptions} from '../lib/validate-options.js';
 
 const errors = {
   TooLarge({limit, length} = {}) {
@@ -110,6 +111,9 @@ const decompressors = new Proxy(
   }
 );
 
+/** @type {Set<string>} */
+const VALID_OPTIONS = new Set(['limit', 'decompressedLimit', 'types', 'charset']);
+
 /**
  * Creates a request body parsing middleware.
  *
@@ -122,19 +126,21 @@ const decompressors = new Proxy(
 const DEFAULT_LIMIT = 1 << 20; // 1 MiB
 const MAX_DECOMPRESSED = 10 * DEFAULT_LIMIT; // 10 MiB hard cap
 
-export default ({
-  limit = DEFAULT_LIMIT,
-  decompressedLimit = Math.min(10 * limit, MAX_DECOMPRESSED),
-  types = [
-    'application/vnd.api+json',
-    'application/json',
-    'application/merge-patch+json',
-    'application/json-patch+json',
-    'application/x-www-form-urlencoded',
-    'multipart/form-data'
-  ],
-  charset = 'utf-8'
-} = {}) => {
+export default (options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'body');
+  const {
+    limit = DEFAULT_LIMIT,
+    decompressedLimit = Math.min(10 * (options.limit ?? DEFAULT_LIMIT), MAX_DECOMPRESSED),
+    types = [
+      'application/vnd.api+json',
+      'application/json',
+      'application/merge-patch+json',
+      'application/json-patch+json',
+      'application/x-www-form-urlencoded',
+      'multipart/form-data'
+    ],
+    charset = 'utf-8'
+  } = options;
   return async function bodyMiddleware(req) {
     try {
       let type;
