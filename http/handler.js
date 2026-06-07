@@ -74,7 +74,10 @@ const VALID_OPTIONS = new Set(['debug', 'redactErrors', 'timing', ...SEND_VALID_
  */
 export default (pipeline, options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'handler');
-  const {debug = false, redactErrors = true, timing = false, ...sendOptions} = options;
+  const {debug = false, redactErrors = true, timing = false, ...rest} = options;
+  const sendOptions = Object.fromEntries(
+    Object.entries(rest).filter(([k]) => SEND_VALID_OPTIONS.has(k))
+  );
   const send = createSend(sendOptions);
 
   const timingHeader =
