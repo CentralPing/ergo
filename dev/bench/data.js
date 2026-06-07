@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780794421488,
+  "lastUpdate": 1780794556267,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7203,6 +7203,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "379d93f7324175b5741cd08f895c045d27c41532",
+          "message": "feat: add factory-time option key validation with Levenshtein suggestions (#126)",
+          "timestamp": "2026-06-07T00:54:55Z",
+          "url": "https://github.com/CentralPing/ergo/pull/130/commits/379d93f7324175b5741cd08f895c045d27c41532"
+        },
+        "date": 1780794555508,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
             "unit": "us/op"
           },
           {
