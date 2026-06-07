@@ -4,17 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Changed
-
-- **README TypeScript Quick Start updated to reflect shipped type infrastructure.** (#131)
-  Removed the forward-looking caveat about future type inference improvements — all
-  prerequisite features have shipped (compose overloads #87, typed middleware #108,
-  ergo-router accumulator inference ergo-router#91). Simplified the TS example by removing
-  the `AuthResult` interface and explicit `IncomingMessage`/`ServerResponse` imports.
-  Replaced the caveat with a factual note explaining when `acc` annotations are needed
-  (standalone `compose()` with interleaved bare functions) and directing users to
-  `@centralping/ergo-router`'s `defineGet`/`definePost` helpers for annotation-free
-  inference.
+## [0.4.1] - 2026-06-07
 
 ### Added
 
@@ -29,6 +19,18 @@ All notable changes to this project will be documented in this file.
   configuration. Measures the full request lifecycle (pipeline + error handling + send)
   via a `res.writeHead` interception. Zero overhead when disabled (default). Shared
   primitive `lib/response-time.js` available for deep import by `@centralping/ergo-router`.
+
+### Changed
+
+- **README TypeScript Quick Start updated to reflect shipped type infrastructure.** (#131)
+  Removed the forward-looking caveat about future type inference improvements — all
+  prerequisite features have shipped (compose overloads #87, typed middleware #108,
+  ergo-router accumulator inference ergo-router#91). Simplified the TS example by removing
+  the `AuthResult` interface and explicit `IncomingMessage`/`ServerResponse` imports.
+  Replaced the caveat with a factual note explaining when `acc` annotations are needed
+  (standalone `compose()` with interleaved bare functions) and directing users to
+  `@centralping/ergo-router`'s `defineGet`/`definePost` helpers for annotation-free
+  inference.
 
 ## [0.4.0] - 2026-06-06
 
