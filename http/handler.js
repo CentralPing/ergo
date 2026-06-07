@@ -33,6 +33,10 @@ import {STATUS_CODES} from 'node:http';
 import {accumulator} from '../utils/compose.js';
 import {createResponseAcc} from '../utils/compose-with.js';
 import attachInstance from '../lib/attach-instance.js';
+import applyResponseTiming, {
+  DEFAULT_TIMING_HEADER,
+  DEFAULT_TIMING_PRECISION
+} from '../lib/response-time.js';
 import {statusFromHttp} from '../lib/tracing.js';
 import createSend from './send.js';
 
@@ -51,6 +55,10 @@ import createSend from './send.js';
  *   generic status text regardless of this setting. Stack traces are never exposed.
  *   **Security:** only set to `false` in development — production deployments should
  *   always redact to prevent information leakage.
+ * @param {boolean|object} [options.timing=false] - Inject an `X-Response-Time` header
+ *   measuring the full request lifecycle (pipeline + error handling + send). Pass `true`
+ *   for defaults, or `{header?: string, precision?: number}` for custom configuration.
+ *   Zero overhead when disabled.
  * @param {boolean} [options.prettify] - Forwarded to `send()`.
  * @param {string[]} [options.vary] - Forwarded to `send()`.
  * @param {boolean} [options.etag] - Forwarded to `send()`.
@@ -60,13 +68,26 @@ import createSend from './send.js';
  * @param {function} [options.errorFormatter] - Forwarded to `send()`. Custom error body
  *   formatter for 4xx/5xx responses.
  */
-export default (pipeline, {debug = false, redactErrors = true, ...sendOptions} = {}) => {
+export default (
+  pipeline,
+  {debug = false, redactErrors = true, timing = false, ...sendOptions} = {}
+) => {
   const send = createSend(sendOptions);
+
+  const timingHeader =
+    timing && typeof timing === 'object'
+      ? (timing.header ?? DEFAULT_TIMING_HEADER)
+      : DEFAULT_TIMING_HEADER;
+  const timingPrecision =
+    timing && typeof timing === 'object'
+      ? (timing.precision ?? DEFAULT_TIMING_PRECISION)
+      : DEFAULT_TIMING_PRECISION;
 
   return async (req, res) => {
     const domainAcc = accumulator();
     const responseAcc = createResponseAcc();
     if (debug) responseAcc._trace = {steps: [], breakAt: undefined};
+    if (timing) applyResponseTiming(res, timingHeader, timingPrecision);
 
     try {
       await pipeline(req, res, responseAcc, domainAcc);

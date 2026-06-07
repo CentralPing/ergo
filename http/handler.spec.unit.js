@@ -305,4 +305,80 @@ describe('[Module] http/handler', () => {
     assert.equal(body.detail, 'Internal Server Error');
     assert.ok(!res._body.includes('secret internal detail'));
   });
+
+  it('does not set timing header when timing is false (default)', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline);
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    assert.equal(res.getHeader('x-response-time'), undefined);
+  });
+
+  it('sets x-response-time header when timing is true', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline, {timing: true});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const value = res.getHeader('x-response-time');
+    assert.ok(value !== undefined, 'timing header should be set');
+    assert.ok(!Number.isNaN(Number(value)), 'should be numeric');
+    assert.ok(Number(value) >= 0, 'should be non-negative');
+  });
+
+  it('uses custom header name from timing option', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline, {timing: {header: 'server-timing'}});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    assert.ok(res.getHeader('server-timing') !== undefined);
+    assert.equal(res.getHeader('x-response-time'), undefined);
+  });
+
+  it('uses custom precision from timing option', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline, {timing: {precision: 0}});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    const value = res.getHeader('x-response-time');
+    assert.ok(value !== undefined);
+    assert.ok(!value.includes('.'), 'precision 0 should have no decimal');
+  });
+
+  it('sets timing header on error responses', async () => {
+    const pipeline = async () => {
+      throw new Error('fail');
+    };
+    const handler = createHandler(pipeline, {timing: true});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    assert.equal(res.statusCode, 500);
+    const value = res.getHeader('x-response-time');
+    assert.ok(value !== undefined, 'timing header should be set on errors');
+    assert.ok(Number(value) >= 0);
+  });
+
+  it('sets timing header on pipeline break responses', async () => {
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 429;
+      responseAcc.detail = 'Rate limited';
+    };
+    const handler = createHandler(pipeline, {timing: true});
+    const res = createMockRes();
+    await handler(createMockReq(), res);
+    assert.equal(res.statusCode, 429);
+    const value = res.getHeader('x-response-time');
+    assert.ok(value !== undefined, 'timing header should be set on pipeline breaks');
+  });
 });

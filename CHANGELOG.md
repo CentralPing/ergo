@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`timing` option on `handler()` for `X-Response-Time` header.** (#127)
+  Pass `timing: true` for defaults or `timing: {header?, precision?}` for custom
+  configuration. Measures the full request lifecycle (pipeline + error handling + send)
+  via a `res.writeHead` interception. Zero overhead when disabled (default). Shared
+  primitive `lib/response-time.js` available for deep import by `@centralping/ergo-router`.
+
 ## [0.4.0] - 2026-06-06
 
 ### Changed
