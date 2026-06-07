@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1780792867085,
+  "lastUpdate": 1780793702902,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7139,6 +7139,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3c66f1145c776ca3538b1314f12eeb12854e7500",
+          "message": "feat: add timing option to handler() for X-Response-Time header (#127) (#129)\n\n* feat: add timing option to handler() for X-Response-Time header (#127)\n\nIntroduces a `timing` option on `handler()` that injects an\n`X-Response-Time` header measuring the full request lifecycle. The\nshared primitive `lib/response-time.js` patches `res.writeHead` with a\nsingle-fire guard for defense-in-depth.\n\n- `timing: true` uses defaults (x-response-time, 3 decimal places)\n- `timing: {header, precision}` for custom configuration\n- Zero overhead when disabled (default)\n\nIncludes boundary, module, and contract tests (15 new tests).\nergo-router follow-up tracked in CentralPing/ergo-router#93.\n\n* fix: align mock writeHead with ServerResponse headersSent semantics (#127)",
+          "timestamp": "2026-06-06T20:54:51-04:00",
+          "tree_id": "caacd2055ff3b4113a7b21e40686065ac6d1e5bb",
+          "url": "https://github.com/CentralPing/ergo/commit/3c66f1145c776ca3538b1314f12eeb12854e7500"
+        },
+        "date": 1780793702529,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
