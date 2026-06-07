@@ -50,6 +50,7 @@ export function createMockRes(overrides = {}) {
   const headers = {};
   const res = Object.assign(new EventEmitter(), {
     statusCode: 200,
+    headersSent: false,
     writableEnded: false,
     writable: true,
     _headers: headers,
@@ -72,7 +73,19 @@ export function createMockRes(overrides = {}) {
     write() {
       return true;
     },
+    writeHead(statusCode, ...rest) {
+      this.statusCode = statusCode;
+      const hdrs = typeof rest[rest.length - 1] === 'object' ? rest[rest.length - 1] : undefined;
+      if (hdrs) {
+        for (const [k, v] of Object.entries(hdrs)) this.setHeader(k, v);
+      }
+      return this;
+    },
     end(chunk) {
+      if (!this.headersSent) {
+        this.writeHead(this.statusCode);
+        this.headersSent = true;
+      }
       if (chunk != null) {
         this._body = typeof chunk === 'string' ? chunk : Buffer.from(chunk).toString();
       }

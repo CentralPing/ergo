@@ -137,10 +137,17 @@ export interface CsrfOptions {
   cookieOptions?: Record<string, unknown>;
 }
 
+/** Options for the `timing` handler option. */
+export interface TimingOptions {
+  header?: string;
+  precision?: number;
+}
+
 /** Options for `handler()` — pipeline executor. */
 export interface HandlerOptions {
   debug?: boolean;
   redactErrors?: boolean;
+  timing?: boolean | TimingOptions;
   prettify?: boolean;
   vary?: string[];
   etag?: boolean;
@@ -183,8 +190,8 @@ export interface PaginateOptions {
 
 /** Result stored at `acc.paginate` by the pagination middleware. */
 export type PaginateResult =
-  | { strategy: 'offset'; page: number; perPage: number; offset: number; limit: number }
-  | { strategy: 'cursor'; cursor: string | undefined; limit: number };
+  | {strategy: 'offset'; page: number; perPage: number; offset: number; limit: number}
+  | {strategy: 'cursor'; cursor: string | undefined; limit: number};
 
 /** Options for `logger()` — structured request logging middleware. */
 export interface LoggerOptions {
