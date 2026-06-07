@@ -76,33 +76,31 @@ createServer(handler(pipeline)).listen(3000);
 <summary>TypeScript</summary>
 
 ```ts
-import {createServer, type IncomingMessage, type ServerResponse} from 'node:http';
+import {createServer} from 'node:http';
 import {compose, handler, logger, cors, authorization, body} from '@centralping/ergo';
-
-interface AuthResult {
-  authorized: boolean;
-  info?: {uid: number};
-}
 
 const pipeline = compose(
   {fn: logger(), setPath: 'log'},
   cors(),
   {fn: authorization({strategies: [{
     type: 'Bearer' as const,
-    authorizer: (_: Record<string, string>, token: string): AuthResult =>
+    authorizer: (_: Record<string, string>, token: string) =>
       token === 'my-token' ? {authorized: true, info: {uid: 1}} : {authorized: false}
   }]}), setPath: 'auth'},
   {fn: body(), setPath: 'body'},
-  (req: IncomingMessage, res: ServerResponse, acc: {auth: AuthResult['info']; body: {parsed: unknown}}) =>
+  (req, res, acc: {auth: {uid: number}; body: {parsed: unknown}}) =>
     ({response: {body: {user: acc.auth, data: acc.body.parsed}}})
 );
 
 createServer(handler(pipeline)).listen(3000);
 ```
 
-> **Note:** The type annotations above represent the expected types for the accumulator
-> properties. As ergo's `.d.ts` type declarations improve, these types will be inferred
-> automatically — removing the need for explicit annotations.
+> **Note:** The `acc` annotation above is needed because standalone `compose()` cannot
+> fully infer accumulator types when bare functions (like `cors()`) are interleaved with
+> `{fn, setPath}` config objects. For declarative routing with fully inferred accumulator
+> types — no annotations needed — see
+> [`@centralping/ergo-router`](https://github.com/CentralPing/ergo-router)'s `defineGet`
+> and `definePost` helpers.
 
 </details>
 
