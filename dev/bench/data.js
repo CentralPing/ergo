@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781017881839,
+  "lastUpdate": 1781034833904,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7495,6 +7495,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.017,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7cdb210456a305b19f2a96ceab61f090377da297",
+          "message": "fix: declare @types/node as optional peer dependency (#134) (#142)",
+          "timestamp": "2026-06-09T15:53:36-04:00",
+          "tree_id": "dd5e95f46bf55a1b543e51edae20bfc1c5d5bf4a",
+          "url": "https://github.com/CentralPing/ergo/commit/7cdb210456a305b19f2a96ceab61f090377da297"
+        },
+        "date": 1781034833443,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.027,
             "unit": "us/op"
           },
           {
