@@ -165,6 +165,88 @@ describe('[Module] http/validate', () => {
     }
   });
 
+  it('validates body via shorthand when a raw JSON Schema is passed', () => {
+    const validate = createValidate({
+      type: 'object',
+      properties: {name: {type: 'string'}},
+      required: ['name']
+    });
+    assert.equal(validate(null, null, {body: {parsed: {name: 'Alice'}}}), undefined);
+  });
+
+  it('returns 422 via shorthand when body validation fails', () => {
+    const validate = createValidate({
+      type: 'object',
+      properties: {name: {type: 'string'}},
+      required: ['name']
+    });
+    const result = validate(null, null, {body: {parsed: {}}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
+    assert.equal(result.response.detail, 'Validation failed');
+    assert.ok(Array.isArray(result.response.details));
+  });
+
+  it('detects shorthand with only required key (no type)', () => {
+    const validate = createValidate({required: ['name']});
+    const result = validate(null, null, {body: {parsed: {}}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
+  });
+
+  it('passes options as second parameter in shorthand form', () => {
+    const validate = createValidate(
+      {
+        type: 'object',
+        properties: {email: {type: 'string', format: 'email'}},
+        required: ['email']
+      },
+      {formats: ['email']}
+    );
+    const result = validate(null, null, {body: {parsed: {email: 'not-email'}}});
+    assert.ok(result?.response);
+    assert.equal(result.response.statusCode, 422);
+  });
+
+  it('does not treat empty object {} as shorthand', () => {
+    const validate = createValidate({});
+    assert.equal(validate(null, null, {}), undefined);
+  });
+
+  it('still emits warning for non-schema-like objects without targeted keys', () => {
+    const warn = mock.method(process, 'emitWarning', () => {});
+
+    try {
+      createValidate({wrapper: {body: {type: 'object'}}});
+
+      const calls = warn.mock.calls.filter(
+        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
+      );
+      assert.ok(calls.length >= 1, 'should emit unknown key warning for non-schema object');
+    } finally {
+      warn.mock.restore();
+    }
+  });
+
+  it('uses targeted form when body key is present alongside JSON Schema keywords', () => {
+    const warn = mock.method(process, 'emitWarning', () => {});
+
+    try {
+      const validate = createValidate({
+        type: 'string',
+        body: {type: 'object', properties: {name: {type: 'string'}}, required: ['name']}
+      });
+      assert.equal(validate(null, null, {body: {parsed: {name: 'Alice'}}}), undefined);
+
+      const unknownCalls = warn.mock.calls.filter(
+        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
+      );
+      assert.ok(unknownCalls.length >= 1, 'top-level type should be flagged as unknown key');
+    } finally {
+      warn.mock.restore();
+    }
+  });
+
   it('emits per-key-set warnings and deduplicates identical key sets', () => {
     const warn = mock.method(process, 'emitWarning', () => {});
 

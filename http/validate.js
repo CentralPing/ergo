@@ -2,9 +2,10 @@
  * @fileoverview HTTP middleware factory for JSON Schema validation.
  *
  * Validates properties from the accumulator (body, url, route params) against provided
- * JSON Schemas using AJV. Schemas are compiled once at middleware creation time for
- * performance. Route params are resolved from `acc.route.params` (ergo-router) with
- * fallback to `acc.params` (standalone).
+ * JSON Schemas using AJV. Accepts either a targeted `{body?, query?, params?}` schema map
+ * or a shorthand raw JSON Schema interpreted as body validation. Schemas are compiled once
+ * at middleware creation time for performance. Route params are resolved from
+ * `acc.route.params` (ergo-router) with fallback to `acc.params` (standalone).
  *
  * Returns `{response: {statusCode: 422, detail: ...}}` with structured error details
  * on validation failure. When a body schema is configured but `acc.body` is absent
@@ -42,24 +43,88 @@ import createValidator from '../lib/validate.js';
 /** @type {Set<string>} - Recognized keys for the schemas parameter. */
 const VALID_SCHEMA_KEYS = new Set(['body', 'query', 'params']);
 
+/**
+ * @type {Set<string>} - Root-level JSON Schema keywords used to detect shorthand form.
+ *
+ * When the first argument to `validate()` contains at least one of these keywords and
+ * none of the `VALID_SCHEMA_KEYS`, it is treated as a raw JSON Schema for body validation.
+ */
+const JSON_SCHEMA_INDICATORS = new Set([
+  'type',
+  'properties',
+  'required',
+  'items',
+  '$schema',
+  '$ref',
+  '$id',
+  '$defs',
+  'allOf',
+  'anyOf',
+  'oneOf',
+  'not',
+  'if',
+  'enum',
+  'const',
+  'additionalProperties',
+  'patternProperties'
+]);
+
+/**
+ * Detects whether the input is a raw JSON Schema (shorthand form) rather than a
+ * targeted `{body?, query?, params?}` schema map.
+ *
+ * @param {object} schemas - The first argument passed to `validate()`
+ * @returns {boolean} - `true` when the input has no targeted keys and at least one JSON Schema indicator
+ */
+function isSchemaShorthand(schemas) {
+  const keys = Object.keys(schemas);
+
+  if (keys.some(k => VALID_SCHEMA_KEYS.has(k))) return false;
+
+  return keys.some(k => JSON_SCHEMA_INDICATORS.has(k));
+}
+
 /** @type {Set<string>} - Tracks emitted warning keys to prevent duplicate warnings. */
 const emittedWarnings = new Set();
 
 /**
  * Creates a JSON Schema validation middleware.
  *
- * @param {object} [schemas] - Schema map with direct properties `body`, `query`, and/or
- *   `params` (not nested under a wrapper key). Unrecognized keys emit a per-key-set
- *   `ERGO_VALIDATE_UNKNOWN_KEY` warning (each unique set of unknown keys warns once)
+ * Accepts either a **targeted form** (`{body?, query?, params?}`) or a **shorthand form**
+ * (a raw JSON Schema object interpreted as body validation). The shorthand is detected when
+ * the first argument contains at least one `JSON_SCHEMA_INDICATORS` keyword and none of the
+ * `VALID_SCHEMA_KEYS`. Unrecognized keys that are neither targeted keys nor JSON Schema
+ * indicators emit a per-key-set `ERGO_VALIDATE_UNKNOWN_KEY` warning.
+ *
+ * @param {object} [schemas] - A schema map with `body`, `query`, and/or `params` keys
+ *   (targeted form), or a raw JSON Schema object interpreted as body validation
+ *   (shorthand form)
  * @param {object} [schemas.body] - JSON Schema for the parsed request body
  * @param {object} [schemas.query] - JSON Schema for parsed query parameters
  * @param {object} [schemas.params] - JSON Schema for route path parameters (reads `acc.route.params` or `acc.params`)
  * @param {object} [options] - AJV options forwarded to each compiled validator
  * @param {boolean|Array<string>|object} [options.formats] - Format keyword support via
  *   `ajv-formats`; forwarded to `createValidator`. Defaults to all standard formats enabled
+ *
+ * @example
+ * // Shorthand form — raw JSON Schema interpreted as body validation
+ * validate({
+ *   type: 'object',
+ *   properties: {name: {type: 'string'}},
+ *   required: ['name']
+ * });
+ *
+ * @example
+ * // Targeted form — explicit body, query, and/or params schemas
+ * validate({
+ *   body: {type: 'object', properties: {name: {type: 'string'}}, required: ['name']},
+ *   query: {type: 'object', properties: {page: {type: 'string', pattern: '^[0-9]+$'}}}
+ * });
  */
 export default (schemas = {}, options = {}) => {
-  const unknownKeys = Object.keys(schemas).filter(k => !VALID_SCHEMA_KEYS.has(k));
+  const resolved = isSchemaShorthand(schemas) ? {body: schemas} : schemas;
+
+  const unknownKeys = Object.keys(resolved).filter(k => !VALID_SCHEMA_KEYS.has(k));
 
   if (unknownKeys.length > 0) {
     const code = 'ERGO_VALIDATE_UNKNOWN_KEY';
@@ -78,14 +143,14 @@ export default (schemas = {}, options = {}) => {
 
   const validators = {};
 
-  if (schemas.body) {
-    validators.body = createValidator(schemas.body, options);
+  if (resolved.body) {
+    validators.body = createValidator(resolved.body, options);
   }
-  if (schemas.query) {
-    validators.query = createValidator(schemas.query, options);
+  if (resolved.query) {
+    validators.query = createValidator(resolved.query, options);
   }
-  if (schemas.params) {
-    validators.params = createValidator(schemas.params, options);
+  if (resolved.params) {
+    validators.params = createValidator(resolved.params, options);
   }
 
   return function validateMiddleware(req, res, acc) {
