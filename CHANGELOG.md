@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Declared `@types/node` as optional peer dependency for TypeScript consumers.** (#134)
+  TypeScript consumers compiling with `skipLibCheck: false` received errors from ergo's
+  `.d.ts` files because `import('node:http')` type references require `@types/node`. The
+  package is now declared as an optional peer dependency (`>= 22`, matching `engines.node`),
+  following the ecosystem standard used by Express, Fastify, and Koa. JavaScript-only
+  consumers are unaffected — npm prints an informational warning but does not fail.
+
 ## [0.4.1] - 2026-06-07
 
 ### Added
