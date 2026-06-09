@@ -229,10 +229,22 @@ describe('[Module] http/validate', () => {
   });
 
   it('uses targeted form when body key is present alongside JSON Schema keywords', () => {
-    const validate = createValidate({
-      body: {type: 'object', properties: {name: {type: 'string'}}, required: ['name']}
-    });
-    assert.equal(validate(null, null, {body: {parsed: {name: 'Alice'}}}), undefined);
+    const warn = mock.method(process, 'emitWarning', () => {});
+
+    try {
+      const validate = createValidate({
+        type: 'string',
+        body: {type: 'object', properties: {name: {type: 'string'}}, required: ['name']}
+      });
+      assert.equal(validate(null, null, {body: {parsed: {name: 'Alice'}}}), undefined);
+
+      const unknownCalls = warn.mock.calls.filter(
+        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
+      );
+      assert.ok(unknownCalls.length >= 1, 'top-level type should be flagged as unknown key');
+    } finally {
+      warn.mock.restore();
+    }
   });
 
   it('emits per-key-set warnings and deduplicates identical key sets', () => {
