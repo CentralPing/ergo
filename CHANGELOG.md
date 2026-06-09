@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`validate()` shorthand form for body-only schemas.** (#135)
+  Pass a raw JSON Schema object directly to `validate()` instead of wrapping it in
+  `{body: schema}`. The shorthand is detected when the first argument contains JSON Schema
+  keywords (e.g. `type`, `properties`, `required`) and none of the targeted keys (`body`,
+  `query`, `params`). The targeted form is unchanged and takes precedence when any targeted
+  key is present. Objects that match neither form still emit `ERGO_VALIDATE_UNKNOWN_KEY`
+  warnings.
+
 ### Fixed
 
 - **Declared `@types/node` as optional peer dependency for TypeScript consumers.** (#134)
