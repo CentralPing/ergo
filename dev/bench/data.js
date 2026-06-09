@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781041786569,
+  "lastUpdate": 1781048987223,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7609,6 +7609,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4ffc041aa521a9ab97e42f9cfbb5d089cfbcd7ba",
+          "message": "feat: add validate() shorthand for body-only schemas (#135) (#143)\n\n* feat: add validate() shorthand for body-only schemas (#135)\n\n* fix: strengthen shorthand precedence test (#135)",
+          "timestamp": "2026-06-09T19:49:33-04:00",
+          "tree_id": "30c8986a92fa6441ff8f6c5d8c9147e48614cc59",
+          "url": "https://github.com/CentralPing/ergo/commit/4ffc041aa521a9ab97e42f9cfbb5d089cfbcd7ba"
+        },
+        "date": 1781048986446,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
             "unit": "us/op"
           },
           {
