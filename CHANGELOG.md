@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`responseSchema` option for `send()` and `handler()`.** (#137)
+  Schema-based response body projection that strips undeclared properties before JSON
+  serialization. Accepts a map of status code (or range key like `'2xx'`, `'default'`) to
+  JSON Schema objects. Projectors are compiled at factory time for zero per-request schema
+  parsing overhead. Only applies to Object bodies with `statusCode < 400`. Resolution
+  order: exact match → range → default. New shared primitive `lib/response-schema.js`
+  available via deep import `@centralping/ergo/lib/response-schema`.
+
 - **`onResponse` post-send lifecycle hook for `handler()`.** (#140)
   Observation callback fired after `send()` completes. Receives `(req, res, responseInfo,
   domainAcc)` where `responseInfo` is a snapshot of `{statusCode, headers, method, url,
