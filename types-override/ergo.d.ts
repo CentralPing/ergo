@@ -143,9 +143,28 @@ export interface TimingOptions {
   precision?: number;
 }
 
+/** Snapshot of response information passed to `onResponse` hooks. */
+export interface ResponseInfo {
+  statusCode: number;
+  headers: Record<string, string | string[] | number | undefined>;
+  method: string;
+  url: string;
+  bodySize: number | undefined;
+  duration: number;
+}
+
+/** Post-send observation hook signature. */
+export type OnResponseHook = (
+  req: import('node:http').IncomingMessage,
+  res: import('node:http').ServerResponse,
+  responseInfo: ResponseInfo,
+  domainAcc: Record<string, unknown>
+) => void | Promise<void>;
+
 /** Options for `handler()` — pipeline executor. */
 export interface HandlerOptions {
   debug?: boolean;
+  onResponse?: OnResponseHook;
   redactErrors?: boolean;
   timing?: boolean | TimingOptions;
   prettify?: boolean;
