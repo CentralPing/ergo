@@ -817,6 +817,208 @@ describe('[Module] http/send', () => {
     });
   });
 
+  describe('responseSchema option', () => {
+    it('strips undeclared fields from Object body', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          200: {type: 'object', properties: {id: {type: 'number'}, name: {type: 'string'}}}
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(req, res, {statusCode: 200, body: {id: 1, name: 'Alice', secret: 'x'}}, {});
+      const body = JSON.parse(res._body);
+      assert.equal(body.id, 1);
+      assert.equal(body.name, 'Alice');
+      assert.equal(body.secret, undefined, 'undeclared field should be stripped');
+    });
+
+    it('strips nested undeclared fields', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          200: {
+            type: 'object',
+            properties: {
+              user: {type: 'object', properties: {id: {type: 'number'}, name: {type: 'string'}}}
+            }
+          }
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(
+        req,
+        res,
+        {statusCode: 200, body: {user: {id: 1, name: 'Alice', hash: 'abc'}, extra: true}},
+        {}
+      );
+      const body = JSON.parse(res._body);
+      assert.deepEqual(body, {user: {id: 1, name: 'Alice'}});
+    });
+
+    it('strips fields from array item objects', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          200: {
+            type: 'array',
+            items: {type: 'object', properties: {id: {type: 'number'}}}
+          }
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(
+        req,
+        res,
+        {
+          statusCode: 200,
+          body: [
+            {id: 1, secret: 'a'},
+            {id: 2, secret: 'b'}
+          ]
+        },
+        {}
+      );
+      const body = JSON.parse(res._body);
+      assert.deepEqual(body, [{id: 1}, {id: 2}]);
+    });
+
+    it('does not project when no responseSchema is configured', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      send(req, res, {statusCode: 200, body: {id: 1, secret: 'x'}}, {});
+      const body = JSON.parse(res._body);
+      assert.equal(body.secret, 'x', 'all fields should be present without schema');
+    });
+
+    it('does not project error responses (statusCode >= 400)', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          400: {type: 'object', properties: {id: {type: 'number'}}}
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(req, res, {statusCode: 400, detail: 'bad request'}, {});
+      const body = JSON.parse(res._body);
+      assert.equal(body.status, 400, 'RFC 9457 body should not be projected');
+      assert.equal(body.title, 'Bad Request');
+    });
+
+    it('does not project string bodies', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          200: {type: 'object', properties: {id: {type: 'number'}}}
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(req, res, {statusCode: 200, body: 'plain text'}, {});
+      assert.equal(res._body, 'plain text');
+    });
+
+    it('resolves range key when no exact match', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          '2xx': {type: 'object', properties: {id: {type: 'number'}}}
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(req, res, {statusCode: 201, body: {id: 1, name: 'Alice'}}, {});
+      const body = JSON.parse(res._body);
+      assert.deepEqual(body, {id: 1});
+    });
+
+    it('resolves default key as fallback', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          default: {type: 'object', properties: {ok: {type: 'boolean'}}}
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(req, res, {statusCode: 200, body: {ok: true, extra: 'gone'}}, {});
+      const body = JSON.parse(res._body);
+      assert.deepEqual(body, {ok: true});
+    });
+
+    it('exact match takes precedence over range', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          200: {type: 'object', properties: {exact: {type: 'boolean'}}},
+          '2xx': {type: 'object', properties: {range: {type: 'boolean'}}}
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(req, res, {statusCode: 200, body: {exact: true, range: true, extra: 'gone'}}, {});
+      const body = JSON.parse(res._body);
+      assert.deepEqual(body, {exact: true});
+    });
+
+    it('applies projection before envelope wrapping', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          200: {type: 'object', properties: {id: {type: 'number'}}}
+        },
+        envelope: true,
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      res.setHeader('x-request-id', 'test-id');
+      sendSchema(req, res, {statusCode: 200, body: {id: 1, secret: 'x'}}, {});
+      const body = JSON.parse(res._body);
+      assert.equal(body.status, 200);
+      assert.deepEqual(body.data, {id: 1});
+      assert.equal(body.data.secret, undefined, 'secret should be stripped before envelope');
+    });
+
+    it('ETag reflects the projected (wire) shape', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          200: {type: 'object', properties: {id: {type: 'number'}}}
+        }
+      });
+      const req1 = createMockReq();
+      const res1 = createMockRes();
+      sendSchema(req1, res1, {statusCode: 200, body: {id: 1, secret: 'different'}}, {});
+
+      const req2 = createMockReq();
+      const res2 = createMockRes();
+      sendSchema(req2, res2, {statusCode: 200, body: {id: 1, secret: 'values'}}, {});
+
+      assert.equal(
+        res1._headers['etag'],
+        res2._headers['etag'],
+        'same projected shape => same ETag'
+      );
+    });
+
+    it('does not project when no matching schema for status code', () => {
+      const sendSchema = createSend({
+        responseSchema: {
+          201: {type: 'object', properties: {id: {type: 'number'}}}
+        },
+        etag: false
+      });
+      const req = createMockReq();
+      const res = createMockRes();
+      sendSchema(req, res, {statusCode: 200, body: {id: 1, secret: 'kept'}}, {});
+      const body = JSON.parse(res._body);
+      assert.equal(body.secret, 'kept', 'no matching schema means no stripping');
+    });
+  });
+
   describe('paginate option', () => {
     const paginateSend = createSend({paginate: true, etag: false});
 

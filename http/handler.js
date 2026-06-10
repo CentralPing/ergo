@@ -84,6 +84,8 @@ const VALID_OPTIONS = new Set([
  * @param {boolean|function} [options.envelope] - Forwarded to `send()`.
  * @param {function} [options.errorFormatter] - Forwarded to `send()`. Custom error body
  *   formatter for 4xx/5xx responses.
+ * @param {Record<number|string, object>} [options.responseSchema] - Forwarded to `send()`.
+ *   Map of status code to JSON Schema for response body projection.
  */
 export default (pipeline, options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'handler');
