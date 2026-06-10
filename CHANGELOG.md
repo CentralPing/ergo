@@ -14,6 +14,14 @@ All notable changes to this project will be documented in this file.
   key is present. Objects that match neither form still emit `ERGO_VALIDATE_UNKNOWN_KEY`
   warnings.
 
+### Documentation
+
+- **Naming discoverability audit: `send`, `accepts`, `compose` — keep decision.** (#139)
+  Evaluated all three names against ecosystem conventions, alternative candidates, and
+  affected surface area. Conclusion: names are accurate, alternatives are equally or more
+  ambiguous, and the perceived confusion stems from architectural differences with
+  Express/Fastify/Koa — not naming errors. Rationale documented in DECISIONS.md.
+
 ### Fixed
 
 - **Declared `@types/node` as optional peer dependency for TypeScript consumers.** (#134)
