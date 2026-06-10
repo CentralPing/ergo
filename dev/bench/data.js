@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781113478301,
+  "lastUpdate": 1781115212014,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7976,6 +7976,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6ec992bd17d449b13b9dcb771c7f5a7d311d564e",
+          "message": "feat: add responseSchema option for schema-based response projection (#137) (#146)\n\n* feat: add responseSchema option for schema-based response projection (#137)\n\n* fix: expand handler responseSchema JSDoc to match send() detail level (#137)",
+          "timestamp": "2026-06-10T14:13:16-04:00",
+          "tree_id": "995683b1e3c92f90aa9d9ba1caae2097de0fcb35",
+          "url": "https://github.com/CentralPing/ergo/commit/6ec992bd17d449b13b9dcb771c7f5a7d311d564e"
+        },
+        "date": 1781115211591,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
