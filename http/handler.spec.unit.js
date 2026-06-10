@@ -381,4 +381,169 @@ describe('[Module] http/handler', () => {
     const value = res.getHeader('x-response-time');
     assert.ok(value !== undefined, 'timing header should be set on pipeline breaks');
   });
+
+  describe('onResponse hook', () => {
+    it('is called after send with correct responseInfo shape', async () => {
+      let hookArgs;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {result: 'ok'};
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo, domainAcc) {
+          hookArgs = {req, res, responseInfo, domainAcc};
+        }
+      });
+      const req = createMockReq({method: 'POST', url: '/test'});
+      const res = createMockRes();
+      await handler(req, res);
+      assert.ok(hookArgs, 'hook should have been called');
+      assert.equal(hookArgs.req, req);
+      assert.equal(hookArgs.res, res);
+      assert.equal(hookArgs.responseInfo.statusCode, 200);
+      assert.equal(hookArgs.responseInfo.method, 'POST');
+      assert.equal(hookArgs.responseInfo.url, '/test');
+      assert.equal(typeof hookArgs.responseInfo.headers, 'object');
+      assert.equal(typeof hookArgs.responseInfo.duration, 'number');
+      assert.ok(hookArgs.responseInfo.duration >= 0);
+      assert.ok(hookArgs.domainAcc.isAccumulator);
+    });
+
+    it('receives domainAcc with pipeline-accumulated values', async () => {
+      let receivedAcc;
+      const pipeline = async (req, res, responseAcc, domainAcc) => {
+        domainAcc.custom = 'value';
+        responseAcc.statusCode = 200;
+        responseAcc.body = 'ok';
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo, domainAcc) {
+          receivedAcc = domainAcc;
+        }
+      });
+      await handler(createMockReq(), createMockRes());
+      assert.equal(receivedAcc.custom, 'value');
+    });
+
+    it('errors are swallowed and do not propagate', async () => {
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        onResponse() {
+          throw new Error('hook failure');
+        }
+      });
+      const res = createMockRes();
+      await handler(createMockReq(), res);
+      assert.equal(res.statusCode, 200);
+      assert.ok(res.writableEnded);
+    });
+
+    it('async hooks are awaited', async () => {
+      let hookCompleted = false;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = 'ok';
+      };
+      const handler = createHandler(pipeline, {
+        async onResponse() {
+          await new Promise(resolve => setTimeout(resolve, 10));
+          hookCompleted = true;
+        }
+      });
+      await handler(createMockReq(), createMockRes());
+      assert.equal(hookCompleted, true, 'async hook should complete before handler returns');
+    });
+
+    it('is not called when onResponse option is absent', async () => {
+      let called = false;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = 'ok';
+      };
+      const handler = createHandler(pipeline);
+      await handler(createMockReq(), createMockRes());
+      assert.equal(called, false);
+    });
+
+    it('responseInfo.duration is a positive number', async () => {
+      let duration;
+      const pipeline = async (req, res, responseAcc) => {
+        await new Promise(resolve => setTimeout(resolve, 5));
+        responseAcc.statusCode = 200;
+        responseAcc.body = 'ok';
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo) {
+          duration = responseInfo.duration;
+        }
+      });
+      await handler(createMockReq(), createMockRes());
+      assert.ok(duration > 0, `duration should be positive, got ${duration}`);
+    });
+
+    it('responseInfo.bodySize is correct for JSON responses', async () => {
+      let bodySize;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {data: 'test'};
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo) {
+          bodySize = responseInfo.bodySize;
+        }
+      });
+      const res = createMockRes();
+      await handler(createMockReq(), res);
+      assert.equal(typeof bodySize, 'number');
+      assert.ok(bodySize > 0);
+    });
+
+    it('responseInfo.bodySize is undefined when content-length is absent', async () => {
+      let bodySize;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 204;
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo) {
+          bodySize = responseInfo.bodySize;
+        }
+      });
+      await handler(createMockReq(), createMockRes());
+      assert.equal(bodySize, undefined);
+    });
+
+    it('fires after send on error responses', async () => {
+      let hookInfo;
+      const pipeline = async () => {
+        throw new Error('unexpected');
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo) {
+          hookInfo = responseInfo;
+        }
+      });
+      await handler(createMockReq(), createMockRes());
+      assert.ok(hookInfo, 'hook should fire on error path');
+      assert.equal(hookInfo.statusCode, 500);
+    });
+
+    it('async hook errors are swallowed', async () => {
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = 'ok';
+      };
+      const handler = createHandler(pipeline, {
+        async onResponse() {
+          throw new Error('async hook failure');
+        }
+      });
+      const res = createMockRes();
+      await handler(createMockReq(), res);
+      assert.equal(res.statusCode, 200);
+      assert.ok(res.writableEnded);
+    });
+  });
 });

@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`onResponse` post-send lifecycle hook for `handler()`.** (#140)
+  Observation callback fired after `send()` completes. Receives `(req, res, responseInfo,
+  domainAcc)` where `responseInfo` is a snapshot of `{statusCode, headers, method, url,
+  bodySize, duration}`. Hook errors are swallowed — cannot affect the response. Async hooks
+  are awaited. OTEL span duration includes hook execution time.
+
+- **`lib/response-info.js` shared primitive.** (#140)
+  Pure function `buildResponseInfo(req, res, startTime)` for constructing response info
+  snapshots. Consumed by `http/handler.js` and `ergo-router/lib/auto-wrap.js`. Exported
+  via `@centralping/ergo/lib/response-info`.
+
 - **`validate()` shorthand form for body-only schemas.** (#135)
   Pass a raw JSON Schema object directly to `validate()` instead of wrapping it in
   `{body: schema}`. The shorthand is detected when the first argument contains JSON Schema
