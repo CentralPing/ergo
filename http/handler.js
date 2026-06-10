@@ -84,6 +84,12 @@ const VALID_OPTIONS = new Set([
  * @param {boolean|function} [options.envelope] - Forwarded to `send()`.
  * @param {function} [options.errorFormatter] - Forwarded to `send()`. Custom error body
  *   formatter for 4xx/5xx responses.
+ * @param {Record<number|string, object>} [options.responseSchema] - Forwarded to `send()`.
+ *   Map of status code (or range key like `'2xx'`, `'2XX'`, `'default'`) to JSON Schema
+ *   objects. When provided, response bodies for matching success status codes are projected
+ *   through a compiled schema projector that strips undeclared properties before serialization.
+ *   Only applies to Object bodies with `statusCode < 400`. Resolution order: exact match →
+ *   range → default.
  */
 export default (pipeline, options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'handler');

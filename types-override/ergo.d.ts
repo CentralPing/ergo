@@ -182,6 +182,7 @@ export interface HandlerOptions {
     problemDetails: Record<string, unknown>,
     ctx: {requestId: string | undefined; statusCode: number; method: string}
   ) => unknown;
+  responseSchema?: ResponseSchemaMap;
 }
 
 /** Options for `idempotency()` — idempotency-key middleware. */
@@ -253,6 +254,9 @@ export interface SecurityHeadersOptions {
   permissionsPolicy?: string | false;
 }
 
+/** Map of status code (or range key) to JSON Schema for response body projection. */
+export type ResponseSchemaMap = Record<number | string, object>;
+
 /** Options for `send()` — response serialization middleware. */
 export interface SendOptions {
   prettify?: boolean;
@@ -270,6 +274,7 @@ export interface SendOptions {
     problemDetails: Record<string, unknown>,
     ctx: {requestId: string | undefined; statusCode: number; method: string}
   ) => unknown;
+  responseSchema?: ResponseSchemaMap;
 }
 
 /** Options for `timeout()` — request timeout middleware. */

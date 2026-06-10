@@ -53,6 +53,7 @@ import httpErrors from '../utils/http-errors.js';
 import appendVary from '../lib/vary.js';
 import {paginationLinks, cursorPaginationLinks, formatLinkHeader} from '../lib/link.js';
 import {validateOptions} from '../lib/validate-options.js';
+import {compileResponseSerializers, resolveSerializer} from '../lib/response-schema.js';
 
 /** @type {Set<string>} */
 export const SEND_VALID_OPTIONS = new Set([
@@ -62,7 +63,8 @@ export const SEND_VALID_OPTIONS = new Set([
   'prefer',
   'paginate',
   'envelope',
-  'errorFormatter'
+  'errorFormatter',
+  'responseSchema'
 ]);
 
 const isHTML = /<[a-z][^>]*>/i;
@@ -80,7 +82,8 @@ const SEND_RESERVED = new Set([
   'type',
   'lastModified',
   'location',
-  'paginate'
+  'paginate',
+  'responseSchema'
 ]);
 
 const OFFSET_STRIP_KEYS = new Set(['page', 'per_page']);
@@ -133,6 +136,11 @@ function bodyType(body) {
  *   `toJSON()`) and a context object `{requestId, statusCode, method}`. The return value
  *   becomes the response body, serialized as `application/json` instead of
  *   `application/problem+json`. When absent, the default RFC 9457 formatting is used.
+ * @param {Record<number|string, object>} [options.responseSchema] - Map of status code (or
+ *   range key like `'2xx'`, `'2XX'`, `'default'`) to JSON Schema object. When provided,
+ *   response bodies for matching success status codes are projected through a compiled schema
+ *   projector that strips undeclared properties before serialization. Only applies to Object
+ *   bodies with `statusCode < 400`. Resolution order: exact match → range → default.
  */
 export default (options = {}) => {
   validateOptions(options, SEND_VALID_OPTIONS, 'send');
@@ -143,8 +151,12 @@ export default (options = {}) => {
     prefer = false,
     paginate = false,
     envelope = false,
-    errorFormatter
+    errorFormatter,
+    responseSchema
   } = options;
+  const compiledSerializers = responseSchema
+    ? compileResponseSerializers(responseSchema)
+    : undefined;
   const effectiveVary = prefer ? [...(vary || []), 'Prefer'] : vary;
   const varyValue = effectiveVary?.length ? effectiveVary.join(', ') : undefined;
 
@@ -185,6 +197,11 @@ export default (options = {}) => {
       }
     } else if (body === undefined) {
       body = STATUS_CODES[statusCode] ?? String(statusCode);
+    }
+
+    if (compiledSerializers && statusCode < 400 && bodyType(body) === 'Object') {
+      const projector = resolveSerializer(compiledSerializers, statusCode);
+      if (projector) body = projector(body);
     }
 
     if (
