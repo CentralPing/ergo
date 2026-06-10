@@ -180,7 +180,7 @@ router state access during registration.
 
 `pipeline-builder.js` assembles middleware into four sequential stages:
 
-```
+```text
 Stage 1: Negotiation
   tracing → logger → rateLimit → accepts → precondition → cookie →
   url → paginate → jsonApiQuery → prefer → securityHeaders → cacheControl
@@ -189,7 +189,9 @@ Stage 2: Authorization
   csrf → authorization
 
 Stage 3: Validation
-  body → idempotency → validate → [use entries]
+  body → idempotency → validate
+
+Custom: use entries (after validation, before execution)
 
 Stage 4: Execution
   timeout → compress → execute
@@ -205,7 +207,7 @@ Stage 4: Execution
 Plugin middleware always runs before Stage 1. Simple, predictable, but
 inflexible — a plugin cannot inject middleware between stages.
 
-```
+```text
 [plugin middleware] → Stage 1 → Stage 2 → Stage 3 → Stage 4
 ```
 
@@ -242,7 +244,7 @@ Plugin middleware has two injection points matching existing mechanisms:
 - Plugin-contributed `use` entries → inserted at the `use` slot (after Stage 3,
   before Stage 4)
 
-```
+```text
 [plugin middleware] → Stage 1 → Stage 2 → Stage 3 → [plugin use] → Stage 4
 ```
 
@@ -323,7 +325,7 @@ ones. This is standard JS semantics with no framework magic.
 Plugins are registered in order. Later plugin defaults overwrite earlier ones.
 The router-level `defaults` option always wins (highest precedence).
 
-```
+```text
 Resolution: route config > router defaults > last plugin > ... > first plugin
 ```
 
@@ -337,7 +339,7 @@ the last one wins with no warning.
 
 Detect when two plugins set the same defaults key and emit a warning:
 
-```
+```text
 ErgoWarning [ERGO_ROUTER_PLUGIN_CONFLICT]:
   Plugins 'a' and 'b' both set defaults.accepts.
   Plugin 'b' (registered later) takes precedence.
@@ -396,7 +398,7 @@ established `validate-options.js` and `ERGO_VALIDATE_UNKNOWN_KEY` patterns:
 
 The resolution hierarchy is:
 
-```
+```text
 route config > router defaults > last plugin > ... > first plugin
 ```
 
@@ -414,9 +416,9 @@ matches the existing `resolve(routeValue, defaultValue)` pattern in
 callbacks (lines 43-46). There is no multi-hook support — if two plugins
 both need startup hooks, the consumer must manually compose them.
 
-`auto-wrap.js` supports dual-level `onResponse` hooks (router-level and
-per-route), each with independent `try/catch` error isolation (lines 110-120
-in the ergo-router source, per DECISIONS.md).
+`handler.js` supports `onResponse` hooks (per ergo DECISIONS.md). ergo-router
+integration with dual-level hooks (router-level and per-route), each with
+independent `try/catch` error isolation, is planned (ergo-router #140).
 
 ### Design: Multi-Hook Accumulation
 
@@ -482,7 +484,7 @@ for (const hook of pluginHooks.onResponse) {
 
 ### Sequence Diagram: 3-Plugin Scenario
 
-```
+```text
 Server Start:
   graceful() onStartup
     → pluginA.onStartup({log})     ✓
@@ -572,6 +574,17 @@ hidden hook injection.
 ### Plugin Interface (TypeScript)
 
 ```ts
+type ErgoMiddlewareFn = (
+  req: IncomingMessage,
+  res: ServerResponse,
+  domainAcc: object,
+  responseAcc: object
+) => void | Promise<void>;
+
+type ErgoMiddlewareEntry =
+  | ErgoMiddlewareFn
+  | {fn: ErgoMiddlewareFn; setPath: string};
+
 interface ErgoPlugin {
   /** Unique plugin identifier. Used for conflict warnings and deduplication. */
   name: string;
@@ -597,13 +610,13 @@ interface ErgoPlugin {
    * middleware but before Stage 1. Accepts {fn, setPath} tuples or
    * bare functions, same format as pipeline-builder entries.
    */
-  middleware?: Array<Function | {fn: Function; setPath: string}>;
+  middleware?: ErgoMiddlewareEntry[];
 
   /**
    * Middleware inserted at the `use` slot (after Stage 3, before Stage 4).
    * Concatenated with defaults-level and route-level `use` entries.
    */
-  use?: Array<Function | {fn: Function; setPath: string}>;
+  use?: ErgoMiddlewareEntry[];
 
   /**
    * Called before server.listen(). Failure aborts startup.
@@ -695,6 +708,41 @@ No breaking changes to existing APIs:
 | Functional tests | 1 new | Medium | No |
 | DECISIONS.md + CHANGELOG.md | 2 modified | Low | No |
 | **Total** | ~10 files | Medium overall | No breaking changes |
+
+### Implementation Notes
+
+**Plugin contract validation (`lib/validate-plugin.js`)** must enforce:
+
+- `name` is required (non-empty string)
+- `version`, if present, is a string
+- `defaults` and `transport`, if present, are plain objects
+- `middleware` and `use`, if present, are arrays of functions or `{fn, setPath}`
+  config objects (matching `pipeline-builder.js` format)
+- `onStartup`, `onShutdown`, `onResponse`, `onError`, if present, are functions
+- Unknown properties emit `ERGO_ROUTER_PLUGIN_UNKNOWN_OPTION` warning (following
+  `validate-options.js` pattern)
+
+**Trust model:** Plugins are trusted code — same trust boundary as middleware
+factories passed to `createRouter()`. `onStartup` failures intentionally abort
+startup (no `try/catch`); this is not a DoS vector because plugin registration
+is developer-controlled, not user-input-driven.
+
+**Null-prototype policy:** Plugin-provided `defaults` and `transport` objects
+are shallow-merged into the router config via spread semantics. The existing
+`pipeline-builder.js` resolution chain handles the merged values. Plugin
+objects themselves do not require `Object.create(null)` because their keys are
+developer-controlled (not user-input-derived). The null-prototype policy
+applies only to user-input-derived objects (query params, cookies, etc.).
+
+**Middleware return convention:** Plugin `middleware` and `use` entries are
+injected into the pipeline identically to manually-composed middleware. They
+must follow the `{value?, response?}` return convention documented in
+DECISIONS.md. `responseAcc.statusCode` triggers pipeline break.
+
+**Performance:** `onResponse` and `onError` hooks run per request. Cost scales
+linearly with plugin count. Each hook invocation is `try/catch`-isolated, adding
+one microtask per async hook. For typical deployments (2-5 plugins), this is
+negligible relative to I/O-bound pipeline stages.
 
 ### Follow-Up Issues to Create
 
