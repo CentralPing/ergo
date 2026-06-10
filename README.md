@@ -51,7 +51,7 @@ Stages run serially. If any middleware throws, the pipeline stops immediately an
 npm install @centralping/ergo
 ```
 
-Requires **Node.js >= 22**.
+Requires **Node.js >= 22**. Also works on [Deno](https://deno.com/) 2.x and [Bun](https://bun.sh/) 1.x via their Node.js compatibility layers (see [Runtime Support](#runtime-support)).
 
 ## Quick Start
 
@@ -154,6 +154,26 @@ See the [full API reference](https://centralping.github.io/packages/ergo/) for d
 - [API Reference](https://centralping.github.io/packages/ergo/)
 - [Fast Fail Pipeline](https://centralping.github.io/concepts/fast-fail/)
 - [Benchmarks](https://centralping.github.io/benchmarks/)
+
+## Runtime Support
+
+ergo is designed for Node.js and uses `node:http`, `node:stream`, `node:zlib`, and `node:crypto` at its boundaries. However, both **Deno 2.x** and **Bun 1.x** provide extensive Node.js compatibility layers that allow ergo to run without modification.
+
+| Runtime | Version | Unit Tests | Contract Tests | Status |
+|---------|---------|-----------|---------------|--------|
+| **Node.js** | 22, 24 | 100% | 100% | Primary target |
+| **Deno** | 2.x | 96.7% | 100% | Compatible via `node:*` compat |
+| **Bun** | 1.x | 99.4% | 100% | Compatible via `node:*` compat |
+
+**Known gaps on alternative runtimes:**
+
+- **OpenTelemetry SDK** (Deno): `@opentelemetry/sdk-trace-node` unit tests fail because the SDK is Node.js-specific. The tracing _middleware_ works correctly (contract tests pass); only SDK-internal unit test assertions are affected.
+- **`process.emitWarning`** (Bun): The `http/validate` middleware's developer-experience warnings emit correctly at runtime, but Bun's `process.on('warning')` listener support differs from Node.js, causing 5 unit test assertions to fail.
+- **Timer precision** (both): One `MemoryStore` timing test in `lib/rate-limit` has microsecond-level sensitivity that can fail across all runtimes under load.
+
+ergo's pipeline core (`compose`, `compose-with`, all `utils/iterables`, `utils/observables`) has zero `node:*` imports and is fully portable. The coupling to Node.js APIs concentrates in 6 boundary files: `handler.js`, `send.js`, `body.js`, `compress.js`, `logger.js`, and `timeout.js`.
+
+CI runs the full test suite on Deno and Bun alongside Node.js. These jobs use `continue-on-error` and are informational rather than required checks.
 
 ## Development
 

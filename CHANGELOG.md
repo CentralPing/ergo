@@ -13,6 +13,12 @@ All notable changes to this project will be documented in this file.
   parsing overhead. Only applies to Object bodies with `statusCode < 400`. Resolution
   order: exact match → range → default. New shared primitive `lib/response-schema.js`
   available via deep import `@centralping/ergo/lib/response-schema`.
+- **Multi-runtime CI: Deno 2.x and Bun 1.x test jobs.** (#138)
+  CI now runs the full test suite on Deno and Bun alongside Node.js 22/24.
+  Both runtimes pass all contract tests (100%) and nearly all unit tests
+  (Deno 96.7%, Bun 99.4%) via their Node.js compatibility layers. Jobs use
+  `continue-on-error` as informational checks. README documents runtime support
+  status and known gaps.
 
 - **`onResponse` post-send lifecycle hook for `handler()`.** (#140)
   Observation callback fired after `send()` completes. Receives `(req, res, responseInfo,
