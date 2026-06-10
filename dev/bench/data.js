@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781067703923,
+  "lastUpdate": 1781070623337,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7762,6 +7762,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "239cabc01e876270f6dec4081fe06fa54cffffe0",
+          "message": "feat: add onResponse post-send lifecycle hook (#140)",
+          "timestamp": "2026-06-10T05:02:01Z",
+          "url": "https://github.com/CentralPing/ergo/pull/145/commits/239cabc01e876270f6dec4081fe06fa54cffffe0"
+        },
+        "date": 1781070622879,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
