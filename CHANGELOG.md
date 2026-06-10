@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file.
   Evaluated all three names against ecosystem conventions, alternative candidates, and
   affected surface area. Conclusion: names are accurate, alternatives are equally or more
   ambiguous, and the perceived confusion stems from architectural differences with
-  Express/Fastify/Koa — not naming errors. Rationale documented in DECISIONS.md.
+  Express/Fastify/Koa — not naming errors.
 
 ### Fixed
 
