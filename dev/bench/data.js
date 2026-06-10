@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781070623337,
+  "lastUpdate": 1781100419017,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7787,6 +7787,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "998eaa01b0d4498d853ed9b4897b402d26eb7113",
+          "message": "feat: add onResponse post-send lifecycle hook (#140) (#145)",
+          "timestamp": "2026-06-10T10:06:40-04:00",
+          "tree_id": "cbbe7581c8857df8c6f365b43d306fdfd5cd0561",
+          "url": "https://github.com/CentralPing/ergo/commit/998eaa01b0d4498d853ed9b4897b402d26eb7113"
+        },
+        "date": 1781100418312,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
             "unit": "us/op"
           },
           {
