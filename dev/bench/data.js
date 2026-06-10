@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781054624703,
+  "lastUpdate": 1781067703923,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -7723,6 +7723,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cb2dbd358f547fd8f5b3f22f5e498289cd86043f",
+          "message": "docs: document naming discoverability audit decision (#139) (#144)\n\n* docs: document naming discoverability audit decision (#139)\n\n* fix: remove broken DECISIONS.md reference from CHANGELOG (#139)",
+          "timestamp": "2026-06-10T01:01:31-04:00",
+          "tree_id": "c2ec43f38e9793d896bcf4db5fbf555347530233",
+          "url": "https://github.com/CentralPing/ergo/commit/cb2dbd358f547fd8f5b3f22f5e498289cd86043f"
+        },
+        "date": 1781067703547,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
