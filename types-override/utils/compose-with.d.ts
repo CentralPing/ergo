@@ -6,12 +6,17 @@
  * type. This file provides overloaded signatures for 1–12 ops that
  * infer the accumulator shape from the config object arguments.
  *
+ * Ops can be expressed as:
+ * - `{fn, setPath}` config objects (explicit path)
+ * - Functions with an intrinsic `setPath` property (built-in middleware)
+ * - Plain functions without `setPath` (response-only middleware, trailing)
+ *
  * Maintenance: when adding a new middleware to ergo, add a corresponding
  * result type to types/ergo.d.ts. These overloads do not need updating
  * unless the compose-with runtime API changes.
  */
 
-import type { ResponseAccumulator } from '../ergo.js';
+import type {ResponseAccumulator} from '../ergo.js';
 
 // ---------------------------------------------------------------------------
 // Utility types
@@ -32,14 +37,23 @@ import type { ResponseAccumulator } from '../ergo.js';
  * types like CookieJar (`{[k: string]: string}`) whose index signature
  * incidentally satisfies `{value: any}`.
  */
-type ExtractValue<F> =
-  F extends (...args: any[]) => infer R
-    ? Awaited<R> extends infer Resolved
-      ? Resolved extends { value: infer V; response?: any }
-        ? string extends keyof Resolved ? Resolved : V
-        : Resolved
-      : never
-    : unknown;
+type ExtractValue<F> = F extends (...args: any[]) => infer R
+  ? Awaited<R> extends infer Resolved
+    ? Resolved extends {value: infer V; response?: any}
+      ? string extends keyof Resolved
+        ? Resolved
+        : V
+      : Resolved
+    : never
+  : unknown;
+
+/**
+ * A middleware op: either a config object `{fn, setPath}` or a function with
+ * an intrinsic `setPath` property.
+ */
+type MiddlewareOp<K extends string, F extends (...args: any[]) => any> =
+  | {fn: F; setPath: K}
+  | (F & {readonly setPath: K});
 
 // ---------------------------------------------------------------------------
 // Composed pipeline return type
@@ -52,276 +66,367 @@ type ComposedPipeline<Acc extends object> = (...args: any[]) => Promise<Acc>;
 // ---------------------------------------------------------------------------
 
 export function createResponseAcc(): ResponseAccumulator;
-export function mergeResponse(responseAcc: ResponseAccumulator, patch: Partial<ResponseAccumulator>): void;
+export function mergeResponse(
+  responseAcc: ResponseAccumulator,
+  patch: Partial<ResponseAccumulator>
+): void;
 
 // ---------------------------------------------------------------------------
 // composeWith overloads (1–12 ops + optional trailing plain functions)
 // ---------------------------------------------------------------------------
 
 declare function composeWith<K1 extends string, F1 extends (...args: any[]) => any>(
-  op1: {fn: F1; setPath: K1},
+  op1: MiddlewareOp<K1, F1>,
   ...rest: ((...args: any[]) => any)[]
-): ComposedPipeline<{ [P in K1]: ExtractValue<F1> }>;
+): ComposedPipeline<{[P in K1]: ExtractValue<F1>}>;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
   ...rest: ((...args: any[]) => any)[]
-): ComposedPipeline<{ [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> }>;
+): ComposedPipeline<{[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>}>;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  ...rest: ((...args: any[]) => any)[]
-): ComposedPipeline<{ [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } & { [P in K3]: ExtractValue<F3> }>;
-
-declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
->(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>}
 >;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
-  K5 extends string, F5 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
-  op5: {fn: F5; setPath: K5},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-  { [P in K5]: ExtractValue<F5> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  }
 >;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
-  K5 extends string, F5 extends (...args: any[]) => any,
-  K6 extends string, F6 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any,
+  K5 extends string,
+  F5 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
-  op5: {fn: F5; setPath: K5},
-  op6: {fn: F6; setPath: K6},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
+  op5: MiddlewareOp<K5, F5>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-  { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  } & {[P in K5]: ExtractValue<F5>}
 >;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
-  K5 extends string, F5 extends (...args: any[]) => any,
-  K6 extends string, F6 extends (...args: any[]) => any,
-  K7 extends string, F7 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any,
+  K5 extends string,
+  F5 extends (...args: any[]) => any,
+  K6 extends string,
+  F6 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
-  op5: {fn: F5; setPath: K5},
-  op6: {fn: F6; setPath: K6},
-  op7: {fn: F7; setPath: K7},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
+  op5: MiddlewareOp<K5, F5>,
+  op6: MiddlewareOp<K6, F6>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-  { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-  { [P in K7]: ExtractValue<F7> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  } & {[P in K5]: ExtractValue<F5>} & {[P in K6]: ExtractValue<F6>}
 >;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
-  K5 extends string, F5 extends (...args: any[]) => any,
-  K6 extends string, F6 extends (...args: any[]) => any,
-  K7 extends string, F7 extends (...args: any[]) => any,
-  K8 extends string, F8 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any,
+  K5 extends string,
+  F5 extends (...args: any[]) => any,
+  K6 extends string,
+  F6 extends (...args: any[]) => any,
+  K7 extends string,
+  F7 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
-  op5: {fn: F5; setPath: K5},
-  op6: {fn: F6; setPath: K6},
-  op7: {fn: F7; setPath: K7},
-  op8: {fn: F8; setPath: K8},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
+  op5: MiddlewareOp<K5, F5>,
+  op6: MiddlewareOp<K6, F6>,
+  op7: MiddlewareOp<K7, F7>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-  { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-  { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  } & {[P in K5]: ExtractValue<F5>} & {[P in K6]: ExtractValue<F6>} & {[P in K7]: ExtractValue<F7>}
 >;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
-  K5 extends string, F5 extends (...args: any[]) => any,
-  K6 extends string, F6 extends (...args: any[]) => any,
-  K7 extends string, F7 extends (...args: any[]) => any,
-  K8 extends string, F8 extends (...args: any[]) => any,
-  K9 extends string, F9 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any,
+  K5 extends string,
+  F5 extends (...args: any[]) => any,
+  K6 extends string,
+  F6 extends (...args: any[]) => any,
+  K7 extends string,
+  F7 extends (...args: any[]) => any,
+  K8 extends string,
+  F8 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
-  op5: {fn: F5; setPath: K5},
-  op6: {fn: F6; setPath: K6},
-  op7: {fn: F7; setPath: K7},
-  op8: {fn: F8; setPath: K8},
-  op9: {fn: F9; setPath: K9},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
+  op5: MiddlewareOp<K5, F5>,
+  op6: MiddlewareOp<K6, F6>,
+  op7: MiddlewareOp<K7, F7>,
+  op8: MiddlewareOp<K8, F8>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-  { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-  { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> } &
-  { [P in K9]: ExtractValue<F9> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  } & {[P in K5]: ExtractValue<F5>} & {[P in K6]: ExtractValue<F6>} & {
+    [P in K7]: ExtractValue<F7>;
+  } & {[P in K8]: ExtractValue<F8>}
 >;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
-  K5 extends string, F5 extends (...args: any[]) => any,
-  K6 extends string, F6 extends (...args: any[]) => any,
-  K7 extends string, F7 extends (...args: any[]) => any,
-  K8 extends string, F8 extends (...args: any[]) => any,
-  K9 extends string, F9 extends (...args: any[]) => any,
-  K10 extends string, F10 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any,
+  K5 extends string,
+  F5 extends (...args: any[]) => any,
+  K6 extends string,
+  F6 extends (...args: any[]) => any,
+  K7 extends string,
+  F7 extends (...args: any[]) => any,
+  K8 extends string,
+  F8 extends (...args: any[]) => any,
+  K9 extends string,
+  F9 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
-  op5: {fn: F5; setPath: K5},
-  op6: {fn: F6; setPath: K6},
-  op7: {fn: F7; setPath: K7},
-  op8: {fn: F8; setPath: K8},
-  op9: {fn: F9; setPath: K9},
-  op10: {fn: F10; setPath: K10},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
+  op5: MiddlewareOp<K5, F5>,
+  op6: MiddlewareOp<K6, F6>,
+  op7: MiddlewareOp<K7, F7>,
+  op8: MiddlewareOp<K8, F8>,
+  op9: MiddlewareOp<K9, F9>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-  { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-  { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> } &
-  { [P in K9]: ExtractValue<F9> } & { [P in K10]: ExtractValue<F10> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  } & {[P in K5]: ExtractValue<F5>} & {[P in K6]: ExtractValue<F6>} & {
+    [P in K7]: ExtractValue<F7>;
+  } & {[P in K8]: ExtractValue<F8>} & {[P in K9]: ExtractValue<F9>}
 >;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
-  K5 extends string, F5 extends (...args: any[]) => any,
-  K6 extends string, F6 extends (...args: any[]) => any,
-  K7 extends string, F7 extends (...args: any[]) => any,
-  K8 extends string, F8 extends (...args: any[]) => any,
-  K9 extends string, F9 extends (...args: any[]) => any,
-  K10 extends string, F10 extends (...args: any[]) => any,
-  K11 extends string, F11 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any,
+  K5 extends string,
+  F5 extends (...args: any[]) => any,
+  K6 extends string,
+  F6 extends (...args: any[]) => any,
+  K7 extends string,
+  F7 extends (...args: any[]) => any,
+  K8 extends string,
+  F8 extends (...args: any[]) => any,
+  K9 extends string,
+  F9 extends (...args: any[]) => any,
+  K10 extends string,
+  F10 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
-  op5: {fn: F5; setPath: K5},
-  op6: {fn: F6; setPath: K6},
-  op7: {fn: F7; setPath: K7},
-  op8: {fn: F8; setPath: K8},
-  op9: {fn: F9; setPath: K9},
-  op10: {fn: F10; setPath: K10},
-  op11: {fn: F11; setPath: K11},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
+  op5: MiddlewareOp<K5, F5>,
+  op6: MiddlewareOp<K6, F6>,
+  op7: MiddlewareOp<K7, F7>,
+  op8: MiddlewareOp<K8, F8>,
+  op9: MiddlewareOp<K9, F9>,
+  op10: MiddlewareOp<K10, F10>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-  { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-  { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> } &
-  { [P in K9]: ExtractValue<F9> } & { [P in K10]: ExtractValue<F10> } &
-  { [P in K11]: ExtractValue<F11> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  } & {[P in K5]: ExtractValue<F5>} & {[P in K6]: ExtractValue<F6>} & {
+    [P in K7]: ExtractValue<F7>;
+  } & {[P in K8]: ExtractValue<F8>} & {[P in K9]: ExtractValue<F9>} & {
+    [P in K10]: ExtractValue<F10>;
+  }
 >;
 
 declare function composeWith<
-  K1 extends string, F1 extends (...args: any[]) => any,
-  K2 extends string, F2 extends (...args: any[]) => any,
-  K3 extends string, F3 extends (...args: any[]) => any,
-  K4 extends string, F4 extends (...args: any[]) => any,
-  K5 extends string, F5 extends (...args: any[]) => any,
-  K6 extends string, F6 extends (...args: any[]) => any,
-  K7 extends string, F7 extends (...args: any[]) => any,
-  K8 extends string, F8 extends (...args: any[]) => any,
-  K9 extends string, F9 extends (...args: any[]) => any,
-  K10 extends string, F10 extends (...args: any[]) => any,
-  K11 extends string, F11 extends (...args: any[]) => any,
-  K12 extends string, F12 extends (...args: any[]) => any,
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any,
+  K5 extends string,
+  F5 extends (...args: any[]) => any,
+  K6 extends string,
+  F6 extends (...args: any[]) => any,
+  K7 extends string,
+  F7 extends (...args: any[]) => any,
+  K8 extends string,
+  F8 extends (...args: any[]) => any,
+  K9 extends string,
+  F9 extends (...args: any[]) => any,
+  K10 extends string,
+  F10 extends (...args: any[]) => any,
+  K11 extends string,
+  F11 extends (...args: any[]) => any
 >(
-  op1: {fn: F1; setPath: K1},
-  op2: {fn: F2; setPath: K2},
-  op3: {fn: F3; setPath: K3},
-  op4: {fn: F4; setPath: K4},
-  op5: {fn: F5; setPath: K5},
-  op6: {fn: F6; setPath: K6},
-  op7: {fn: F7; setPath: K7},
-  op8: {fn: F8; setPath: K8},
-  op9: {fn: F9; setPath: K9},
-  op10: {fn: F10; setPath: K10},
-  op11: {fn: F11; setPath: K11},
-  op12: {fn: F12; setPath: K12},
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
+  op5: MiddlewareOp<K5, F5>,
+  op6: MiddlewareOp<K6, F6>,
+  op7: MiddlewareOp<K7, F7>,
+  op8: MiddlewareOp<K8, F8>,
+  op9: MiddlewareOp<K9, F9>,
+  op10: MiddlewareOp<K10, F10>,
+  op11: MiddlewareOp<K11, F11>,
   ...rest: ((...args: any[]) => any)[]
 ): ComposedPipeline<
-  { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-  { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-  { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-  { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> } &
-  { [P in K9]: ExtractValue<F9> } & { [P in K10]: ExtractValue<F10> } &
-  { [P in K11]: ExtractValue<F11> } & { [P in K12]: ExtractValue<F12> }
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  } & {[P in K5]: ExtractValue<F5>} & {[P in K6]: ExtractValue<F6>} & {
+    [P in K7]: ExtractValue<F7>;
+  } & {[P in K8]: ExtractValue<F8>} & {[P in K9]: ExtractValue<F9>} & {
+    [P in K10]: ExtractValue<F10>;
+  } & {[P in K11]: ExtractValue<F11>}
+>;
+
+declare function composeWith<
+  K1 extends string,
+  F1 extends (...args: any[]) => any,
+  K2 extends string,
+  F2 extends (...args: any[]) => any,
+  K3 extends string,
+  F3 extends (...args: any[]) => any,
+  K4 extends string,
+  F4 extends (...args: any[]) => any,
+  K5 extends string,
+  F5 extends (...args: any[]) => any,
+  K6 extends string,
+  F6 extends (...args: any[]) => any,
+  K7 extends string,
+  F7 extends (...args: any[]) => any,
+  K8 extends string,
+  F8 extends (...args: any[]) => any,
+  K9 extends string,
+  F9 extends (...args: any[]) => any,
+  K10 extends string,
+  F10 extends (...args: any[]) => any,
+  K11 extends string,
+  F11 extends (...args: any[]) => any,
+  K12 extends string,
+  F12 extends (...args: any[]) => any
+>(
+  op1: MiddlewareOp<K1, F1>,
+  op2: MiddlewareOp<K2, F2>,
+  op3: MiddlewareOp<K3, F3>,
+  op4: MiddlewareOp<K4, F4>,
+  op5: MiddlewareOp<K5, F5>,
+  op6: MiddlewareOp<K6, F6>,
+  op7: MiddlewareOp<K7, F7>,
+  op8: MiddlewareOp<K8, F8>,
+  op9: MiddlewareOp<K9, F9>,
+  op10: MiddlewareOp<K10, F10>,
+  op11: MiddlewareOp<K11, F11>,
+  op12: MiddlewareOp<K12, F12>,
+  ...rest: ((...args: any[]) => any)[]
+): ComposedPipeline<
+  {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>} & {
+    [P in K4]: ExtractValue<F4>;
+  } & {[P in K5]: ExtractValue<F5>} & {[P in K6]: ExtractValue<F6>} & {
+    [P in K7]: ExtractValue<F7>;
+  } & {[P in K8]: ExtractValue<F8>} & {[P in K9]: ExtractValue<F9>} & {
+    [P in K10]: ExtractValue<F10>;
+  } & {[P in K11]: ExtractValue<F11>} & {[P in K12]: ExtractValue<F12>}
 >;
 
 // Fallback for >12 ops or all-plain-function calls
 declare function composeWith(
-  ...ops: ({fn: (...args: any[]) => any; setPath: string} | ((...args: any[]) => any))[]
+  ...ops: (
+    | {fn: (...args: any[]) => any; setPath: string}
+    | ((...args: any[]) => any & {setPath?: string})
+    | ((...args: any[]) => any)
+  )[]
 ): (...args: any[]) => Promise<object>;
 
 // ---------------------------------------------------------------------------
@@ -330,268 +435,364 @@ declare function composeWith(
 
 declare namespace composeWith {
   function all<K1 extends string, F1 extends (...args: any[]) => any>(
-    op1: {fn: F1; setPath: K1},
+    op1: MiddlewareOp<K1, F1>,
     ...rest: ((...args: any[]) => any)[]
-  ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> }>;
+  ): ComposedPipeline<{[P in K1]: ExtractValue<F1>}>;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
     ...rest: ((...args: any[]) => any)[]
-  ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> }>;
+  ): ComposedPipeline<{[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>}>;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    ...rest: ((...args: any[]) => any)[]
-  ): ComposedPipeline<{ [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } & { [P in K3]: ExtractValue<F3> }>;
-
-  function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-  >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {[P in K3]: ExtractValue<F3>}
   >;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-    K5 extends string, F5 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
-    op5: {fn: F5; setPath: K5},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-    { [P in K5]: ExtractValue<F5> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>}
   >;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-    K5 extends string, F5 extends (...args: any[]) => any,
-    K6 extends string, F6 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any,
+    K5 extends string,
+    F5 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
-    op5: {fn: F5; setPath: K5},
-    op6: {fn: F6; setPath: K6},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
+    op5: MiddlewareOp<K5, F5>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-    { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>} & {[P in K5]: ExtractValue<F5>}
   >;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-    K5 extends string, F5 extends (...args: any[]) => any,
-    K6 extends string, F6 extends (...args: any[]) => any,
-    K7 extends string, F7 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any,
+    K5 extends string,
+    F5 extends (...args: any[]) => any,
+    K6 extends string,
+    F6 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
-    op5: {fn: F5; setPath: K5},
-    op6: {fn: F6; setPath: K6},
-    op7: {fn: F7; setPath: K7},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
+    op5: MiddlewareOp<K5, F5>,
+    op6: MiddlewareOp<K6, F6>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-    { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-    { [P in K7]: ExtractValue<F7> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>} & {[P in K5]: ExtractValue<F5>} & {
+      [P in K6]: ExtractValue<F6>;
+    }
   >;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-    K5 extends string, F5 extends (...args: any[]) => any,
-    K6 extends string, F6 extends (...args: any[]) => any,
-    K7 extends string, F7 extends (...args: any[]) => any,
-    K8 extends string, F8 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any,
+    K5 extends string,
+    F5 extends (...args: any[]) => any,
+    K6 extends string,
+    F6 extends (...args: any[]) => any,
+    K7 extends string,
+    F7 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
-    op5: {fn: F5; setPath: K5},
-    op6: {fn: F6; setPath: K6},
-    op7: {fn: F7; setPath: K7},
-    op8: {fn: F8; setPath: K8},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
+    op5: MiddlewareOp<K5, F5>,
+    op6: MiddlewareOp<K6, F6>,
+    op7: MiddlewareOp<K7, F7>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-    { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-    { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>} & {[P in K5]: ExtractValue<F5>} & {
+      [P in K6]: ExtractValue<F6>;
+    } & {[P in K7]: ExtractValue<F7>}
   >;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-    K5 extends string, F5 extends (...args: any[]) => any,
-    K6 extends string, F6 extends (...args: any[]) => any,
-    K7 extends string, F7 extends (...args: any[]) => any,
-    K8 extends string, F8 extends (...args: any[]) => any,
-    K9 extends string, F9 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any,
+    K5 extends string,
+    F5 extends (...args: any[]) => any,
+    K6 extends string,
+    F6 extends (...args: any[]) => any,
+    K7 extends string,
+    F7 extends (...args: any[]) => any,
+    K8 extends string,
+    F8 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
-    op5: {fn: F5; setPath: K5},
-    op6: {fn: F6; setPath: K6},
-    op7: {fn: F7; setPath: K7},
-    op8: {fn: F8; setPath: K8},
-    op9: {fn: F9; setPath: K9},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
+    op5: MiddlewareOp<K5, F5>,
+    op6: MiddlewareOp<K6, F6>,
+    op7: MiddlewareOp<K7, F7>,
+    op8: MiddlewareOp<K8, F8>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-    { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-    { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> } &
-    { [P in K9]: ExtractValue<F9> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>} & {[P in K5]: ExtractValue<F5>} & {
+      [P in K6]: ExtractValue<F6>;
+    } & {[P in K7]: ExtractValue<F7>} & {[P in K8]: ExtractValue<F8>}
   >;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-    K5 extends string, F5 extends (...args: any[]) => any,
-    K6 extends string, F6 extends (...args: any[]) => any,
-    K7 extends string, F7 extends (...args: any[]) => any,
-    K8 extends string, F8 extends (...args: any[]) => any,
-    K9 extends string, F9 extends (...args: any[]) => any,
-    K10 extends string, F10 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any,
+    K5 extends string,
+    F5 extends (...args: any[]) => any,
+    K6 extends string,
+    F6 extends (...args: any[]) => any,
+    K7 extends string,
+    F7 extends (...args: any[]) => any,
+    K8 extends string,
+    F8 extends (...args: any[]) => any,
+    K9 extends string,
+    F9 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
-    op5: {fn: F5; setPath: K5},
-    op6: {fn: F6; setPath: K6},
-    op7: {fn: F7; setPath: K7},
-    op8: {fn: F8; setPath: K8},
-    op9: {fn: F9; setPath: K9},
-    op10: {fn: F10; setPath: K10},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
+    op5: MiddlewareOp<K5, F5>,
+    op6: MiddlewareOp<K6, F6>,
+    op7: MiddlewareOp<K7, F7>,
+    op8: MiddlewareOp<K8, F8>,
+    op9: MiddlewareOp<K9, F9>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-    { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-    { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> } &
-    { [P in K9]: ExtractValue<F9> } & { [P in K10]: ExtractValue<F10> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>} & {[P in K5]: ExtractValue<F5>} & {
+      [P in K6]: ExtractValue<F6>;
+    } & {[P in K7]: ExtractValue<F7>} & {[P in K8]: ExtractValue<F8>} & {
+      [P in K9]: ExtractValue<F9>;
+    }
   >;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-    K5 extends string, F5 extends (...args: any[]) => any,
-    K6 extends string, F6 extends (...args: any[]) => any,
-    K7 extends string, F7 extends (...args: any[]) => any,
-    K8 extends string, F8 extends (...args: any[]) => any,
-    K9 extends string, F9 extends (...args: any[]) => any,
-    K10 extends string, F10 extends (...args: any[]) => any,
-    K11 extends string, F11 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any,
+    K5 extends string,
+    F5 extends (...args: any[]) => any,
+    K6 extends string,
+    F6 extends (...args: any[]) => any,
+    K7 extends string,
+    F7 extends (...args: any[]) => any,
+    K8 extends string,
+    F8 extends (...args: any[]) => any,
+    K9 extends string,
+    F9 extends (...args: any[]) => any,
+    K10 extends string,
+    F10 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
-    op5: {fn: F5; setPath: K5},
-    op6: {fn: F6; setPath: K6},
-    op7: {fn: F7; setPath: K7},
-    op8: {fn: F8; setPath: K8},
-    op9: {fn: F9; setPath: K9},
-    op10: {fn: F10; setPath: K10},
-    op11: {fn: F11; setPath: K11},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
+    op5: MiddlewareOp<K5, F5>,
+    op6: MiddlewareOp<K6, F6>,
+    op7: MiddlewareOp<K7, F7>,
+    op8: MiddlewareOp<K8, F8>,
+    op9: MiddlewareOp<K9, F9>,
+    op10: MiddlewareOp<K10, F10>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-    { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-    { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> } &
-    { [P in K9]: ExtractValue<F9> } & { [P in K10]: ExtractValue<F10> } &
-    { [P in K11]: ExtractValue<F11> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>} & {[P in K5]: ExtractValue<F5>} & {
+      [P in K6]: ExtractValue<F6>;
+    } & {[P in K7]: ExtractValue<F7>} & {[P in K8]: ExtractValue<F8>} & {
+      [P in K9]: ExtractValue<F9>;
+    } & {[P in K10]: ExtractValue<F10>}
   >;
 
   function all<
-    K1 extends string, F1 extends (...args: any[]) => any,
-    K2 extends string, F2 extends (...args: any[]) => any,
-    K3 extends string, F3 extends (...args: any[]) => any,
-    K4 extends string, F4 extends (...args: any[]) => any,
-    K5 extends string, F5 extends (...args: any[]) => any,
-    K6 extends string, F6 extends (...args: any[]) => any,
-    K7 extends string, F7 extends (...args: any[]) => any,
-    K8 extends string, F8 extends (...args: any[]) => any,
-    K9 extends string, F9 extends (...args: any[]) => any,
-    K10 extends string, F10 extends (...args: any[]) => any,
-    K11 extends string, F11 extends (...args: any[]) => any,
-    K12 extends string, F12 extends (...args: any[]) => any,
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any,
+    K5 extends string,
+    F5 extends (...args: any[]) => any,
+    K6 extends string,
+    F6 extends (...args: any[]) => any,
+    K7 extends string,
+    F7 extends (...args: any[]) => any,
+    K8 extends string,
+    F8 extends (...args: any[]) => any,
+    K9 extends string,
+    F9 extends (...args: any[]) => any,
+    K10 extends string,
+    F10 extends (...args: any[]) => any,
+    K11 extends string,
+    F11 extends (...args: any[]) => any
   >(
-    op1: {fn: F1; setPath: K1},
-    op2: {fn: F2; setPath: K2},
-    op3: {fn: F3; setPath: K3},
-    op4: {fn: F4; setPath: K4},
-    op5: {fn: F5; setPath: K5},
-    op6: {fn: F6; setPath: K6},
-    op7: {fn: F7; setPath: K7},
-    op8: {fn: F8; setPath: K8},
-    op9: {fn: F9; setPath: K9},
-    op10: {fn: F10; setPath: K10},
-    op11: {fn: F11; setPath: K11},
-    op12: {fn: F12; setPath: K12},
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
+    op5: MiddlewareOp<K5, F5>,
+    op6: MiddlewareOp<K6, F6>,
+    op7: MiddlewareOp<K7, F7>,
+    op8: MiddlewareOp<K8, F8>,
+    op9: MiddlewareOp<K9, F9>,
+    op10: MiddlewareOp<K10, F10>,
+    op11: MiddlewareOp<K11, F11>,
     ...rest: ((...args: any[]) => any)[]
   ): ComposedPipeline<
-    { [P in K1]: ExtractValue<F1> } & { [P in K2]: ExtractValue<F2> } &
-    { [P in K3]: ExtractValue<F3> } & { [P in K4]: ExtractValue<F4> } &
-    { [P in K5]: ExtractValue<F5> } & { [P in K6]: ExtractValue<F6> } &
-    { [P in K7]: ExtractValue<F7> } & { [P in K8]: ExtractValue<F8> } &
-    { [P in K9]: ExtractValue<F9> } & { [P in K10]: ExtractValue<F10> } &
-    { [P in K11]: ExtractValue<F11> } & { [P in K12]: ExtractValue<F12> }
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>} & {[P in K5]: ExtractValue<F5>} & {
+      [P in K6]: ExtractValue<F6>;
+    } & {[P in K7]: ExtractValue<F7>} & {[P in K8]: ExtractValue<F8>} & {
+      [P in K9]: ExtractValue<F9>;
+    } & {[P in K10]: ExtractValue<F10>} & {[P in K11]: ExtractValue<F11>}
+  >;
+
+  function all<
+    K1 extends string,
+    F1 extends (...args: any[]) => any,
+    K2 extends string,
+    F2 extends (...args: any[]) => any,
+    K3 extends string,
+    F3 extends (...args: any[]) => any,
+    K4 extends string,
+    F4 extends (...args: any[]) => any,
+    K5 extends string,
+    F5 extends (...args: any[]) => any,
+    K6 extends string,
+    F6 extends (...args: any[]) => any,
+    K7 extends string,
+    F7 extends (...args: any[]) => any,
+    K8 extends string,
+    F8 extends (...args: any[]) => any,
+    K9 extends string,
+    F9 extends (...args: any[]) => any,
+    K10 extends string,
+    F10 extends (...args: any[]) => any,
+    K11 extends string,
+    F11 extends (...args: any[]) => any,
+    K12 extends string,
+    F12 extends (...args: any[]) => any
+  >(
+    op1: MiddlewareOp<K1, F1>,
+    op2: MiddlewareOp<K2, F2>,
+    op3: MiddlewareOp<K3, F3>,
+    op4: MiddlewareOp<K4, F4>,
+    op5: MiddlewareOp<K5, F5>,
+    op6: MiddlewareOp<K6, F6>,
+    op7: MiddlewareOp<K7, F7>,
+    op8: MiddlewareOp<K8, F8>,
+    op9: MiddlewareOp<K9, F9>,
+    op10: MiddlewareOp<K10, F10>,
+    op11: MiddlewareOp<K11, F11>,
+    op12: MiddlewareOp<K12, F12>,
+    ...rest: ((...args: any[]) => any)[]
+  ): ComposedPipeline<
+    {[P in K1]: ExtractValue<F1>} & {[P in K2]: ExtractValue<F2>} & {
+      [P in K3]: ExtractValue<F3>;
+    } & {[P in K4]: ExtractValue<F4>} & {[P in K5]: ExtractValue<F5>} & {
+      [P in K6]: ExtractValue<F6>;
+    } & {[P in K7]: ExtractValue<F7>} & {[P in K8]: ExtractValue<F8>} & {
+      [P in K9]: ExtractValue<F9>;
+    } & {[P in K10]: ExtractValue<F10>} & {[P in K11]: ExtractValue<F11>} & {
+      [P in K12]: ExtractValue<F12>;
+    }
   >;
 
   function all(
-    ...ops: ({fn: (...args: any[]) => any; setPath: string} | ((...args: any[]) => any))[]
+    ...ops: (
+      | {fn: (...args: any[]) => any; setPath: string}
+      | ((...args: any[]) => any & {setPath?: string})
+      | ((...args: any[]) => any)
+    )[]
   ): (...args: any[]) => Promise<object>;
 }
 

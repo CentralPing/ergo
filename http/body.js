@@ -32,7 +32,7 @@
  * import {compose, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   {fn: body({limit: 2 * 1024 * 1024}), setPath: 'body'},
+ *   body({limit: 2 * 1024 * 1024}),
  *   // acc.body => {type, charset, encoding, length, received, raw, parsed}
  *   // For JSON types, acc.body.parsed is the decoded object
  * );
@@ -141,7 +141,7 @@ export default (options = {}) => {
     ],
     charset = 'utf-8'
   } = options;
-  return async function bodyMiddleware(req) {
+  const inner = async function bodyMiddleware(req) {
     try {
       let type;
       let boundary;
@@ -240,6 +240,9 @@ export default (options = {}) => {
       throw err;
     }
   };
+
+  Object.defineProperty(inner, 'setPath', {value: 'body'});
+  return inner;
 };
 
 /**

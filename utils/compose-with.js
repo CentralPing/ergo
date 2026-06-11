@@ -30,9 +30,9 @@
  *
  * const responseAcc = createResponseAcc();
  * const pipeline = compose(
- *   {fn: logger(), setPath: 'log'},
- *   {fn: authorization({...}), setPath: 'auth'},
- *   {fn: body(), setPath: 'body'},
+ *   logger(),       // intrinsic setPath: 'log'
+ *   authorization({...}), // intrinsic setPath: 'auth'
+ *   body(),         // intrinsic setPath: 'body'
  *   (req, res, acc) => ({response: {body: process(acc.body), statusCode: 200}})
  * );
  *
@@ -102,11 +102,16 @@ function extractReturn(resolved) {
 /**
  * Converts an operation spec into a normalized descriptor.
  *
+ * When `op` is a plain function, its intrinsic `setPath` property (if present) is
+ * used as the accumulator key. Built-in middleware factories attach this property
+ * via `Object.defineProperty` so they can be composed without an explicit
+ * `{fn, setPath}` wrapper.
+ *
  * @param {function|{fn: function, setPath: string}} op - A plain function or config object `{fn, setPath}`
  * @returns {{fn: function, setPath: string|undefined}} - Normalized descriptor
  */
 function normalizeOp(op) {
-  if (typeof op === 'function') return {fn: op, setPath: undefined};
+  if (typeof op === 'function') return {fn: op, setPath: op.setPath};
   if (op != null && typeof op.fn === 'function') return op;
   throw new TypeError('Invalid compose op: expected function or {fn, setPath}.');
 }
