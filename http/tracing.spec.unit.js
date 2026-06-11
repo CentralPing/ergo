@@ -188,10 +188,13 @@ describe('http/tracing', () => {
       const result = mw(req, res, {});
       result.value.span.end();
 
-      assert.ok(
-        mockTracer.spans[0]._parentContext !== undefined,
-        'parent context should be passed'
-      );
+      // Without a registered SDK propagator, extractContext() returns
+      // ROOT_CONTEXT unchanged — actual W3C traceparent parsing is an
+      // integration concern. The unit test verifies the middleware forwards
+      // the extracted context to startSpan.
+      const ctx = mockTracer.spans[0]._parentContext;
+      assert.equal(typeof ctx, 'object', 'parent context should be forwarded to startSpan');
+      assert.ok(ctx !== null, 'parent context should not be null');
     });
   });
 
