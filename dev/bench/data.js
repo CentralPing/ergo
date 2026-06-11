@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781129562237,
+  "lastUpdate": 1781162459798,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -8214,6 +8214,41 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/CentralPing/ergo/pull/151/commits/21a9f154750e1e2bf289af3024e4869d9982563d"
         },
         "date": 1781129561179,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "a02be4dad90ce83b9c027a70860a4d10cc420a0c",
+          "message": "fix: portable test suite for multi-runtime CI (#150)",
+          "timestamp": "2026-06-10T20:15:49Z",
+          "url": "https://github.com/CentralPing/ergo/pull/151/commits/a02be4dad90ce83b9c027a70860a4d10cc420a0c"
+        },
+        "date": 1781162458811,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
