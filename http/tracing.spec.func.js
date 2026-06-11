@@ -67,6 +67,10 @@ describe('http/tracing contract', () => {
     const res = await fetch(`${ctx.baseUrl}/test`);
     assert.equal(res.status, 200);
 
+    const traceparent = res.headers.get('traceparent');
+    assert.equal(typeof traceparent, 'string', 'response should include traceparent header');
+    assert.match(traceparent, /^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$/);
+
     const spans = exporter.getFinishedSpans();
     assert.equal(spans.length, 1);
     assert.equal(spans[0].name, 'ergo.pipeline');
