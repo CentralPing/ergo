@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-11
+
 ### Added
 
 - **`now` clock option on `MemoryStore` constructor.** (#150)
@@ -37,6 +39,13 @@ All notable changes to this project will be documented in this file.
   `query`, `params`). The targeted form is unchanged and takes precedence when any targeted
   key is present. Objects that match neither form still emit `ERGO_VALIDATE_UNKNOWN_KEY`
   warnings.
+
+- **Multi-runtime CI: Deno 2.x and Bun 1.x test jobs.** (#138)
+  CI now runs the full test suite on Deno and Bun alongside Node.js 22/24.
+  Both runtimes pass all contract tests (100%) and nearly all unit tests
+  (Deno 96.7%, Bun 99.4%) via their Node.js compatibility layers. Jobs use
+  `continue-on-error` as informational checks. README documents runtime support
+  status and known gaps.
 
 ### Documentation
 
