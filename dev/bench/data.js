@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781201469350,
+  "lastUpdate": 1781203288219,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -8622,6 +8622,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "975d8639fad1945839fe7e0380901454320677b8",
+          "message": "spike: add multi-runtime CI and document Deno/Bun compatibility (#138) (#148)\n\n* spike: add multi-runtime CI and document Deno/Bun compatibility (#138)\n\nAdd Deno 2.x and Bun 1.x test jobs to CI alongside Node.js 22/24.\nBoth runtimes pass all contract tests and nearly all unit tests via\ntheir Node.js compatibility layers. Jobs use continue-on-error as\ninformational checks. README documents runtime support status,\nknown gaps, and the architectural boundary analysis.\n\n* fix: address review findings (#138)\n\n* fix: portable OTEL tracing tests for Deno/Bun (#150)\n\nReplace @opentelemetry/sdk-trace-node (Node-specific) with portable\nalternatives:\n\n- http/tracing.spec.unit.js: mock tracer injected via {tracer} option\n- lib/tracing.spec.unit.js: SDK-free tests using only @opentelemetry/api\n\nNo production code changes. Test coverage preserved.\n\n* fix: strengthen injectContext tests with propagator assertion (#150)",
+          "timestamp": "2026-06-11T14:41:10-04:00",
+          "tree_id": "2f3ca0bebf8c93bae490d81664245eefbb5f7173",
+          "url": "https://github.com/CentralPing/ergo/commit/975d8639fad1945839fe7e0380901454320677b8"
+        },
+        "date": 1781203287708,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.014,
             "unit": "us/op"
           }
         ]
