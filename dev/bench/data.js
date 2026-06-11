@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781162459798,
+  "lastUpdate": 1781186680452,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -8264,6 +8264,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f123e6f71a640b767da154d1ba7159188ed184a6",
+          "message": "fix: portable test suite for multi-runtime CI (#150) (#151)\n\n* fix: portable test suite for multi-runtime CI (#150)\n\nReplace Node-specific test infrastructure with portable patterns:\n- http/tracing.spec.unit.js: mock tracer via {tracer} factory option\n- http/validate.spec.unit.js: direct process.emitWarning assignment\n- lib/rate-limit.spec.unit.js: injectable clock via new now option\n\n* fix: strengthen parent context assertion scope (#150)",
+          "timestamp": "2026-06-11T10:04:20-04:00",
+          "tree_id": "f22159a93d9eb0a4eaaef0c794cc0756357f7d9a",
+          "url": "https://github.com/CentralPing/ergo/commit/f123e6f71a640b767da154d1ba7159188ed184a6"
+        },
+        "date": 1781186679267,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
