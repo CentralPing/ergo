@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781186680452,
+  "lastUpdate": 1781195349738,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -8303,6 +8303,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "ef51cf596a46d3ae10bc9caf0a2ebab83c072b22",
+          "message": "spike: add multi-runtime CI and document Deno/Bun compatibility (#138)",
+          "timestamp": "2026-06-11T14:06:08Z",
+          "url": "https://github.com/CentralPing/ergo/pull/148/commits/ef51cf596a46d3ae10bc9caf0a2ebab83c072b22"
+        },
+        "date": 1781195349241,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
