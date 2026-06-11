@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`now` clock option on `MemoryStore` constructor.** (#150)
+  Accepts an optional clock function (`() => number`) for deterministic time control.
+  Default is `Date.now` — no behavior change for existing consumers. Enables portable
+  test patterns without Node-specific mock timers.
+
 - **`responseSchema` option for `send()` and `handler()`.** (#137)
   Schema-based response body projection that strips undeclared properties before JSON
   serialization. Accepts a map of status code (or range key like `'2xx'`, `'default'`) to
@@ -48,6 +53,14 @@ All notable changes to this project will be documented in this file.
   Express/Fastify/Koa — not naming errors.
 
 ### Fixed
+
+- **Test suite portability for Deno and Bun.** (#150)
+  Replaced Node-specific test infrastructure (`@opentelemetry/sdk-trace-node`,
+  `mock.method()`, `mock.timers`) with portable patterns in three test files:
+  `http/tracing.spec.unit.js` (mock tracer via `{tracer}` factory option),
+  `http/validate.spec.unit.js` (direct `process.emitWarning` assignment),
+  `lib/rate-limit.spec.unit.js` (injectable clock). No production behavior changes
+  except the `now` parameter.
 
 - **Declared `@types/node` as optional peer dependency for TypeScript consumers.** (#134)
   TypeScript consumers compiling with `skipLibCheck: false` received errors from ergo's

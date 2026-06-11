@@ -1,4 +1,4 @@
-import {describe, it, mock} from 'node:test';
+import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
 import createValidate from './validate.js';
 
@@ -42,7 +42,9 @@ describe('[Module] http/validate', () => {
   });
 
   it('returns 500 and emits a once-only warning when body schema is configured but acc.body is absent', () => {
-    const warn = mock.method(process, 'emitWarning', () => {});
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
 
     try {
       const validate = createValidate({
@@ -54,17 +56,16 @@ describe('[Module] http/validate', () => {
       assert.equal(result.response.statusCode, 500);
       assert.ok(result.response.detail.includes('validate()'));
 
-      assert.equal(warn.mock.callCount(), 1);
-      const [message, options] = warn.mock.calls[0].arguments;
-      assert.ok(message.includes('validate()'));
-      assert.equal(options.type, 'ErgoWarning');
-      assert.equal(options.code, 'ERGO_VALIDATE_NO_BODY');
+      assert.equal(warnings.length, 1);
+      assert.ok(warnings[0].message.includes('validate()'));
+      assert.equal(warnings[0].type, 'ErgoWarning');
+      assert.equal(warnings[0].code, 'ERGO_VALIDATE_NO_BODY');
 
       const second = validate(null, null, {});
       assert.equal(second.response.statusCode, 500);
-      assert.equal(warn.mock.callCount(), 1);
+      assert.equal(warnings.length, 1);
     } finally {
-      warn.mock.restore();
+      process.emitWarning = orig;
     }
   });
 
@@ -147,7 +148,9 @@ describe('[Module] http/validate', () => {
   });
 
   it('does not emit a warning when only valid schema keys are passed', () => {
-    const warn = mock.method(process, 'emitWarning', () => {});
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
 
     try {
       createValidate({
@@ -156,12 +159,10 @@ describe('[Module] http/validate', () => {
         params: {type: 'object'}
       });
 
-      const unknownKeyCalls = warn.mock.calls.filter(
-        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
-      );
+      const unknownKeyCalls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_KEY');
       assert.equal(unknownKeyCalls.length, 0);
     } finally {
-      warn.mock.restore();
+      process.emitWarning = orig;
     }
   });
 
@@ -214,22 +215,24 @@ describe('[Module] http/validate', () => {
   });
 
   it('still emits warning for non-schema-like objects without targeted keys', () => {
-    const warn = mock.method(process, 'emitWarning', () => {});
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
 
     try {
       createValidate({wrapper: {body: {type: 'object'}}});
 
-      const calls = warn.mock.calls.filter(
-        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
-      );
+      const calls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_KEY');
       assert.ok(calls.length >= 1, 'should emit unknown key warning for non-schema object');
     } finally {
-      warn.mock.restore();
+      process.emitWarning = orig;
     }
   });
 
   it('uses targeted form when body key is present alongside JSON Schema keywords', () => {
-    const warn = mock.method(process, 'emitWarning', () => {});
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
 
     try {
       const validate = createValidate({
@@ -238,47 +241,41 @@ describe('[Module] http/validate', () => {
       });
       assert.equal(validate(null, null, {body: {parsed: {name: 'Alice'}}}), undefined);
 
-      const unknownCalls = warn.mock.calls.filter(
-        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
-      );
+      const unknownCalls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_KEY');
       assert.ok(unknownCalls.length >= 1, 'top-level type should be flagged as unknown key');
     } finally {
-      warn.mock.restore();
+      process.emitWarning = orig;
     }
   });
 
   it('emits per-key-set warnings and deduplicates identical key sets', () => {
-    const warn = mock.method(process, 'emitWarning', () => {});
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
 
     try {
       createValidate({schemas: {body: {type: 'object'}}});
 
-      const calls = warn.mock.calls.filter(
-        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
-      );
+      const calls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_KEY');
       assert.equal(calls.length, 1);
 
-      const [message, options] = calls[0].arguments;
-      assert.ok(message.includes('schemas'));
-      assert.ok(message.includes('validate()'));
-      assert.equal(options.type, 'ErgoWarning');
-      assert.equal(options.code, 'ERGO_VALIDATE_UNKNOWN_KEY');
+      const [first] = calls;
+      assert.ok(first.message.includes('schemas'));
+      assert.ok(first.message.includes('validate()'));
+      assert.equal(first.type, 'ErgoWarning');
+      assert.equal(first.code, 'ERGO_VALIDATE_UNKNOWN_KEY');
 
       createValidate({foo: {type: 'object'}});
 
-      const afterCalls = warn.mock.calls.filter(
-        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
-      );
+      const afterCalls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_KEY');
       assert.equal(afterCalls.length, 2, 'different key set emits a separate warning');
 
       createValidate({schemas: {body: {type: 'object'}}});
 
-      const dedupCalls = warn.mock.calls.filter(
-        c => c.arguments[1]?.code === 'ERGO_VALIDATE_UNKNOWN_KEY'
-      );
+      const dedupCalls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_KEY');
       assert.equal(dedupCalls.length, 2, 'repeated key set is deduplicated');
     } finally {
-      warn.mock.restore();
+      process.emitWarning = orig;
     }
   });
 });
