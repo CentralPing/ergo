@@ -30,7 +30,9 @@ import type {ResponseAccumulator} from '../ergo.js';
  * 2. If the resolved type has an explicit `value` property (not via index
  *    signature), extract `value` — this mirrors runtime extracting
  *    `{value, response}` envelopes
- * 3. Otherwise use the resolved type as-is — this mirrors runtime wrapping
+ * 3. If the resolved type has only `response` (no `value`), return
+ *    `undefined` — runtime guards domain writes with `if (value !== undefined)`
+ * 4. Otherwise use the resolved type as-is — this mirrors runtime wrapping
  *    bare returns as `{value: ret}`
  *
  * The index-signature guard (`string extends keyof T`) prevents unwrapping
@@ -43,7 +45,9 @@ type ExtractValue<F> = F extends (...args: any[]) => infer R
       ? string extends keyof Resolved
         ? Resolved
         : V
-      : Resolved
+      : Resolved extends {response: any}
+        ? undefined
+        : Resolved
     : never
   : unknown;
 
