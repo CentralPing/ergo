@@ -111,7 +111,11 @@ function extractReturn(resolved) {
  * @returns {{fn: function, setPath: string|undefined}} - Normalized descriptor
  */
 function normalizeOp(op) {
-  if (typeof op === 'function') return {fn: op, setPath: op.setPath};
+  if (typeof op === 'function') {
+    const setPath =
+      Object.hasOwn(op, 'setPath') && typeof op.setPath === 'string' ? op.setPath : undefined;
+    return {fn: op, setPath};
+  }
   if (op != null && typeof op.fn === 'function') return op;
   throw new TypeError('Invalid compose op: expected function or {fn, setPath}.');
 }
