@@ -1,5 +1,10 @@
-import type { TracingOptions, TracingResult } from '../ergo.js';
+import type {TracingOptions, TracingResult} from '../ergo.js';
 
-declare function tracing(options?: TracingOptions): (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => { value: TracingResult };
+declare function tracing(
+  options?: TracingOptions
+): ((
+  req: import('node:http').IncomingMessage,
+  res: import('node:http').ServerResponse
+) => {value: TracingResult}) & {readonly setPath: 'trace'};
 
 export default tracing;

@@ -18,7 +18,7 @@
  * import {compose, accepts} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   {fn: accepts({types: ['application/json']}), setPath: 'accepts'},
+ *   accepts({types: ['application/json']}),
  *   // acc.accepts => {type: 'application/json', language: 'en', charset: 'utf-8', encoding: 'identity'}
  * );
  *
@@ -52,7 +52,7 @@ export default (options = {}) => {
   const {throwIfFail = true, ...rest} = options;
   const acceptor = accepts(rest);
 
-  return function acceptsMiddleware({headers = {}} = {}) {
+  const inner = function acceptsMiddleware({headers = {}} = {}) {
     const accepted = acceptor(headers);
 
     if (throwIfFail) {
@@ -70,4 +70,7 @@ export default (options = {}) => {
 
     return accepted;
   };
+
+  Object.defineProperty(inner, 'setPath', {value: 'accepts'});
+  return inner;
 };

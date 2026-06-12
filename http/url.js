@@ -18,7 +18,7 @@
  * import {compose, url} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   {fn: url(), setPath: 'url'},
+ *   url(),
  *   // acc.url => {query: {page: '1', filter: ['a','b']}, pathname: '/users', search: '?page=1&filter=a&filter=b'}
  * );
  */
@@ -29,7 +29,7 @@ import queryParse from '../lib/query.js';
  */
 export default () => {
   /** @param {{ url?: string }} [req] - Incoming HTTP request */
-  return function urlMiddleware({url} = {}) {
+  const inner = function urlMiddleware({url} = {}) {
     const raw = url ?? '/';
     const qIdx = raw.indexOf('?');
 
@@ -43,4 +43,7 @@ export default () => {
       search: raw.slice(qIdx)
     };
   };
+
+  Object.defineProperty(inner, 'setPath', {value: 'url'});
+  return inner;
 };

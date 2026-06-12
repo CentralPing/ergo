@@ -372,6 +372,60 @@ describe('[Boundary] utils/compose-with', () => {
     });
   });
 
+  describe('intrinsic setPath', () => {
+    it('stores value at intrinsic setPath when function has setPath property', async () => {
+      const fn = () => ({value: {parsed: true}});
+      Object.defineProperty(fn, 'setPath', {value: 'body'});
+      const pipeline = composeWith(fn);
+      const result = await pipeline();
+      assert.deepEqual(result.body, {parsed: true});
+    });
+
+    it('preserves existing behavior for functions without setPath', async () => {
+      const pipeline = composeWith(() => ({value: {a: 1, b: 2}}));
+      const result = await pipeline();
+      assert.equal(result.a, 1);
+      assert.equal(result.b, 2);
+    });
+
+    it('explicit {fn, setPath} overrides intrinsic path', async () => {
+      const fn = () => ({value: 'data'});
+      Object.defineProperty(fn, 'setPath', {value: 'intrinsic'});
+      const pipeline = composeWith({fn, setPath: 'explicit'});
+      const result = await pipeline();
+      assert.equal(result.explicit, 'data');
+      assert.equal(result.intrinsic, undefined);
+    });
+
+    it('throws TypeError for invalid ops', () => {
+      assert.throws(() => composeWith(42), TypeError);
+      assert.throws(() => composeWith(null), TypeError);
+      assert.throws(() => composeWith({fn: 'not-a-function', setPath: 'x'}), TypeError);
+    });
+
+    it('intrinsic setPath works with .all() concurrent composition', async () => {
+      const fnA = () => ({value: 'alpha'});
+      Object.defineProperty(fnA, 'setPath', {value: 'a'});
+      const fnB = async () => ({value: 'beta'});
+      Object.defineProperty(fnB, 'setPath', {value: 'b'});
+      const pipeline = composeWith.all(fnA, fnB);
+      const result = await pipeline();
+      assert.equal(result.a, 'alpha');
+      assert.equal(result.b, 'beta');
+    });
+
+    it('uses intrinsic setPath as trace label', async () => {
+      const responseAcc = createResponseAcc();
+      responseAcc._trace = {steps: [], breakAt: undefined};
+      const domainAcc = accumulator();
+      const fn = () => ({value: 'data'});
+      Object.defineProperty(fn, 'setPath', {value: 'myPath'});
+      const pipeline = composeWith(fn);
+      await pipeline(responseAcc, domainAcc);
+      assert.deepEqual(responseAcc._trace.steps, ['myPath']);
+    });
+  });
+
   describe('pipeline tracing (_trace)', () => {
     it('records step labels in declaration order', async () => {
       const responseAcc = createResponseAcc();

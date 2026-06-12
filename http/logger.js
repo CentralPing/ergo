@@ -31,7 +31,7 @@
  * import {compose, logger} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   {fn: logger(), setPath: 'log'},
+ *   logger(),
  *   // On finish logs: {"requestId":"...","method":"GET","url":"/users","statusCode":200,"duration":12,...}
  * );
  */
@@ -97,7 +97,7 @@ export default (options = {}) => {
     headerRequestIpName = 'x-real-ip',
     redactHeaders = DEFAULT_REDACTED
   } = options;
-  return function loggerMiddleware(req, res, acc) {
+  const inner = function loggerMiddleware(req, res, acc) {
     const time = performance.now();
     const timestamp = Date.now();
     const requestId =
@@ -181,4 +181,7 @@ export default (options = {}) => {
       });
     }
   };
+
+  Object.defineProperty(inner, 'setPath', {value: 'log'});
+  return inner;
 };

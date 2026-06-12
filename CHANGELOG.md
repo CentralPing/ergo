@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Intrinsic `setPath` on built-in middleware factory return values.** (#153)
+  Domain-producing middleware factories (`url`, `logger`, `body`, `accepts`, `cookie`,
+  `authorization`, `tracing`, `prefer`, `paginate`, `idempotency`) now attach a
+  non-enumerable `setPath` property to their returned middleware function. `normalizeOp`
+  in `compose-with.js` reads this property, allowing bare functions to be composed without
+  explicit `{fn, setPath}` wrappers:
+
+  ```js
+  // Before: compose({fn: url(), setPath: 'url'}, {fn: body(), setPath: 'body'})
+  // After:  compose(url(), body())
+  ```
+
+  The explicit `{fn, setPath}` form remains fully supported for custom middleware.
+  TypeScript declarations updated with `& {readonly setPath: '...'}` intersection types
+  and `MiddlewareOp<K, F>` union type in compose-with overloads.
+
 ## [0.5.0] - 2026-06-11
 
 ### Added

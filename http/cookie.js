@@ -19,7 +19,7 @@
  * import {compose, cookie} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   {fn: cookie(), setPath: 'cookies'},
+ *   cookie(),
  *   // acc.cookies.session => 'abc123' (incoming cookie, own property)
  * );
  *
@@ -43,7 +43,10 @@ const VALID_OPTIONS = new Set(['decoder', 'loose', 'collection', 'max']);
 export default options => {
   validateOptions(options, VALID_OPTIONS, 'cookie');
   /** @param {{ headers?: { cookie?: string } }} [req] - Incoming HTTP request */
-  return function cookieMiddleware({headers: {cookie} = {}} = {}) {
+  const inner = function cookieMiddleware({headers: {cookie} = {}} = {}) {
     return jar(parse(cookie, options));
   };
+
+  Object.defineProperty(inner, 'setPath', {value: 'cookies'});
+  return inner;
 };
