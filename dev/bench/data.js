@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781227003020,
+  "lastUpdate": 1781227800808,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -8766,6 +8766,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9360796d47bd32db9874b01c46f9c9a788394083",
+          "message": "feat: internalize canonical setPath on built-in middleware factories (#153) (#154)\n\n* feat: internalize canonical setPath on built-in middleware factories (#153)\n\nDomain-producing middleware factories now attach a non-enumerable `setPath`\nproperty to their returned function via `Object.defineProperty`. `normalizeOp`\nreads this intrinsic path, allowing bare functions to be composed without\nexplicit `{fn, setPath}` wrappers.\n\nAffected factories: url, logger, body, accepts, cookie, authorization,\ntracing, prefer, paginate, idempotency. The explicit `{fn, setPath}` form\nremains fully supported for custom middleware.\n\nTypeScript declarations updated with `MiddlewareOp<K, F>` union type and\n`& {readonly setPath: '...'}` intersection types on factory return signatures.\n\n* fix: restore CHANGELOG continuation indentation and align .d.ts req optionality with runtime (#153)\n\n* fix: guard normalizeOp intrinsic setPath with Object.hasOwn (#153)\n\n* fix: ExtractValue returns undefined for response-only middleware (#153)",
+          "timestamp": "2026-06-11T21:29:43-04:00",
+          "tree_id": "cc0024d467bf8101daaf6d1d3e9b90a19384d619",
+          "url": "https://github.com/CentralPing/ergo/commit/9360796d47bd32db9874b01c46f9c9a788394083"
+        },
+        "date": 1781227799792,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
