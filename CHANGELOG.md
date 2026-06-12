@@ -47,8 +47,8 @@ All notable changes to this project will be documented in this file.
 
 - **`onResponse` post-send lifecycle hook for `handler()`.** (#140)
   Observation callback fired after `send()` completes. Receives `(req, res, responseInfo,
-domainAcc)` where `responseInfo` is a snapshot of `{statusCode, headers, method, url,
-bodySize, duration}`. Hook errors are swallowed — cannot affect the response. Async hooks
+  domainAcc)` where `responseInfo` is a snapshot of `{statusCode, headers, method, url,
+  bodySize, duration}`. Hook errors are swallowed — cannot affect the response. Async hooks
   are awaited. OTEL span duration includes hook execution time.
 
 - **`lib/response-info.js` shared primitive.** (#140)
