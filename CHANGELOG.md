@@ -22,6 +22,11 @@ All notable changes to this project will be documented in this file.
   TypeScript declarations updated with `& {readonly setPath: '...'}` intersection types
   and `MiddlewareOp<K, F>` union type in compose-with overloads.
 
+### Fixed
+
+- **JSDoc `@example` blocks in `handler`, `tracing`, and `index` now include the
+  `import http from 'node:http'` line.** (#155)
+
 ## [0.5.0] - 2026-06-11
 
 ### Added

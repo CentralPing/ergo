@@ -25,6 +25,7 @@
  * @requires ./main.js
  *
  * @example
+ * import http from 'node:http';
  * import {compose, handler, logger, cors, accepts, authorization,
  *         body, send} from '@centralping/ergo';
  *
