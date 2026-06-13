@@ -22,6 +22,7 @@
  * @requires ../lib/tracing.js
  *
  * @example
+ * import http from 'node:http';
  * import {compose, tracing, logger, handler} from '@centralping/ergo';
  *
  * const pipeline = compose(

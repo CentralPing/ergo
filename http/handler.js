@@ -18,6 +18,7 @@
  * @since 0.1.0
  *
  * @example
+ * import http from 'node:http';
  * import {handler, compose, logger, authorization, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
