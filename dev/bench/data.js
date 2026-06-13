@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781324865065,
+  "lastUpdate": 1781324938028,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -8984,6 +8984,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b7924fec2398029bae238226c977af0e777bd816",
+          "message": "build(deps-dev): Bump the dev-dependencies group with 5 updates (#157)\n\nBumps the dev-dependencies group with 5 updates:\n\n| Package | From | To |\n| --- | --- | --- |\n| [@opentelemetry/sdk-trace-node](https://github.com/open-telemetry/opentelemetry-js) | `2.7.1` | `2.8.0` |\n| [@types/node](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/HEAD/types/node) | `25.9.1` | `25.9.3` |\n| [eslint](https://github.com/eslint/eslint) | `10.4.1` | `10.5.0` |\n| [prettier](https://github.com/prettier/prettier) | `3.8.3` | `3.8.4` |\n| [undici](https://github.com/nodejs/undici) | `8.3.0` | `8.4.1` |\n\n\nUpdates `@opentelemetry/sdk-trace-node` from 2.7.1 to 2.8.0\n- [Release notes](https://github.com/open-telemetry/opentelemetry-js/releases)\n- [Changelog](https://github.com/open-telemetry/opentelemetry-js/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/open-telemetry/opentelemetry-js/compare/v2.7.1...v2.8.0)\n\nUpdates `@types/node` from 25.9.1 to 25.9.3\n- [Release notes](https://github.com/DefinitelyTyped/DefinitelyTyped/releases)\n- [Commits](https://github.com/DefinitelyTyped/DefinitelyTyped/commits/HEAD/types/node)\n\nUpdates `eslint` from 10.4.1 to 10.5.0\n- [Release notes](https://github.com/eslint/eslint/releases)\n- [Commits](https://github.com/eslint/eslint/compare/v10.4.1...v10.5.0)\n\nUpdates `prettier` from 3.8.3 to 3.8.4\n- [Release notes](https://github.com/prettier/prettier/releases)\n- [Changelog](https://github.com/prettier/prettier/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/prettier/prettier/compare/3.8.3...3.8.4)\n\nUpdates `undici` from 8.3.0 to 8.4.1\n- [Release notes](https://github.com/nodejs/undici/releases)\n- [Commits](https://github.com/nodejs/undici/compare/v8.3.0...v8.4.1)\n\n---\nupdated-dependencies:\n- dependency-name: \"@opentelemetry/sdk-trace-node\"\n  dependency-version: 2.8.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-dependencies\n- dependency-name: \"@types/node\"\n  dependency-version: 25.9.3\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n  dependency-group: dev-dependencies\n- dependency-name: eslint\n  dependency-version: 10.5.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-dependencies\n- dependency-name: prettier\n  dependency-version: 3.8.4\n  dependency-type: direct:development\n  update-type: version-update:semver-patch\n  dependency-group: dev-dependencies\n- dependency-name: undici\n  dependency-version: 8.4.1\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-dependencies\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-06-13T04:28:42Z",
+          "tree_id": "7f83edcc27709a3b2ba3aad30a0c3ae94161e3c1",
+          "url": "https://github.com/CentralPing/ergo/commit/b7924fec2398029bae238226c977af0e777bd816"
+        },
+        "date": 1781324937023,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
