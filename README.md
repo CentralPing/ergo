@@ -60,12 +60,12 @@ import {createServer} from 'node:http';
 import {compose, handler, logger, cors, authorization, body} from '@centralping/ergo';
 
 const pipeline = compose(
-  {fn: logger(), setPath: 'log'},
+  logger(),
   cors(),
-  {fn: authorization({strategies: [{type: 'Bearer', authorizer: (_, token) =>
+  authorization({strategies: [{type: 'Bearer', authorizer: (_, token) =>
     token === 'my-token' ? {authorized: true, info: {uid: 1}} : {}
-  }]}), setPath: 'auth'},
-  {fn: body(), setPath: 'body'},
+  }]}),
+  body(),
   (req, res, acc) => ({response: {body: {user: acc.auth, data: acc.body.parsed}}})
 );
 
@@ -80,14 +80,14 @@ import {createServer} from 'node:http';
 import {compose, handler, logger, cors, authorization, body} from '@centralping/ergo';
 
 const pipeline = compose(
-  {fn: logger(), setPath: 'log'},
+  logger(),
   cors(),
-  {fn: authorization({strategies: [{
+  authorization({strategies: [{
     type: 'Bearer' as const,
     authorizer: (_: Record<string, string>, token: string) =>
       token === 'my-token' ? {authorized: true, info: {uid: 1}} : {authorized: false}
-  }]}), setPath: 'auth'},
-  {fn: body(), setPath: 'body'},
+  }]}),
+  body(),
   (req, res, acc: {auth: {uid: number}; body: {parsed: unknown}}) =>
     ({response: {body: {user: acc.auth, data: acc.body.parsed}}})
 );
@@ -95,30 +95,36 @@ const pipeline = compose(
 createServer(handler(pipeline)).listen(3000);
 ```
 
-> **Note:** The `acc` annotation above is needed because standalone `compose()` cannot
-> fully infer accumulator types when bare functions (like `cors()`) are interleaved with
-> `{fn, setPath}` config objects. For declarative routing with fully inferred accumulator
-> types — no annotations needed — see
+> **Note:** The `acc` annotation on the execute handler is needed because standalone
+> `compose()` cannot fully infer accumulator types when response-only middleware (like
+> `cors()`) is interleaved with domain-producing middleware. For declarative routing with
+> fully inferred accumulator types — no annotations needed — see
 > [`@centralping/ergo-router`](https://github.com/CentralPing/ergo-router)'s `defineGet`
 > and `definePost` helpers.
 
 </details>
+
+Built-in middleware carries its own accumulator path — compose it as a bare function call. `{fn, setPath}` config objects remain available for custom middleware that needs to declare an accumulator key.
 
 ## Middleware Overview
 
 | Middleware | Description | Standard |
 |---|---|---|
 | `logger()` | Request ID + structured request/response logging | -- |
+| `tracing()` | OpenTelemetry distributed tracing with W3C Trace Context propagation | [W3C Trace Context](https://www.w3.org/TR/trace-context/) |
 | `cors()` | CORS preflight and simple request handling | [Fetch Standard](https://fetch.spec.whatwg.org/#http-cors-protocol) |
 | `accepts()` | Content negotiation (type, encoding, language) | [RFC 9110 &sect;12.5](https://www.rfc-editor.org/rfc/rfc9110#section-12.5) |
 | `cookie()` | Cookie parsing with Set-Cookie builder | [RFC 6265](https://www.rfc-editor.org/rfc/rfc6265) |
 | `url()` | URL and query string parsing | -- |
+| `paginate()` | Offset and cursor pagination with RFC 8288 Link headers | [RFC 8288](https://www.rfc-editor.org/rfc/rfc8288) |
 | `authorization()` | Bearer / Basic auth with pluggable strategies | [RFC 6750](https://www.rfc-editor.org/rfc/rfc6750), [RFC 7617](https://www.rfc-editor.org/rfc/rfc7617) |
 | `csrf()` | Double-submit cookie CSRF protection | [OWASP CSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) |
 | `body()` | JSON, multipart/form-data, URL-encoded parsing | [RFC 7578](https://www.rfc-editor.org/rfc/rfc7578) |
 | `validate()` | JSON Schema validation via AJV | -- |
+| `idempotency()` | Idempotency-Key header for safe request retries | [draft-ietf-httpapi-idempotency-key-header](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/) |
 | `timeout()` | Request timeout with automatic 408/504 | -- |
 | `compress()` | Content-Encoding negotiation (gzip, deflate, br) | [RFC 9110 &sect;12.5.3](https://www.rfc-editor.org/rfc/rfc9110#section-12.5.3) |
+| `handler()` | Pipeline executor with error normalization and response dispatch | -- |
 | `send()` | Response serialization, ETag, conditional requests, Problem Details errors | [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110), [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) |
 | `prefer()` | Prefer header parsing and response | [RFC 7240](https://www.rfc-editor.org/rfc/rfc7240) |
 | `precondition()` | 428 Precondition Required enforcement | [RFC 6585 &sect;3](https://www.rfc-editor.org/rfc/rfc6585#section-3) |

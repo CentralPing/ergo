@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Documentation
+
+- **README Quick Start updated to 0.6.0 bare compose API.** (#160)
+  Replaced explicit `{fn, setPath}` wrappers with bare function calls for built-in
+  middleware in both JS and TS examples. Added a note explaining that `{fn, setPath}`
+  config objects remain available for custom middleware. Expanded the middleware overview
+  table with 4 missing entries: `handler`, `tracing`, `paginate`, `idempotency`.
+
 ## [0.6.0] - 2026-06-13
 
 ### Added
