@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781546209801,
+  "lastUpdate": 1781561338933,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9196,6 +9196,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "88596a2b7100c833b7dce91d3b7dab45e3085394",
+          "message": "docs: update README Quick Start to 0.6.0 bare compose API (#160) (#162)",
+          "timestamp": "2026-06-15T18:08:39-04:00",
+          "tree_id": "a25a4133502baa5b2ac0cbdba6715ea4d2d80751",
+          "url": "https://github.com/CentralPing/ergo/commit/88596a2b7100c833b7dce91d3b7dab45e3085394"
+        },
+        "date": 1781561337792,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
             "unit": "us/op"
           },
           {
