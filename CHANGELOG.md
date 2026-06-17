@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Documentation
 
+- **JSDoc `@example` blocks updated to 0.6.0 bare compose API.** (#161)
+  Replaced explicit `{fn, setPath}` wrappers with bare function calls for built-in
+  middleware in orchestration examples across `http/main.js`, `http/index.js`,
+  `http/handler.js`, and `http/validate.js`. Corrected `@fileoverview` compose
+  reference in `http/main.js` (stale tuple pattern from pre-v0.4.0).
+
 - **README Quick Start updated to 0.6.0 bare compose API.** (#160)
   Replaced explicit `{fn, setPath}` wrappers with bare function calls for built-in
   middleware in both JS and TS examples. Added a note explaining that `{fn, setPath}`

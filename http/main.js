@@ -8,7 +8,7 @@
  * 4. Execution       - Run the route handler and send the response (handler, send)
  *
  * Middleware is composed via the two-accumulator pattern using `compose`:
- *   compose([fn, setPath], ...)
+ *   compose(middleware(), ...)
  *
  * Each middleware factory returns `{value?, response?}`. Domain values are
  * accumulated under named keys in `domainAcc`; response properties merge
@@ -46,16 +46,16 @@
  *         cookie, url, body} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   // Stage 1: Negotiation (domain-producing use config objects)
- *   {fn: logger(), setPath: 'log'},
- *   cors(),                                          // response-only: plain function
- *   {fn: accepts({types: ['application/json']}), setPath: 'accepts'},
- *   {fn: cookie(), setPath: 'cookies'},
- *   {fn: url(), setPath: 'url'},
+ *   // Stage 1: Negotiation
+ *   logger(),
+ *   cors(),
+ *   accepts({types: ['application/json']}),
+ *   cookie(),
+ *   url(),
  *   // Stage 2: Authorization
- *   {fn: authorization({strategies: [...]}), setPath: 'auth'},
+ *   authorization({strategies: [...]}),
  *   // Stage 3: Validation
- *   {fn: body(), setPath: 'body'},
+ *   body(),
  *   // Stage 4: Execution
  *   (req, res, acc) => ({response: {body: acc.body.parsed}}),
  * );

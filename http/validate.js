@@ -23,8 +23,8 @@
  * import {compose, body, url, validate} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   {fn: body(), setPath: 'body'},
- *   {fn: url(), setPath: 'url'},
+ *   body(),
+ *   url(),
  *   validate({
  *     body: {
  *       type: 'object',
