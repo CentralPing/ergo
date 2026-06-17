@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781705404089,
+  "lastUpdate": 1781705487224,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9354,6 +9354,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7b754a297b9f0bf6147b61304afe7049f2c5aafc",
+          "message": "chore: finalize CHANGELOG and bump version for 0.6.1 release (#164)",
+          "timestamp": "2026-06-17T10:11:09-04:00",
+          "tree_id": "08fc186f479a0b00fe9e2ef1745a0df3cf76b79a",
+          "url": "https://github.com/CentralPing/ergo/commit/7b754a297b9f0bf6147b61304afe7049f2c5aafc"
+        },
+        "date": 1781705486527,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.015,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.004,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
