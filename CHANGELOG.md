@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-06-17
+
 ### Documentation
 
 - **JSDoc `@example` blocks updated to 0.6.0 bare compose API.** (#161)
