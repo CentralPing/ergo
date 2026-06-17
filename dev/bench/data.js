@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781717092228,
+  "lastUpdate": 1781731871179,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9423,6 +9423,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b9076c031a5e0ab866b7d0d3b19ea3136836f4fe",
+          "message": "feat: add MemoryStore.reset() for test isolation (#165) (#167)",
+          "timestamp": "2026-06-17T17:30:54-04:00",
+          "tree_id": "87ea629b046750781cc4da4047cac0e24c344df3",
+          "url": "https://github.com/CentralPing/ergo/commit/b9076c031a5e0ab866b7d0d3b19ea3136836f4fe"
+        },
+        "date": 1781731870126,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
             "unit": "us/op"
           },
           {
