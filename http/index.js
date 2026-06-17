@@ -30,11 +30,11 @@
  *         body, send} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   {fn: logger(), setPath: 'log'},
+ *   logger(),
  *   cors(),
- *   {fn: accepts({types: ['application/json']}), setPath: 'accepts'},
- *   {fn: authorization({strategies: [...]}), setPath: 'auth'},
- *   {fn: body(), setPath: 'body'},
+ *   accepts({types: ['application/json']}),
+ *   authorization({strategies: [...]}),
+ *   body(),
  *   (req, res, acc) => ({response: {body: acc.body.parsed}}),
  * );
  *
