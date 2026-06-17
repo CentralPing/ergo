@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`MemoryStore.reset()` method for test isolation.** (#165)
+  Clears all tracked keys, restoring the store to its initial state. Enables
+  integration tests that share a single store instance to reset rate-limit
+  counters between test cases without reconstructing the middleware or router.
+
 ## [0.6.1] - 2026-06-17
 
 ### Documentation
