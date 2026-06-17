@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781658448071,
+  "lastUpdate": 1781668604900,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9280,6 +9280,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "91a0f3a5c5c4393e5ec481b969a056df9c36b439",
+          "message": "docs: update JSDoc @example blocks to bare compose API (#161) (#163)",
+          "timestamp": "2026-06-16T23:56:32-04:00",
+          "tree_id": "7fc2471bca30cb03fc1d1c9af5099768d52d0575",
+          "url": "https://github.com/CentralPing/ergo/commit/91a0f3a5c5c4393e5ec481b969a056df9c36b439"
+        },
+        "date": 1781668604443,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
