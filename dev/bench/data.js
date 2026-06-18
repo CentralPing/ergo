@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781817826908,
+  "lastUpdate": 1781820116413,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9821,6 +9821,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "61c8b5eeb947a3938fca78b6ac8b44fe1e5453f4",
+          "message": "chore: align coderabbit config with official schema (#172)\n\n* chore: align coderabbit config with official schema\n\nFix invalid keys silently ignored by CodeRabbit:\n- prompt_for_ai_agents → enable_prompt_for_ai_agents\n- fortune → in_progress_fortune (added explicitly)\n- Tool keys: osv-scanner→osvScanner, dotenv-lint→dotenvLint,\n  prisma-lint→prismaLint, smarty-lint→smartyLint,\n  ember-template-lint→emberTemplateLint, fortitude→fortitudeLint\n- Enable osvScanner (was disabled under wrong key name)\n\nBehavioral changes:\n- auto_incremental_review: false (prefer manual full reviews)\n- Zero Tech Debt check upgraded to error mode with indirect wording\n- Trim linked_repositories to 1 (Pro plan limit per repo)\n- Add issue_enrichment section\n\n* chore: harden dependabot config per official docs audit\n\n- Add `commit-message` with conventional commit prefixes\n- Add `cooldown` to reduce noise from rapid-fire releases\n- Add github-actions minor+patch grouping for alignment\n- Increase open-pull-requests-limit to 10\n\n* fix: resolve dependabot validation failure\n\nRemove unsupported semver-specific cooldown keys for github-actions.\nThe github-actions ecosystem uses tag-based versioning, not strict\nsemver, so semver-major-days and semver-minor-days are not supported.\n\n* fix: split github-actions grouping to enable patch auto-merge\n\nSplit actions-minor-patch into separate actions-patches and\nactions-minors groups. Mixed groups report the highest update type\nin metadata, preventing the patch-only auto-merge gate from firing.\n\n* fix: use explicit markers in Zero Tech Debt pre-merge check\n\nReplace indirect wording (\"standard incomplete-task, needs-fix,\nworkaround, and attention-needed markers\") with explicit marker\nnames (TODO, FIXME, HACK, XXX) for deterministic enforcement.\nAdd config file exemption clause to prevent self-matching.",
+          "timestamp": "2026-06-18T18:01:44-04:00",
+          "tree_id": "fe71f97f9b6bdabe42f2b70712f78e739c45e416",
+          "url": "https://github.com/CentralPing/ergo/commit/61c8b5eeb947a3938fca78b6ac8b44fe1e5453f4"
+        },
+        "date": 1781820115944,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
