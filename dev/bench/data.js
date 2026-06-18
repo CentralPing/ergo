@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781791020101,
+  "lastUpdate": 1781791032748,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9611,6 +9611,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "6a9a04d9f61ded6a412f4cb632ed10ca7abea5a4",
+          "message": "build(deps-dev): Bump undici from 8.4.1 to 8.5.0 in the dev-minor group",
+          "timestamp": "2026-06-18T13:56:16Z",
+          "url": "https://github.com/CentralPing/ergo/pull/171/commits/6a9a04d9f61ded6a412f4cb632ed10ca7abea5a4"
+        },
+        "date": 1781791032071,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
