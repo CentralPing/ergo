@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781790963575,
+  "lastUpdate": 1781791008173,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9541,6 +9541,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.02,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "1427869029144a5097811b8f11059f219b05adec",
+          "message": "build(deps): Bump dependabot/fetch-metadata from 2 to 3",
+          "timestamp": "2026-06-18T13:56:16Z",
+          "url": "https://github.com/CentralPing/ergo/pull/169/commits/1427869029144a5097811b8f11059f219b05adec"
+        },
+        "date": 1781791007644,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
