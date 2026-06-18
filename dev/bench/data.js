@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781731871179,
+  "lastUpdate": 1781790675075,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9467,6 +9467,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "0648486370f9aee6dd2ce6f5e4367401e3c96d19",
+          "message": "chore: update dependabot grouping and add auto-merge for patches",
+          "timestamp": "2026-06-17T21:31:00Z",
+          "url": "https://github.com/CentralPing/ergo/pull/168/commits/0648486370f9aee6dd2ce6f5e4367401e3c96d19"
+        },
+        "date": 1781790673943,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.02,
             "unit": "us/op"
           }
         ]
