@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781790675075,
+  "lastUpdate": 1781790963575,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -9497,6 +9497,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.02,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2747f8d2b700ca72335c5e1cae9b0d0c453f1d28",
+          "message": "chore: update dependabot grouping and add auto-merge for patches (#168)\n\nReplaces dependency-type-only grouping with granular semver-level\ngroups: all patches (auto-merged), then dev/prod x minor/major\n(manual review). Adds workflow to auto-approve and auto-merge\npatch PRs after CI passes.\n\nAligns with ergo-fetch, ergo-router, and json-api-query configuration.",
+          "timestamp": "2026-06-18T09:55:45-04:00",
+          "tree_id": "803a1c6dd5c266065af0ae83c36b329ab63225c4",
+          "url": "https://github.com/CentralPing/ergo/commit/2747f8d2b700ca72335c5e1cae9b0d0c453f1d28"
+        },
+        "date": 1781790962395,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.01,
             "unit": "us/op"
           },
           {
