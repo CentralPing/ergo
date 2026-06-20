@@ -316,8 +316,12 @@ export interface UrlResult {
   search: string | undefined;
 }
 
-/** Result stored at `acc.body` by `[body(), 'body']`. */
-export interface BodyResult {
+/**
+ * Result stored at `acc.body` by `[body(), 'body']`.
+ *
+ * @typeParam T - Type of the parsed body value. Defaults to `unknown`.
+ */
+export interface BodyResult<T = unknown> {
   type: string;
   charset: string;
   encoding: string;
@@ -325,7 +329,7 @@ export interface BodyResult {
   received: number;
   boundary: string | undefined;
   raw: string;
-  parsed?: unknown;
+  parsed?: T;
 }
 
 /**
