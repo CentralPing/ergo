@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781990588197,
+  "lastUpdate": 1781990953193,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -10033,6 +10033,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ee451707b7c1f1c7d1d0de106bd53112b7d06ab9",
+          "message": "feat: add generic type parameter to BodyResult interface (#173)\n\nBodyResult<T = unknown> allows downstream consumers (ergo-router's\ndefinePost/definePut/definePatch helpers) to narrow acc.body.parsed\nfrom unknown to a user-specified type. The default preserves backward\ncompatibility — bare BodyResult resolves to BodyResult<unknown>.\n\nRef: CentralPing/ergo-router#133",
+          "timestamp": "2026-06-20T17:28:58-04:00",
+          "tree_id": "a41c639b8b56c5de507ea3df2fa6c089d027e4a6",
+          "url": "https://github.com/CentralPing/ergo/commit/ee451707b7c1f1c7d1d0de106bd53112b7d06ab9"
+        },
+        "date": 1781990952760,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
             "unit": "us/op"
           },
           {
