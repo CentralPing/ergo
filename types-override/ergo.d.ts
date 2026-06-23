@@ -329,7 +329,7 @@ export interface BodyResult<T = unknown> {
   received: number;
   boundary: string | undefined;
   raw: string;
-  parsed?: T;
+  parsed: T;
 }
 
 /**

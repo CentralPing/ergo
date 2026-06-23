@@ -11,6 +11,14 @@ All notable changes to this project will be documented in this file.
   integration tests that share a single store instance to reset rate-limit
   counters between test cases without reconstructing the middleware or router.
 
+### Fixed
+
+- **`BodyResult.parsed` type narrowed from optional to required.** (#174)
+  The `parsed` field was incorrectly declared as `parsed?: T` despite the
+  `body()` middleware guaranteeing its presence on every success path (both
+  the fast JSON path and the lazy-getter path). Consumers no longer need
+  non-null assertions or optional chaining to access `acc.body.parsed`.
+
 ## [0.6.1] - 2026-06-17
 
 ### Documentation
