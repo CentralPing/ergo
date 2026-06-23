@@ -19,6 +19,12 @@ All notable changes to this project will be documented in this file.
   the fast JSON path and the lazy-getter path). Consumers no longer need
   non-null assertions or optional chaining to access `acc.body.parsed`.
 
+### Documentation
+
+- **README: elevate benchmark discoverability.** (#166)
+  Adds a "Benchmarked" bullet to the "Why ergo?" section, surfacing the published
+  benchmarks page link within the first screenful of the README.
+
 ## [0.6.1] - 2026-06-17
 
 ### Documentation
