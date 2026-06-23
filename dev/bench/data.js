@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782232978394,
+  "lastUpdate": 1782233046439,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -10226,6 +10226,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c20f2c1f2328cb46cb1a61e3559d86ddabd72a80",
+          "message": "docs: elevate benchmark discoverability in README (#166) (#176)\n\nAdd a \"Benchmarked\" bullet to the \"Why ergo?\" section linking to the\npublished benchmarks page. This surfaces performance positioning in\nthe first screenful of the README, addressing the discoverability gap\nidentified in #166 where an external evaluator could not find ergo's\npublished benchmarks.",
+          "timestamp": "2026-06-23T16:43:45Z",
+          "tree_id": "d074f968be60248736c1532ea97b1d4eb53cd9e6",
+          "url": "https://github.com/CentralPing/ergo/commit/c20f2c1f2328cb46cb1a61e3559d86ddabd72a80"
+        },
+        "date": 1782233045603,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.009,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
