@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782227624188,
+  "lastUpdate": 1782228534868,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -10152,6 +10152,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.007,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8a4c92a158f3c94e23ac09db647a8a9a85780a8d",
+          "message": "fix: tighten BodyResult.parsed from optional to required (#174) (#175)\n\nThe `parsed` field was incorrectly declared as `parsed?: T` despite the\nbody() middleware guaranteeing its presence on every success path. This\nremoves the unnecessary `?` so TypeScript consumers no longer need\nnon-null assertions or optional chaining to access `acc.body.parsed`.",
+          "timestamp": "2026-06-23T11:28:30-04:00",
+          "tree_id": "df96bc80b3165a67b7fc0ab6043663feb71d4e2b",
+          "url": "https://github.com/CentralPing/ergo/commit/8a4c92a158f3c94e23ac09db647a8a9a85780a8d"
+        },
+        "date": 1782228533840,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
