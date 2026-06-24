@@ -183,7 +183,102 @@ describe('[Module] http/logger', () => {
     assert.ok(errEntry.requestId, 'error entry should include requestId');
     assert.equal(typeof errEntry.timestamp, 'number', 'error entry should include timestamp');
     assert.equal(errEntry.name, 'Error');
-    assert.equal(errEntry.message, 'write error');
+    assert.equal(errEntry.message, 'Internal Server Error');
+  });
+
+  it('redacts error message by default (implicit redactErrors: true)', () => {
+    const errors = [];
+    const logger = createLogger({
+      log: () => {},
+      error: (...args) => errors.push(args)
+    });
+    const req = makeReq();
+    const res = makeRes();
+    logger(req, res);
+    const err = new Error('Connection to postgres://admin:secret@db:5432 failed');
+    err.statusCode = 500;
+    err.originalError = new Error('ECONNREFUSED');
+    res.emit('error', err);
+    const entry = errors[0][0];
+    assert.equal(entry.message, 'Internal Server Error');
+    assert.equal(entry.stack, undefined);
+    assert.equal(entry.originalError, undefined);
+    assert.equal(entry.statusCode, 500);
+    assert.equal(entry.name, 'Error');
+  });
+
+  it('passes error details through when redactErrors is false', () => {
+    const errors = [];
+    const logger = createLogger({
+      log: () => {},
+      error: (...args) => errors.push(args),
+      redactErrors: false
+    });
+    const req = makeReq();
+    const res = makeRes();
+    logger(req, res);
+    const err = new Error('db connection string leaked');
+    err.statusCode = 500;
+    err.stack = 'Error: db connection string leaked\n    at Object.<anonymous>';
+    err.originalError = {detail: 'nested secret'};
+    res.emit('error', err);
+    const entry = errors[0][0];
+    assert.equal(entry.message, 'db connection string leaked');
+    assert.equal(entry.stack, 'Error: db connection string leaked\n    at Object.<anonymous>');
+    assert.deepEqual(entry.originalError, {detail: 'nested secret'});
+  });
+
+  it('falls back to 500 status text when error has no statusCode', () => {
+    const errors = [];
+    const logger = createLogger({
+      log: () => {},
+      error: (...args) => errors.push(args)
+    });
+    const req = makeReq();
+    const res = makeRes();
+    logger(req, res);
+    res.emit('error', new Error('db connection failed'));
+    const entry = errors[0][0];
+    assert.equal(entry.message, 'Internal Server Error');
+    assert.equal(entry.stack, undefined);
+    assert.equal(entry.originalError, undefined);
+  });
+
+  it('uses correct status text for non-500 statusCode', () => {
+    const errors = [];
+    const logger = createLogger({
+      log: () => {},
+      error: (...args) => errors.push(args)
+    });
+    const req = makeReq();
+    const res = makeRes();
+    logger(req, res);
+    const err = new Error('upstream timeout');
+    err.statusCode = 503;
+    res.emit('error', err);
+    const entry = errors[0][0];
+    assert.equal(entry.message, 'Service Unavailable');
+    assert.equal(entry.statusCode, 503);
+  });
+
+  it('explicit redactErrors: true behaves identically to default', () => {
+    const errors = [];
+    const logger = createLogger({
+      log: () => {},
+      error: (...args) => errors.push(args),
+      redactErrors: true
+    });
+    const req = makeReq();
+    const res = makeRes();
+    logger(req, res);
+    const err = new Error('secret internal details');
+    err.statusCode = 500;
+    err.originalError = new Error('wrapped');
+    res.emit('error', err);
+    const entry = errors[0][0];
+    assert.equal(entry.message, 'Internal Server Error');
+    assert.equal(entry.stack, undefined);
+    assert.equal(entry.originalError, undefined);
   });
 
   it('uses custom uuid function', () => {

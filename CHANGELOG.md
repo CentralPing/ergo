@@ -13,6 +13,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Logger `error()` callback now redacts sensitive error details by default.** (#183)
+  When `redactErrors` is `true` (default), the error callback logs generic HTTP status
+  text instead of `err.message`, and suppresses `err.stack` and `err.originalError`.
+  Prevents sensitive error details (database connection strings, file paths, token
+  validation messages) from leaking into structured log output. Mirrors `handler()`'s
+  `redactErrors` behavior for HTTP response bodies, applied to the log output boundary.
+
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the
   `body()` middleware guaranteeing its presence on every success path (both
