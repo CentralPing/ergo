@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782327414402,
+  "lastUpdate": 1782328213463,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -10860,6 +10860,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5d7f33490d0fccef9f7204b0ab7c9578430c5503",
+          "message": "fix: bump undici devDependency to ^8.5.0 for security patches (#201) (#204)\n\nResolves 7 high-severity npm audit advisories (GHSA-vmh5-mc38-953g,\nGHSA-38rv-x7px-6hhq, GHSA-p88m-4jfj-68fv, GHSA-vxpw-j846-p89q,\nGHSA-35p6-xmwp-9g52, GHSA-g8m3-5g58-fq7m, GHSA-pr7r-676h-xcf6)\naffecting undici 8.0.0–8.4.1. DevDependency only — no consumer impact.",
+          "timestamp": "2026-06-24T15:09:53-04:00",
+          "tree_id": "d53012e29fdc120961b99f81e4df755ea435c3db",
+          "url": "https://github.com/CentralPing/ergo/commit/5d7f33490d0fccef9f7204b0ab7c9578430c5503"
+        },
+        "date": 1782328212346,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
