@@ -58,7 +58,7 @@ const VALID_OPTIONS = new Set([
  */
 function redact(headers, redactSet) {
   if (!redactSet?.size) return headers;
-  const safe = {};
+  const safe = Object.create(null);
   for (const [k, v] of Object.entries(headers)) {
     safe[k] = redactSet.has(k) ? '[REDACTED]' : v;
   }
