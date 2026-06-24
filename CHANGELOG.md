@@ -30,6 +30,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Location header rejects dangerous URI schemes.** (#188)
+  `send()` validates `responseAcc.location` against `javascript:`, `data:`, and
+  `vbscript:` schemes before setting the Location header. Throws `TypeError` for
+  blocked schemes, providing defense-in-depth against CWE-601 XSS via open redirect.
+
 - **JSDoc bare `{Array}` annotations replaced with `{*[]}` shorthand.** (#187)
   Five annotations in `lib/paginate.js` (4) and `utils/flat-array.js` (1) used
   imprecise `{Array}` without type parameters. Replaced with the `{*[]}` shorthand

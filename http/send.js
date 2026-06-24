@@ -54,6 +54,7 @@ import appendVary from '../lib/vary.js';
 import {paginationLinks, cursorPaginationLinks, formatLinkHeader} from '../lib/link.js';
 import {validateOptions} from '../lib/validate-options.js';
 import {compileResponseSerializers, resolveSerializer} from '../lib/response-schema.js';
+import validateLocation from '../lib/validate-location.js';
 
 /** @type {Set<string>} */
 export const SEND_VALID_OPTIONS = new Set([
@@ -248,6 +249,7 @@ export default (options = {}) => {
 
     // RFC 9110 §10.2.2: Location header for 201 Created and 3xx redirects
     if (location && statusCode >= 200 && statusCode < 400) {
+      validateLocation(location);
       res.setHeader('Location', location);
     }
 
