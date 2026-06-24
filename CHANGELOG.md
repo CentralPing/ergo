@@ -6,12 +6,31 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`redactHeaders` option on `handler()` for onResponse hook header redaction.** (#181)
+  Controls which response headers are replaced with `'[REDACTED]'` in the
+  `responseInfo` snapshot passed to `onResponse` hooks. Defaults to
+  `authorization`, `proxy-authorization`, `cookie`, `set-cookie` — the same
+  set used by `logger()`. Pass an empty `Set` to disable redaction.
+
+- **`lib/redact-headers.js` shared redaction primitive.** (#181)
+  Exports `DEFAULT_REDACTED_HEADERS` and `redactHeaders(headers, redactSet)`.
+  Extracted from `http/logger.js`'s private implementation. Available via deep
+  import `@centralping/ergo/lib/redact-headers`.
+
 - **`MemoryStore.reset()` method for test isolation.** (#165)
   Clears all tracked keys, restoring the store to its initial state. Enables
   integration tests that share a single store instance to reset rate-limit
   counters between test cases without reconstructing the middleware or router.
 
 ### Fixed
+
+- **`buildResponseInfo` now redacts sensitive response headers.** (#181)
+  Previously, `buildResponseInfo` passed `res.getHeaders()` directly into the
+  response info snapshot without redaction. The `onResponse` hook could leak
+  `set-cookie`, `authorization`, `proxy-authorization`, and `cookie` headers
+  even when `http/logger.js` correctly redacted them. The function now accepts
+  an optional `redactSet` parameter, and `handler()` forwards its
+  `redactHeaders` option (defaulting to the same 4-header set as the logger).
 
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the

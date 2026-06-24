@@ -37,9 +37,8 @@
  */
 import {hostname} from 'node:os';
 import {randomUUID} from 'node:crypto';
+import {redactHeaders as redact, DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 import {validateOptions} from '../lib/validate-options.js';
-
-const DEFAULT_REDACTED = new Set(['authorization', 'proxy-authorization', 'cookie', 'set-cookie']);
 
 /** @type {Set<string>} */
 const VALID_OPTIONS = new Set([
@@ -50,20 +49,6 @@ const VALID_OPTIONS = new Set([
   'headerRequestIpName',
   'redactHeaders'
 ]);
-
-/**
- * @param {object} headers - Header object to redact
- * @param {Set<string>} redactSet - Header names to replace with '[REDACTED]'
- * @returns {object} - Copy with sensitive values replaced
- */
-function redact(headers, redactSet) {
-  if (!redactSet?.size) return headers;
-  const safe = {};
-  for (const [k, v] of Object.entries(headers)) {
-    safe[k] = redactSet.has(k) ? '[REDACTED]' : v;
-  }
-  return safe;
-}
 
 const host = Object.freeze({
   hostname: hostname(),
@@ -95,7 +80,7 @@ export default (options = {}) => {
     uuid = randomUUID,
     headerRequestIdName = 'x-request-id',
     headerRequestIpName = 'x-real-ip',
-    redactHeaders = DEFAULT_REDACTED
+    redactHeaders = DEFAULT_REDACTED_HEADERS
   } = options;
   const inner = function loggerMiddleware(req, res, acc) {
     const time = performance.now();

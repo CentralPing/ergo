@@ -40,6 +40,7 @@ import applyResponseTiming, {
 } from '../lib/response-time.js';
 import {statusFromHttp} from '../lib/tracing.js';
 import buildResponseInfo from '../lib/response-info.js';
+import {DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 import createSend, {SEND_VALID_OPTIONS} from './send.js';
 import {validateOptions} from '../lib/validate-options.js';
 
@@ -48,6 +49,7 @@ const VALID_OPTIONS = new Set([
   'debug',
   'onResponse',
   'redactErrors',
+  'redactHeaders',
   'timing',
   ...SEND_VALID_OPTIONS
 ]);
@@ -73,6 +75,9 @@ const VALID_OPTIONS = new Set([
  *   generic status text regardless of this setting. Stack traces are never exposed.
  *   **Security:** only set to `false` in development — production deployments should
  *   always redact to prevent information leakage.
+ * @param {Set<string>} [options.redactHeaders] - Header names to redact in the
+ *   `onResponse` hook's `responseInfo.headers` snapshot (default: authorization,
+ *   proxy-authorization, cookie, set-cookie). Pass an empty Set to disable redaction.
  * @param {boolean|object} [options.timing=false] - Inject an `X-Response-Time` header
  *   measuring the full request lifecycle (pipeline + error handling + send). Pass `true`
  *   for defaults, or `{header?: string, precision?: number}` for custom configuration.
@@ -94,7 +99,14 @@ const VALID_OPTIONS = new Set([
  */
 export default (pipeline, options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'handler');
-  const {debug = false, onResponse, redactErrors = true, timing = false, ...rest} = options;
+  const {
+    debug = false,
+    onResponse,
+    redactErrors = true,
+    redactHeaders = DEFAULT_REDACTED_HEADERS,
+    timing = false,
+    ...rest
+  } = options;
   const sendOptions = Object.fromEntries(
     Object.entries(rest).filter(([k]) => SEND_VALID_OPTIONS.has(k))
   );
@@ -152,7 +164,12 @@ export default (pipeline, options = {}) => {
 
     if (onResponse) {
       try {
-        await onResponse(req, res, buildResponseInfo(req, res, startTime), domainAcc);
+        await onResponse(
+          req,
+          res,
+          buildResponseInfo(req, res, startTime, redactHeaders),
+          domainAcc
+        );
       } catch {
         /* observation hook errors are swallowed */
       }

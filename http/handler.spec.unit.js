@@ -545,5 +545,62 @@ describe('[Module] http/handler', () => {
       assert.equal(res.statusCode, 200);
       assert.ok(res.writableEnded);
     });
+
+    it('redacts sensitive headers in responseInfo by default', async () => {
+      let hookHeaders;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo) {
+          hookHeaders = responseInfo.headers;
+        }
+      });
+      const res = createMockRes();
+      res.setHeader('set-cookie', 'session=secret');
+      res.setHeader('content-type', 'application/json');
+      await handler(createMockReq(), res);
+      assert.equal(hookHeaders['set-cookie'], '[REDACTED]');
+      assert.equal(hookHeaders['content-type'], 'application/json');
+    });
+
+    it('uses custom redactHeaders set when provided', async () => {
+      let hookHeaders;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        redactHeaders: new Set(['x-secret']),
+        onResponse(req, res, responseInfo) {
+          hookHeaders = responseInfo.headers;
+        }
+      });
+      const res = createMockRes();
+      res.setHeader('x-secret', 'hidden');
+      res.setHeader('set-cookie', 'session=visible');
+      await handler(createMockReq(), res);
+      assert.equal(hookHeaders['x-secret'], '[REDACTED]');
+      assert.equal(hookHeaders['set-cookie'], 'session=visible');
+    });
+
+    it('disables redaction when redactHeaders is an empty Set', async () => {
+      let hookHeaders;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        redactHeaders: new Set(),
+        onResponse(req, res, responseInfo) {
+          hookHeaders = responseInfo.headers;
+        }
+      });
+      const res = createMockRes();
+      res.setHeader('set-cookie', 'session=visible');
+      await handler(createMockReq(), res);
+      assert.equal(hookHeaders['set-cookie'], 'session=visible');
+    });
   });
 });
