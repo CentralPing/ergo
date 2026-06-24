@@ -13,6 +13,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`ajv-formats` default mode changed from full to fast (ReDoS mitigation).** (#182)
+  The default format validation mode now uses simplified regexes that are safe for
+  untrusted input. Full-mode regexes for `date`, `time`, `date-time`, `duration`,
+  `uri`, `uri-reference`, `email`, and `idn-email` are vulnerable to ReDoS with
+  crafted payloads. Opt in to full mode via `{mode: 'full'}` when strict RFC
+  compliance is required and input sources are trusted.
+
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the
   `body()` middleware guaranteeing its presence on every success path (both
