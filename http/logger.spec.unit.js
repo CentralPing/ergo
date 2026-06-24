@@ -198,6 +198,14 @@ describe('[Module] http/logger', () => {
     assert.equal(res._headers['x-request-id'], 'fixed-uuid');
   });
 
+  it('uses nullish coalescing — does not skip empty-string request IDs', () => {
+    const logger = createLogger({log: () => {}, error: () => {}, uuid: () => 'generated'});
+    const req = makeReq({headers: {'x-request-id': ''}});
+    const res = makeRes();
+    const info = logger(req, res);
+    assert.equal(info.requestId, '', 'empty string is a present value, not missing');
+  });
+
   it('reads client IP from configured header', () => {
     const logger = createLogger({log: () => {}, error: () => {}});
     const req = makeReq({headers: {'x-real-ip': '192.168.1.100'}});

@@ -86,7 +86,7 @@ export default (options = {}) => {
     const time = performance.now();
     const timestamp = Date.now();
     const requestId =
-      res.getHeader(headerRequestIdName) || req.headers[headerRequestIdName] || uuid();
+      res.getHeader(headerRequestIdName) ?? req.headers[headerRequestIdName] ?? uuid();
     const ip = req.headers[headerRequestIpName];
 
     if (!res.getHeader(headerRequestIdName)) {
