@@ -13,6 +13,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **JSDoc bare `{Array}` annotations replaced with `{*[]}` shorthand.** (#187)
+  Five annotations in `lib/paginate.js` (4) and `utils/flat-array.js` (1) used
+  imprecise `{Array}` without type parameters. Replaced with the `{*[]}` shorthand
+  for consistency with the codebase's parameterized `{Array<T>}` convention.
+
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the
   `body()` middleware guaranteeing its presence on every success path (both
