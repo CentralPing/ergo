@@ -256,6 +256,35 @@ describe('[Module] http/handler', () => {
     assert.ok(res.writableEnded);
   });
 
+  it('records exception on OTEL span when send() throws', async () => {
+    const sendErr = new Error('simulated send failure');
+    const recorded = [];
+    const mockSpan = {
+      recordException: e => recorded.push(e),
+      setAttribute() {},
+      setStatus() {},
+      end() {}
+    };
+    const pipeline = async (req, res, responseAcc, domainAcc) => {
+      domainAcc.trace = {span: mockSpan};
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline);
+    const res = createMockRes();
+    let setHeaderCalls = 0;
+    const origSetHeader = res.setHeader.bind(res);
+    res.setHeader = (name, value) => {
+      setHeaderCalls++;
+      if (setHeaderCalls > 2) throw sendErr;
+      origSetHeader(name, value);
+    };
+    await handler(createMockReq(), res);
+    assert.equal(recorded.length, 1, 'should record exception on span');
+    assert.equal(recorded[0], sendErr);
+    assert.equal(res.statusCode, 500);
+  });
+
   it('passes err.message through when redactErrors is false', async () => {
     const pipeline = async () => {
       throw new Error('database connection failed');
