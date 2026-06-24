@@ -232,6 +232,30 @@ describe('[Module] http/handler', () => {
     assert.ok(res.writableEnded, 'response should still end');
   });
 
+  it('emits error event on response when send() throws', async () => {
+    const sendErr = new Error('simulated send failure');
+    const pipeline = async (req, res, responseAcc) => {
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline);
+    const res = createMockRes();
+    let setHeaderCalls = 0;
+    const origSetHeader = res.setHeader.bind(res);
+    res.setHeader = (name, value) => {
+      setHeaderCalls++;
+      if (setHeaderCalls > 2) throw sendErr;
+      origSetHeader(name, value);
+    };
+    const errors = [];
+    res.on('error', e => errors.push(e));
+    await handler(createMockReq(), res);
+    assert.equal(errors.length, 1, 'should emit exactly one error');
+    assert.equal(errors[0], sendErr);
+    assert.equal(res.statusCode, 500);
+    assert.ok(res.writableEnded);
+  });
+
   it('passes err.message through when redactErrors is false', async () => {
     const pipeline = async () => {
       throw new Error('database connection failed');

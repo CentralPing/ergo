@@ -13,6 +13,14 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`handler()` send catch block now emits errors for observability.** (#179)
+  The `send()` catch block previously used a bare `catch` without capturing the
+  error, silently swallowing serialization failures. The error is now emitted on
+  `res` via the guarded `listenerCount('error') > 0` pattern (enabling
+  `http/logger.js` error callbacks) and recorded on the OTEL span via
+  `span.recordException()` for distributed tracing visibility. Matches the
+  pipeline catch block's established observability convention.
+
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the
   `body()` middleware guaranteeing its presence on every success path (both
