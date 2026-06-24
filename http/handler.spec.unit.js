@@ -232,9 +232,17 @@ describe('[Module] http/handler', () => {
     assert.ok(res.writableEnded, 'response should still end');
   });
 
-  it('emits error event on response when send() throws', async () => {
+  it('emits error event and records OTEL exception when send() throws', async () => {
     const sendErr = new Error('simulated send failure');
-    const pipeline = async (req, res, responseAcc) => {
+    const recorded = [];
+    const mockSpan = {
+      recordException: e => recorded.push(e),
+      setAttribute() {},
+      setStatus() {},
+      end() {}
+    };
+    const pipeline = async (req, res, responseAcc, domainAcc) => {
+      domainAcc.trace = {span: mockSpan};
       responseAcc.statusCode = 200;
       responseAcc.body = {ok: true};
     };
@@ -252,6 +260,8 @@ describe('[Module] http/handler', () => {
     await handler(createMockReq(), res);
     assert.equal(errors.length, 1, 'should emit exactly one error');
     assert.equal(errors[0], sendErr);
+    assert.equal(recorded.length, 1, 'should record exception on span');
+    assert.equal(recorded[0], sendErr);
     assert.equal(res.statusCode, 500);
     assert.ok(res.writableEnded);
   });
