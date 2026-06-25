@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782328213463,
+  "lastUpdate": 1782388870290,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -10894,6 +10894,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "4d1205a16992a8041dda9f8232af64e0153ff560",
+          "message": "chore: use squash merge in dependabot auto-merge workflow",
+          "timestamp": "2026-06-24T19:09:59Z",
+          "url": "https://github.com/CentralPing/ergo/pull/205/commits/4d1205a16992a8041dda9f8232af64e0153ff560"
+        },
+        "date": 1782388869168,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
             "unit": "us/op"
           },
           {
