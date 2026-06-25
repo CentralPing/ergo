@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782417132489,
+  "lastUpdate": 1782417197718,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -10998,6 +10998,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3ce29e67a37254d221563503d70d8923a107183d",
+          "message": "fix: clamp pagination prev link to lastPage when page exceeds total (#180) (#190)",
+          "timestamp": "2026-06-25T19:53:01Z",
+          "tree_id": "51f0c46f84cd4e9a8f34d1f3c785bf7e9cfa34b0",
+          "url": "https://github.com/CentralPing/ergo/commit/3ce29e67a37254d221563503d70d8923a107183d"
+        },
+        "date": 1782417197209,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
             "unit": "us/op"
           },
           {
