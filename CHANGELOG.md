@@ -18,6 +18,11 @@ All notable changes to this project will be documented in this file.
   `page - 1` when the requested page is beyond the last page, preventing
   clients from navigating through a chain of non-existent pages.
 
+- **Logger `redact()` uses null-prototype object.** (#178)
+  The `redact()` helper in `http/logger.js` now uses `Object.create(null)` instead
+  of `{}` for the header copy, aligning with the null-prototype policy for
+  user-input-derived objects.
+
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the
   `body()` middleware guaranteeing its presence on every success path (both
