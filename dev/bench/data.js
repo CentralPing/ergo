@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782427335630,
+  "lastUpdate": 1782431790040,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11082,6 +11082,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.016,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1f5274994ec2202cb6a1f38ddb2e60bf63e28d7c",
+          "message": "fix: logger redact() uses null-prototype object (#178) (#191)\n\n* fix: logger redact() uses null-prototype object (#178)\n\nThe redact() helper in http/logger.js used a plain {} literal to\naccumulate header copies from user-controlled req.headers. This violated\nthe null-prototype policy (DECISIONS.md Section 1). Replace with\nObject.create(null) and add regression tests.\n\n* fix: ensure null-prototype copy in all redact() paths (#178)\n\nRemove the early-return guard that bypassed Object.create(null) when\nredactSet was empty. The function now always produces a null-prototype\ncopy of the headers object, regardless of whether redaction is active.\nThis completes the null-prototype policy enforcement for all code paths\nthrough redact().",
+          "timestamp": "2026-06-25T19:56:18-04:00",
+          "tree_id": "7e949a2ad8f535a034bb565d4938d385fccaa28c",
+          "url": "https://github.com/CentralPing/ergo/commit/1f5274994ec2202cb6a1f38ddb2e60bf63e28d7c"
+        },
+        "date": 1782431789589,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
