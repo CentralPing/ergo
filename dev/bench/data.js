@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782388870290,
+  "lastUpdate": 1782410883825,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -10929,6 +10929,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "69eaa7b15b8d0ff11362fb20ef4d5ab52d22b3e2",
+          "message": "chore: use squash merge in dependabot auto-merge workflow (#205)",
+          "timestamp": "2026-06-25T14:07:46-04:00",
+          "tree_id": "ab810b9408b0673c493f25797ae07db76d99e9bd",
+          "url": "https://github.com/CentralPing/ergo/commit/69eaa7b15b8d0ff11362fb20ef4d5ab52d22b3e2"
+        },
+        "date": 1782410882616,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
