@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782417197718,
+  "lastUpdate": 1782427335630,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11047,6 +11047,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "038c27bd0483348667576193e9d30f5717d3c27e",
+          "message": "fix: logger redact() uses null-prototype object (#178)",
+          "timestamp": "2026-06-25T19:53:06Z",
+          "url": "https://github.com/CentralPing/ergo/pull/191/commits/038c27bd0483348667576193e9d30f5717d3c27e"
+        },
+        "date": 1782427335075,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.016,
             "unit": "us/op"
           }
         ]
