@@ -309,5 +309,6 @@ describe('[Module] http/logger', () => {
     const res = makeRes();
     const info = logger(req, res);
     assert.equal(info.request.headers.authorization, 'Bearer token');
+    assert.equal(Object.getPrototypeOf(info.request.headers), null);
   });
 });
