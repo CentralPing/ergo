@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782454283478,
+  "lastUpdate": 1782454348363,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11191,6 +11191,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4cdfcade9e042baf3aaae508cac7f1503caedc41",
+          "message": "feat: add factory-time warning for CORS wildcard + credentials (#177) (#192)\n\n* feat: add factory-time warning for CORS wildcard + credentials (#177)\n\nEmit ERGO_CORS_WILDCARD_CREDENTIALS process.emitWarning when\ncors() is configured with origins: '*' and allowCredentials: true.\nThe warning fires once per process (deduplicated via module-level Set)\nand does not change runtime behavior — origin reflection still works.\nSurfaces the OWASP-documented misconfiguration footgun at startup.\n\n* fix: combine emission + dedup warning tests into single self-contained case (#177)\n\nEliminates order-dependency between separate test cases by verifying both\nemission and deduplication within one test — calls createCors twice and\nasserts exactly one warning. Follows the http/validate.spec.unit.js sibling\npattern for module-level state testing.",
+          "timestamp": "2026-06-26T06:12:14Z",
+          "tree_id": "14f7839fb8eb4a9cd4081c1e6145983336c80421",
+          "url": "https://github.com/CentralPing/ergo/commit/4cdfcade9e042baf3aaae508cac7f1503caedc41"
+        },
+        "date": 1782454347683,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
