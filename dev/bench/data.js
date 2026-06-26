@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782513170845,
+  "lastUpdate": 1782513976790,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11290,6 +11290,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "b852ec99736a15395b8f0637dc3abcc695786d02",
+          "message": "fix: replace sanitizeQuotedString denylist with qdtext allowlist (#208)",
+          "timestamp": "2026-06-26T06:12:19Z",
+          "url": "https://github.com/CentralPing/ergo/pull/211/commits/b852ec99736a15395b8f0637dc3abcc695786d02"
+        },
+        "date": 1782513975611,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
             "unit": "us/op"
           },
           {
