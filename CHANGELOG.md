@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Factory-time warning for CORS wildcard + credentials misconfiguration.** (#177)
+  `cors({origins: '*', allowCredentials: true})` now emits a one-time
+  `process.emitWarning` with `{type: 'ErgoWarning', code: 'ERGO_CORS_WILDCARD_CREDENTIALS'}`.
+  Behavior is unchanged — origin reflection still works. The warning surfaces the
+  OWASP-documented misconfiguration footgun at startup.
+
 - **`MemoryStore.reset()` method for test isolation.** (#165)
   Clears all tracked keys, restoring the store to its initial state. Enables
   integration tests that share a single store instance to reset rate-limit
