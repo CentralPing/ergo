@@ -20,6 +20,9 @@ All notable changes to this project will be documented in this file.
   `http/logger.js` error callbacks) and recorded on the OTEL span via
   `span.recordException()` for distributed tracing visibility. Matches the
   pipeline catch block's established observability convention.
+  Additionally, `responseAcc.statusCode` is now set to `500` in the send catch
+  so the OTEL span finalization reads the correct status instead of the
+  pipeline's stale value.
 
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the
