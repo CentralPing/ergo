@@ -235,9 +235,12 @@ describe('[Module] http/handler', () => {
   it('emits error event and records OTEL exception when send() throws', async () => {
     const sendErr = new Error('simulated send failure');
     const recorded = [];
+    const attrs = {};
     const mockSpan = {
       recordException: e => recorded.push(e),
-      setAttribute() {},
+      setAttribute(k, v) {
+        attrs[k] = v;
+      },
       setStatus() {},
       end() {}
     };
@@ -263,6 +266,7 @@ describe('[Module] http/handler', () => {
     assert.equal(recorded.length, 1, 'should record exception on span');
     assert.equal(recorded[0], sendErr);
     assert.equal(res.statusCode, 500);
+    assert.equal(attrs['http.status_code'], 500, 'span must reflect forced 500, not pipeline 200');
     assert.ok(res.writableEnded);
   });
 

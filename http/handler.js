@@ -154,6 +154,7 @@ export default (pipeline, options = {}) => {
       }
 
       if (!res.writableEnded) {
+        responseAcc.statusCode = 500;
         res.statusCode = 500;
         res.end();
       }
