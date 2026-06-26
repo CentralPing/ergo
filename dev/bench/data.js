@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782513976790,
+  "lastUpdate": 1782517533999,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11335,6 +11335,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "8bd170ff16f4fec6801dbcbde231b7af8cd89c81",
+          "message": "fix: emit error and record OTEL exception in send() catch block (#179)",
+          "timestamp": "2026-06-26T06:12:19Z",
+          "url": "https://github.com/CentralPing/ergo/pull/193/commits/8bd170ff16f4fec6801dbcbde231b7af8cd89c81"
+        },
+        "date": 1782517533548,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
