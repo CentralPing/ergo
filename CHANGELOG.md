@@ -19,6 +19,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Cookie value validation uses RFC 6265 cookie-octet allowlist.** (#206)
+  Replaces the denylist regex (`COOKIE_VALUE_UNSAFE_RE`) with an anchored allowlist
+  (`COOKIE_VALUE_RE`) matching RFC 6265 §4.1.1 `cookie-octet` grammar. Now correctly
+  rejects non-ASCII bytes (`\x80-\xFF`) that the denylist missed. Aligns with the
+  allowlist patterns already used by `assertSafeName` (`TOKEN_RE`) and the parser
+  (`valueRFC6265`).
+
 - **Pagination `prev` link clamped to last page when `page` exceeds total.** (#180)
   `paginationLinks` now generates `prev` pointing to `lastPage` instead of
   `page - 1` when the requested page is beyond the last page, preventing
