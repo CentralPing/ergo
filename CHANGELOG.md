@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Factory-time warning for CORS wildcard + credentials misconfiguration.** (#177)
+  `cors({origins: '*', allowCredentials: true})` now emits a one-time
+  `process.emitWarning` with `{type: 'ErgoWarning', code: 'ERGO_CORS_WILDCARD_CREDENTIALS'}`.
+  Behavior is unchanged — origin reflection still works. The warning surfaces the
+  OWASP-documented misconfiguration footgun at startup.
+
 - **`MemoryStore.reset()` method for test isolation.** (#165)
   Clears all tracked keys, restoring the store to its initial state. Enables
   integration tests that share a single store instance to reset rate-limit
@@ -23,6 +29,16 @@ All notable changes to this project will be documented in this file.
   Additionally, `responseAcc.statusCode` is now set to `500` in the send catch
   so the OTEL span finalization reads the correct status instead of the
   pipeline's stale value.
+
+- **Pagination `prev` link clamped to last page when `page` exceeds total.** (#180)
+  `paginationLinks` now generates `prev` pointing to `lastPage` instead of
+  `page - 1` when the requested page is beyond the last page, preventing
+  clients from navigating through a chain of non-existent pages.
+
+- **Logger `redact()` uses null-prototype object.** (#178)
+  The `redact()` helper in `http/logger.js` now uses `Object.create(null)` instead
+  of `{}` for the header copy, aligning with the null-prototype policy for
+  user-input-derived objects.
 
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the
