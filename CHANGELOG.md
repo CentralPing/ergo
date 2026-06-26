@@ -19,6 +19,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`sanitizeQuotedString` uses qdtext allowlist instead of CTL denylist.** (#208)
+  Replaced the control-character denylist regex with a positive allowlist derived
+  from the RFC 7230 §3.2.6 `qdtext` and `quoted-pair` productions. Behavioral
+  equivalence maintained — strips the same character set (NUL–BS, LF–US, DEL).
+  Defense-in-depth improvement: any character not explicitly allowed is now
+  stripped rather than relying on enumerating forbidden characters.
+
 - **Pagination `prev` link clamped to last page when `page` exceeds total.** (#180)
   `paginationLinks` now generates `prev` pointing to `lastPage` instead of
   `page - 1` when the requested page is beyond the last page, preventing
