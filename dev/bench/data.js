@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782517533999,
+  "lastUpdate": 1782522662202,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11370,6 +11370,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "666b180354270d3a86bbf0f87782828ae6591042",
+          "message": "fix: emit error and record OTEL exception in send() catch block (#179) (#193)\n\n* fix: emit error and record OTEL exception in send() catch block (#179)\n\nThe send() catch block in handler.js used a bare `catch` that silently\nswallowed errors when send() threw, creating an observability blind spot.\nThe error is now captured, emitted on `res` via the guarded\n`listenerCount('error') > 0` pattern (enabling logger error callbacks),\nand recorded on the OTEL span via `span.recordException()` for\ndistributed tracing visibility — matching the pipeline catch block's\nestablished convention.\n\n* test: cover OTEL span.recordException path in send() catch block\n\nAdds a test that verifies span.recordException(err) is called when\nsend() throws and an OTEL span is present on domainAcc.trace. Resolves\ncodecov/patch coverage gap for the new observability lines.\n\n* refactor: consolidate redundant OTEL span test into error emission test\n\nThe separate \"records exception on OTEL span when send() throws\" test\nduplicated the send-failure setup from the error emission test without\nadding meaningful coverage — span.recordException is already exercised\nthrough the error emission path. Removing the redundant test eliminates\n29 lines of duplicated setup.\n\n* test: add OTEL span mock to send() error emission test\n\nAdds a mock span with recordException to the existing send-error test\nso both error emission and OTEL exception recording are covered in a\nsingle test. Resolves codecov/patch coverage gap for handler.js L151-154.\n\n* fix: sync responseAcc.statusCode with forced 500 in send catch (#179)\n\nWhen send() throws, the handler forces res.statusCode = 500 but left\nresponseAcc.statusCode at whatever the pipeline set (e.g. 200). The span\nfinalization reads responseAcc.statusCode ?? res.statusCode, so the OTEL\nspan recorded the wrong status. Set responseAcc.statusCode = 500 to keep\nthe span truthful.\n\n* docs: mention responseAcc.statusCode sync in CHANGELOG entry (#179)",
+          "timestamp": "2026-06-26T21:10:50-04:00",
+          "tree_id": "f1992c0c4683b9041c19c6d8fb2885601deee1cf",
+          "url": "https://github.com/CentralPing/ergo/commit/666b180354270d3a86bbf0f87782828ae6591042"
+        },
+        "date": 1782522661631,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.009,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.014,
             "unit": "us/op"
           }
         ]
