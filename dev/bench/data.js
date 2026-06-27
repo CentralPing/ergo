@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782523098106,
+  "lastUpdate": 1782527051436,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11444,6 +11444,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "d75bf4cdfd0570b17d2b3c2faacd4d48cfecaa50",
+          "message": "fix: redact sensitive headers in onResponse hook responseInfo (#181)",
+          "timestamp": "2026-06-27T01:10:54Z",
+          "url": "https://github.com/CentralPing/ergo/pull/194/commits/d75bf4cdfd0570b17d2b3c2faacd4d48cfecaa50"
+        },
+        "date": 1782527050264,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.031,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.015,
             "unit": "us/op"
           }
         ]
