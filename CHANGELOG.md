@@ -19,6 +19,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`handler()` send catch block now emits errors for observability.** (#179)
+  The `send()` catch block previously used a bare `catch` without capturing the
+  error, silently swallowing serialization failures. The error is now emitted on
+  `res` via the guarded `listenerCount('error') > 0` pattern (enabling
+  `http/logger.js` error callbacks) and recorded on the OTEL span via
+  `span.recordException()` for distributed tracing visibility. Matches the
+  pipeline catch block's established observability convention.
+  Additionally, `responseAcc.statusCode` is now set to `500` in the send catch
+  so the OTEL span finalization reads the correct status instead of the
+  pipeline's stale value.
+
 - **Pagination `prev` link clamped to last page when `page` exceeds total.** (#180)
   `paginationLinks` now generates `prev` pointing to `lastPage` instead of
   `page - 1` when the requested page is beyond the last page, preventing

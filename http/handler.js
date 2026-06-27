@@ -143,8 +143,18 @@ export default (pipeline, options = {}) => {
 
     try {
       send(req, res, responseAcc, domainAcc);
-    } catch {
+    } catch (err) {
+      if (res.listenerCount('error') > 0) {
+        res.emit('error', err);
+      }
+
+      const span = domainAcc.trace?.span;
+      if (span) {
+        span.recordException(err);
+      }
+
       if (!res.writableEnded) {
+        responseAcc.statusCode = 500;
         res.statusCode = 500;
         res.end();
       }
