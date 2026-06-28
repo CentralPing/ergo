@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782612337279,
+  "lastUpdate": 1782664964806,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11514,6 +11514,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "775cd030fee177080ea488c936ffae42642601a7",
+          "message": "fix: redact sensitive headers in onResponse hook responseInfo (#181) (#194)\n\n* fix: redact sensitive headers in onResponse hook responseInfo (#181)\n\nbuildResponseInfo passed res.getHeaders() directly into the response info\nsnapshot without redaction. The onResponse hook could leak set-cookie,\nauthorization, proxy-authorization, and cookie headers even when\nhttp/logger.js correctly redacted them.\n\nExtract lib/redact-headers.js shared primitive from logger's private\nredact() function. Add optional redactSet parameter to buildResponseInfo.\nAdd redactHeaders option to handler() (defaults to DEFAULT_REDACTED_HEADERS).\nRefactor logger.js to consume the shared primitive.\n\nCross-repo: ergo-router#158 tracks forwarding redactSet in auto-wrap.js\nand router.js.\n\n* fix: case-insensitive header name matching in redactHeaders\n\nHTTP header names are case-insensitive per RFC 9110. Normalize both\nthe redactSet entries and header keys to lowercase before comparison\nso that custom sets like Set(['Set-Cookie']) match the lowercase keys\nreturned by Node.js res.getHeaders() and req.headers.\n\nAddresses CodeRabbit review finding on PR #194.\n\n* fix: snapshot DEFAULT_REDACTED_HEADERS at factory time (#181)\n\nClone the exported mutable Set at factory construction in both\nhandler() and logger() so post-construction mutations to the\nmodule-level default cannot silently alter redaction behavior\nfor existing instances.\n\nCloses #212",
+          "timestamp": "2026-06-28T12:42:29-04:00",
+          "tree_id": "4832df1d535b9adb2f579c95ce37c3d8185734bf",
+          "url": "https://github.com/CentralPing/ergo/commit/775cd030fee177080ea488c936ffae42642601a7"
+        },
+        "date": 1782664963606,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.03,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
