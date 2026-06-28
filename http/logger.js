@@ -80,7 +80,7 @@ export default (options = {}) => {
     uuid = randomUUID,
     headerRequestIdName = 'x-request-id',
     headerRequestIpName = 'x-real-ip',
-    redactHeaders = DEFAULT_REDACTED_HEADERS
+    redactHeaders = new Set(DEFAULT_REDACTED_HEADERS)
   } = options;
   const inner = function loggerMiddleware(req, res, acc) {
     const time = performance.now();

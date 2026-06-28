@@ -2,6 +2,7 @@ import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
 import createLogger from './logger.js';
+import {DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 
 function makeReq(overrides = {}) {
   return Object.assign(
@@ -309,5 +310,18 @@ describe('[Module] http/logger', () => {
     const res = makeRes();
     const info = logger(req, res);
     assert.equal(info.request.headers.authorization, 'Bearer token');
+  });
+
+  it('default redaction is isolated from mutations to DEFAULT_REDACTED_HEADERS', () => {
+    const logger = createLogger({log: () => {}, error: () => {}});
+    DEFAULT_REDACTED_HEADERS.delete('authorization');
+    try {
+      const req = makeReq({headers: {authorization: 'Bearer token'}});
+      const res = makeRes();
+      const info = logger(req, res);
+      assert.equal(info.request.headers.authorization, '[REDACTED]');
+    } finally {
+      DEFAULT_REDACTED_HEADERS.add('authorization');
+    }
   });
 });

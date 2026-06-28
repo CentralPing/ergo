@@ -103,7 +103,7 @@ export default (pipeline, options = {}) => {
     debug = false,
     onResponse,
     redactErrors = true,
-    redactHeaders = DEFAULT_REDACTED_HEADERS,
+    redactHeaders = new Set(DEFAULT_REDACTED_HEADERS),
     timing = false,
     ...rest
   } = options;

@@ -2,6 +2,7 @@ import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
 import {createMockReq, createMockRes} from '../test/helpers.js';
 import createHandler from './handler.js';
+import {DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 
 describe('[Module] http/handler', () => {
   it('creates both accumulators and passes them to the pipeline', async () => {
@@ -639,6 +640,28 @@ describe('[Module] http/handler', () => {
       res.setHeader('set-cookie', 'session=visible');
       await handler(createMockReq(), res);
       assert.equal(hookHeaders['set-cookie'], 'session=visible');
+    });
+
+    it('default redaction is isolated from mutations to DEFAULT_REDACTED_HEADERS', async () => {
+      let hookHeaders;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo) {
+          hookHeaders = responseInfo.headers;
+        }
+      });
+      DEFAULT_REDACTED_HEADERS.delete('set-cookie');
+      try {
+        const res = createMockRes();
+        res.setHeader('set-cookie', 'session=secret');
+        await handler(createMockReq(), res);
+        assert.equal(hookHeaders['set-cookie'], '[REDACTED]');
+      } finally {
+        DEFAULT_REDACTED_HEADERS.add('set-cookie');
+      }
     });
   });
 });
