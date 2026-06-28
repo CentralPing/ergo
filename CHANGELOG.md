@@ -30,6 +30,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Logger preserves empty-string request IDs (nullish coalescing).** (#186)
+  `http/logger.js` request-ID resolution chain now uses `??` instead of `||`.
+  An upstream proxy sending `x-request-id: ""` is treated as a present value
+  rather than falling through to UUID generation.
+
+- **Validation error `path` uses RFC 6901 empty string for root-level errors.** (#186)
+  `lib/validate.js` `formatError` no longer maps AJV's empty-string
+  `instancePath` to `'/'`. Per RFC 6901, the empty string is the correct
+  JSON Pointer representation of the root document. Consumers matching
+  `details[].path === '/'` for root-level errors should update to `=== ''`.
+
 - **`buildResponseInfo` now redacts sensitive response headers.** (#181)
   Previously, `buildResponseInfo` passed `res.getHeaders()` directly into the
   response info snapshot without redaction. The `onResponse` hook could leak
