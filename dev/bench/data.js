@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782678451405,
+  "lastUpdate": 1782682139536,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11692,6 +11692,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "282077d0d86c768863dd00c1828c31f8b9ed9b8a",
+          "message": "fix: enforce nullish coalescing convention (#186) (#196)\n\n* fix: enforce nullish coalescing convention (#186)\n\nReplace || with ?? in logger request-ID resolution where the intent is\n\"default when missing.\" Remove the RFC 6901-incorrect || '/' fallback\nin lib/validate.js — AJV's empty-string instancePath is the correct\nJSON Pointer for the root document. Document intentional || usage in\nhttp/url.js where \"default when falsy\" is the correct semantic.\n\n* docs: add CHANGELOG entries for nullish coalescing fixes (#186)\n\nDocument both user-facing behavioral changes:\n- Logger empty-string request-ID preservation\n- Validation error path uses RFC 6901 empty string for root",
+          "timestamp": "2026-06-28T17:28:42-04:00",
+          "tree_id": "967b7ff8d2db7e179ba177b7bfe167482ac459eb",
+          "url": "https://github.com/CentralPing/ergo/commit/282077d0d86c768863dd00c1828c31f8b9ed9b8a"
+        },
+        "date": 1782682138847,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
