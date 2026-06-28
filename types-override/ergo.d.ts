@@ -166,6 +166,7 @@ export interface HandlerOptions {
   debug?: boolean;
   onResponse?: OnResponseHook;
   redactErrors?: boolean;
+  redactHeaders?: Set<string>;
   timing?: boolean | TimingOptions;
   prettify?: boolean;
   vary?: string[];

@@ -6,6 +6,23 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`redactHeaders` option on `handler()` for onResponse hook header redaction.** (#181)
+  Controls which response headers are replaced with `'[REDACTED]'` in the
+  `responseInfo` snapshot passed to `onResponse` hooks. Defaults to
+  `authorization`, `proxy-authorization`, `cookie`, `set-cookie` — the same
+  set used by `logger()`. Pass an empty `Set` to disable redaction.
+
+- **`lib/redact-headers.js` shared redaction primitive.** (#181)
+  Exports `DEFAULT_REDACTED_HEADERS` and `redactHeaders(headers, redactSet)`.
+  Extracted from `http/logger.js`'s private implementation. Available via deep
+  import `@centralping/ergo/lib/redact-headers`.
+
+- **Factory-time warning for CORS wildcard + credentials misconfiguration.** (#177)
+  `cors({origins: '*', allowCredentials: true})` now emits a one-time
+  `process.emitWarning` with `{type: 'ErgoWarning', code: 'ERGO_CORS_WILDCARD_CREDENTIALS'}`.
+  Behavior is unchanged — origin reflection still works. The warning surfaces the
+  OWASP-documented misconfiguration footgun at startup.
+
 - **`MemoryStore.reset()` method for test isolation.** (#165)
   Clears all tracked keys, restoring the store to its initial state. Enables
   integration tests that share a single store instance to reset rate-limit
@@ -21,6 +38,46 @@ All notable changes to this project will be documented in this file.
   to use full-mode regexes — `ajv-formats` does not support per-format mode
   selection. Opt in to full mode via `{mode: 'full'}` when strict RFC compliance
   is required and input sources are trusted.
+
+- **Logger preserves empty-string request IDs (nullish coalescing).** (#186)
+  `http/logger.js` request-ID resolution chain now uses `??` instead of `||`.
+  An upstream proxy sending `x-request-id: ""` is treated as a present value
+  rather than falling through to UUID generation.
+
+- **Validation error `path` uses RFC 6901 empty string for root-level errors.** (#186)
+  `lib/validate.js` `formatError` no longer maps AJV's empty-string
+  `instancePath` to `'/'`. Per RFC 6901, the empty string is the correct
+  JSON Pointer representation of the root document. Consumers matching
+  `details[].path === '/'` for root-level errors should update to `=== ''`.
+
+- **`buildResponseInfo` now redacts sensitive response headers.** (#181)
+  Previously, `buildResponseInfo` passed `res.getHeaders()` directly into the
+  response info snapshot without redaction. The `onResponse` hook could leak
+  `set-cookie`, `authorization`, `proxy-authorization`, and `cookie` headers
+  even when `http/logger.js` correctly redacted them. The function now accepts
+  an optional `redactSet` parameter, and `handler()` forwards its
+  `redactHeaders` option (defaulting to the same 4-header set as the logger).
+
+- **`handler()` send catch block now emits errors for observability.** (#179)
+  The `send()` catch block previously used a bare `catch` without capturing the
+  error, silently swallowing serialization failures. The error is now emitted on
+  `res` via the guarded `listenerCount('error') > 0` pattern (enabling
+  `http/logger.js` error callbacks) and recorded on the OTEL span via
+  `span.recordException()` for distributed tracing visibility. Matches the
+  pipeline catch block's established observability convention.
+  Additionally, `responseAcc.statusCode` is now set to `500` in the send catch
+  so the OTEL span finalization reads the correct status instead of the
+  pipeline's stale value.
+
+- **Pagination `prev` link clamped to last page when `page` exceeds total.** (#180)
+  `paginationLinks` now generates `prev` pointing to `lastPage` instead of
+  `page - 1` when the requested page is beyond the last page, preventing
+  clients from navigating through a chain of non-existent pages.
+
+- **Logger `redact()` uses null-prototype object.** (#178)
+  The `redact()` helper in `http/logger.js` now uses `Object.create(null)` instead
+  of `{}` for the header copy, aligning with the null-prototype policy for
+  user-input-derived objects.
 
 - **`BodyResult.parsed` type narrowed from optional to required.** (#174)
   The `parsed` field was incorrectly declared as `parsed?: T` despite the

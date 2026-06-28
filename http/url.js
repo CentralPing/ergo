@@ -34,12 +34,13 @@ export default () => {
     const qIdx = raw.indexOf('?');
 
     if (qIdx === -1) {
+      // || is intentional: empty string → undefined (absent value convention)
       return {query: Object.create(null), pathname: raw || undefined, search: undefined};
     }
 
     return {
       query: queryParse(raw.slice(qIdx + 1)),
-      pathname: raw.slice(0, qIdx) || undefined,
+      pathname: raw.slice(0, qIdx) || undefined, // || is intentional: empty string → undefined
       search: raw.slice(qIdx)
     };
   };

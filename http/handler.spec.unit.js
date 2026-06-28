@@ -2,6 +2,7 @@ import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
 import {createMockReq, createMockRes} from '../test/helpers.js';
 import createHandler from './handler.js';
+import {DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 
 describe('[Module] http/handler', () => {
   it('creates both accumulators and passes them to the pipeline', async () => {
@@ -230,6 +231,44 @@ describe('[Module] http/handler', () => {
     await handler(createMockReq(), res);
     assert.equal(res.statusCode, 500);
     assert.ok(res.writableEnded, 'response should still end');
+  });
+
+  it('emits error event and records OTEL exception when send() throws', async () => {
+    const sendErr = new Error('simulated send failure');
+    const recorded = [];
+    const attrs = {};
+    const mockSpan = {
+      recordException: e => recorded.push(e),
+      setAttribute(k, v) {
+        attrs[k] = v;
+      },
+      setStatus() {},
+      end() {}
+    };
+    const pipeline = async (req, res, responseAcc, domainAcc) => {
+      domainAcc.trace = {span: mockSpan};
+      responseAcc.statusCode = 200;
+      responseAcc.body = {ok: true};
+    };
+    const handler = createHandler(pipeline);
+    const res = createMockRes();
+    let setHeaderCalls = 0;
+    const origSetHeader = res.setHeader.bind(res);
+    res.setHeader = (name, value) => {
+      setHeaderCalls++;
+      if (setHeaderCalls > 2) throw sendErr;
+      origSetHeader(name, value);
+    };
+    const errors = [];
+    res.on('error', e => errors.push(e));
+    await handler(createMockReq(), res);
+    assert.equal(errors.length, 1, 'should emit exactly one error');
+    assert.equal(errors[0], sendErr);
+    assert.equal(recorded.length, 1, 'should record exception on span');
+    assert.equal(recorded[0], sendErr);
+    assert.equal(res.statusCode, 500);
+    assert.equal(attrs['http.status_code'], 500, 'span must reflect forced 500, not pipeline 200');
+    assert.ok(res.writableEnded);
   });
 
   it('passes err.message through when redactErrors is false', async () => {
@@ -544,6 +583,85 @@ describe('[Module] http/handler', () => {
       await handler(createMockReq(), res);
       assert.equal(res.statusCode, 200);
       assert.ok(res.writableEnded);
+    });
+
+    it('redacts sensitive headers in responseInfo by default', async () => {
+      let hookHeaders;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo) {
+          hookHeaders = responseInfo.headers;
+        }
+      });
+      const res = createMockRes();
+      res.setHeader('set-cookie', 'session=secret');
+      res.setHeader('content-type', 'application/json');
+      await handler(createMockReq(), res);
+      assert.equal(hookHeaders['set-cookie'], '[REDACTED]');
+      assert.equal(hookHeaders['content-type'], 'application/json');
+    });
+
+    it('uses custom redactHeaders set when provided', async () => {
+      let hookHeaders;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        redactHeaders: new Set(['x-secret']),
+        onResponse(req, res, responseInfo) {
+          hookHeaders = responseInfo.headers;
+        }
+      });
+      const res = createMockRes();
+      res.setHeader('x-secret', 'hidden');
+      res.setHeader('set-cookie', 'session=visible');
+      await handler(createMockReq(), res);
+      assert.equal(hookHeaders['x-secret'], '[REDACTED]');
+      assert.equal(hookHeaders['set-cookie'], 'session=visible');
+    });
+
+    it('disables redaction when redactHeaders is an empty Set', async () => {
+      let hookHeaders;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        redactHeaders: new Set(),
+        onResponse(req, res, responseInfo) {
+          hookHeaders = responseInfo.headers;
+        }
+      });
+      const res = createMockRes();
+      res.setHeader('set-cookie', 'session=visible');
+      await handler(createMockReq(), res);
+      assert.equal(hookHeaders['set-cookie'], 'session=visible');
+    });
+
+    it('default redaction is isolated from mutations to DEFAULT_REDACTED_HEADERS', async () => {
+      let hookHeaders;
+      const pipeline = async (req, res, responseAcc) => {
+        responseAcc.statusCode = 200;
+        responseAcc.body = {ok: true};
+      };
+      const handler = createHandler(pipeline, {
+        onResponse(req, res, responseInfo) {
+          hookHeaders = responseInfo.headers;
+        }
+      });
+      DEFAULT_REDACTED_HEADERS.delete('set-cookie');
+      try {
+        const res = createMockRes();
+        res.setHeader('set-cookie', 'session=secret');
+        await handler(createMockReq(), res);
+        assert.equal(hookHeaders['set-cookie'], '[REDACTED]');
+      } finally {
+        DEFAULT_REDACTED_HEADERS.add('set-cookie');
+      }
     });
   });
 });
