@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782672932577,
+  "lastUpdate": 1782672990704,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11623,6 +11623,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4e5518d43f34844e63562fd28b329b5de6da3b0",
+          "message": "test: add co-located boundary tests for multipart header parser (#185) (#195)\n\n* test: add co-located boundary tests for multipart header parser (#185)\n\nCreate dedicated `lib/body/multipart/headers.spec.unit.js` with 30 tests\ncovering 10 concern areas: default behavior, valid header parsing,\ncase-insensitive normalization, directive parsing, RFC 7578 filtering,\nnull-prototype verification, Buffer input, malformed input, duplicate\nheaders, and Content-Type override.\n\nRemove the 6 bundled header tests from `lib/body/writer.spec.unit.js`\nand update its @fileoverview JSDoc to reflect the change.\n\n* test: add empty Buffer, malformed Content-Disposition, and invalid Content-Transfer-Encoding boundary cases (#185)",
+          "timestamp": "2026-06-28T18:56:18Z",
+          "tree_id": "04756350dd68750cf61d3fb5dd10f500361bec73",
+          "url": "https://github.com/CentralPing/ergo/commit/b4e5518d43f34844e63562fd28b329b5de6da3b0"
+        },
+        "date": 1782672990217,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
