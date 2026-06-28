@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`redactHeaders` option on `handler()` for onResponse hook header redaction.** (#181)
+  Controls which response headers are replaced with `'[REDACTED]'` in the
+  `responseInfo` snapshot passed to `onResponse` hooks. Defaults to
+  `authorization`, `proxy-authorization`, `cookie`, `set-cookie` — the same
+  set used by `logger()`. Pass an empty `Set` to disable redaction.
+
+- **`lib/redact-headers.js` shared redaction primitive.** (#181)
+  Exports `DEFAULT_REDACTED_HEADERS` and `redactHeaders(headers, redactSet)`.
+  Extracted from `http/logger.js`'s private implementation. Available via deep
+  import `@centralping/ergo/lib/redact-headers`.
+
 - **Factory-time warning for CORS wildcard + credentials misconfiguration.** (#177)
   `cors({origins: '*', allowCredentials: true})` now emits a one-time
   `process.emitWarning` with `{type: 'ErgoWarning', code: 'ERGO_CORS_WILDCARD_CREDENTIALS'}`.
@@ -18,6 +29,14 @@ All notable changes to this project will be documented in this file.
   counters between test cases without reconstructing the middleware or router.
 
 ### Fixed
+
+- **`buildResponseInfo` now redacts sensitive response headers.** (#181)
+  Previously, `buildResponseInfo` passed `res.getHeaders()` directly into the
+  response info snapshot without redaction. The `onResponse` hook could leak
+  `set-cookie`, `authorization`, `proxy-authorization`, and `cookie` headers
+  even when `http/logger.js` correctly redacted them. The function now accepts
+  an optional `redactSet` parameter, and `handler()` forwards its
+  `redactHeaders` option (defaulting to the same 4-header set as the logger).
 
 - **`handler()` send catch block now emits errors for observability.** (#179)
   The `send()` catch block previously used a bare `catch` without capturing the
