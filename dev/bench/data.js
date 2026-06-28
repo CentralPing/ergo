@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782686533525,
+  "lastUpdate": 1782690169061,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11806,6 +11806,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d168b750e5480cdb90682d7c2875be69f446b3fc",
+          "message": "fix: default ajv-formats to fast mode for ReDoS mitigation (#182) (#197)\n\n* fix: default ajv-formats to fast mode for ReDoS mitigation (#182)\n\nThe default format validation mode now uses simplified regexes that are\nsafe for untrusted input. Full-mode regexes for date, time, date-time,\nduration, uri, uri-reference, email, and idn-email are vulnerable to\nReDoS with crafted payloads. Opt in to full mode via {mode: 'full'}\nwhen strict RFC compliance is required and input sources are trusted.\n\n* fix: note selective-format array ReDoS caveat in CHANGELOG (#182)\n\najv-formats does not support per-format mode selection for array configs\nso formats: ['email'] continues to use full-mode regexes.\n\n* test: add regression test for formats: true branch (#182)",
+          "timestamp": "2026-06-28T19:42:32-04:00",
+          "tree_id": "743ba5accd87de464cba681716d6a755c8528c6b",
+          "url": "https://github.com/CentralPing/ergo/commit/d168b750e5480cdb90682d7c2875be69f446b3fc"
+        },
+        "date": 1782690167921,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
