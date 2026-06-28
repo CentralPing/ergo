@@ -30,6 +30,15 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`ajv-formats` default mode changed from full to fast (ReDoS mitigation).** (#182)
+  The default format validation mode now uses simplified regexes that are safe for
+  untrusted input. Full-mode regexes for `date`, `time`, `date-time`, `duration`,
+  `uri`, `uri-reference`, `email`, and `idn-email` are vulnerable to ReDoS with
+  crafted payloads. Selective format arrays (e.g. `formats: ['email']`) continue
+  to use full-mode regexes — `ajv-formats` does not support per-format mode
+  selection. Opt in to full mode via `{mode: 'full'}` when strict RFC compliance
+  is required and input sources are trusted.
+
 - **Logger preserves empty-string request IDs (nullish coalescing).** (#186)
   `http/logger.js` request-ID resolution chain now uses `??` instead of `||`.
   An upstream proxy sending `x-request-id: ""` is treated as a present value
