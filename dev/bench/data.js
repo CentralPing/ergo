@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782736726393,
+  "lastUpdate": 1782736791988,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12059,6 +12059,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4b4b6df470d52a4f79db1bf825eef246df3fb2b3",
+          "message": "test: add module-layer unit tests for body and compress (#184) (#199)\n\n* test: add module-layer unit tests for body and compress (#184)\n\nAdd missing Layer 2 unit tests for the two http/ middleware that only\nhad contract tests. body.spec.unit.js covers factory defaults, fast\npath, type filtering, charset handling, Content-Length validation,\ndecompression limits, lazy getter, compressed body paths, and error\nrethrow. compress.spec.unit.js covers encoding negotiation, compressor\nselection, threshold behavior, status/content-type skipping, res\npatching, Vary header, Content-Length removal, and stream error handling.\n\n* fix: address CodeRabbit review findings (#184)\n\n- Normalize req.headers to null-prototype object in makeReq() test stub\n- Fix streaming overflow test to use chunked encoding (exercises read-time limit)\n- Clear timeout in onFinish() helper to prevent lingering timers\n- Rewrite compressor error test to exercise the error handler via write-after-end\n\n* fix: use null-prototype headers in compress test fixtures (#184)\n\nAdd makeHeaders() helper and replace all inline header object literals\nwith null-prototype equivalents, consistent with body.spec.unit.js and\nthe DECISIONS.md null-prototype policy for user-input-derived data.\n\n* fix: use null-prototype headers in inline body test req stub (#184)",
+          "timestamp": "2026-06-29T12:39:33Z",
+          "tree_id": "65387cf35b393d32098204d3b739ad9df4ccddf5",
+          "url": "https://github.com/CentralPing/ergo/commit/4b4b6df470d52a4f79db1bf825eef246df3fb2b3"
+        },
+        "date": 1782736791144,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
