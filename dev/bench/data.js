@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782732861689,
+  "lastUpdate": 1782736726393,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12019,6 +12019,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "af6a30e3693f8efd6ed3ba6954f410847070a3b3",
+          "message": "test: add module-layer unit tests for body and compress (#184)",
+          "timestamp": "2026-06-29T02:04:46Z",
+          "url": "https://github.com/CentralPing/ergo/pull/199/commits/af6a30e3693f8efd6ed3ba6954f410847070a3b3"
+        },
+        "date": 1782736725403,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
