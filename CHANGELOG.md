@@ -30,6 +30,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Cookie value validation uses RFC 6265 cookie-octet allowlist.** (#206)
+  Replaces the denylist regex (`COOKIE_VALUE_UNSAFE_RE`) with an anchored allowlist
+  (`COOKIE_VALUE_RE`) matching RFC 6265 §4.1.1 `cookie-octet` grammar. Now correctly
+  rejects non-ASCII bytes (`\x80-\xFF`) that the denylist missed. Aligns with the
+  allowlist patterns already used by `assertSafeName` (`TOKEN_RE`) and the parser
+  (`valueRFC6265`).
+
 - **Location header rejects dangerous URI schemes.** (#188)
   `send()` validates `responseAcc.location` against `javascript:`, `data:`, and
   `vbscript:` schemes before setting the Location header. Throws `TypeError` for
