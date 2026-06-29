@@ -2,6 +2,7 @@ import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
 import createLogger from './logger.js';
+import {DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 
 function makeReq(overrides = {}) {
   return Object.assign(
@@ -106,7 +107,10 @@ describe('[Module] http/logger', () => {
     assert.equal(typeof info.host.pid, 'number', 'host.pid should be a number');
 
     assert.ok(info.request, 'should include request object');
-    assert.deepEqual(info.request.headers, {'content-type': 'application/json'});
+    assert.deepEqual(
+      info.request.headers,
+      Object.assign(Object.create(null), {'content-type': 'application/json'})
+    );
     assert.equal(info.request.encrypted, true);
     assert.equal(info.request.remoteAddress, '10.0.0.1');
     assert.equal(info.request.remotePort, 54321);
@@ -307,6 +311,14 @@ describe('[Module] http/logger', () => {
     assert.equal(res._headers['x-request-id'], 'fixed-uuid');
   });
 
+  it('uses nullish coalescing — does not skip empty-string request IDs', () => {
+    const logger = createLogger({log: () => {}, error: () => {}, uuid: () => 'generated'});
+    const req = makeReq({headers: {'x-request-id': ''}});
+    const res = makeRes();
+    const info = logger(req, res);
+    assert.equal(info.requestId, '', 'empty string is a present value, not missing');
+  });
+
   it('reads client IP from configured header', () => {
     const logger = createLogger({log: () => {}, error: () => {}});
     const req = makeReq({headers: {'x-real-ip': '192.168.1.100'}});
@@ -387,6 +399,28 @@ describe('[Module] http/logger', () => {
     assert.equal(info.request.headers['x-api-key'], '[REDACTED]');
   });
 
+  it('redacted headers object has null prototype', () => {
+    const logger = createLogger({log: () => {}, error: () => {}});
+    const req = makeReq({
+      headers: {'content-type': 'application/json', authorization: 'Bearer token'}
+    });
+    const res = makeRes();
+    const info = logger(req, res);
+    assert.equal(Object.getPrototypeOf(info.request.headers), null);
+  });
+
+  it('redacted response headers object has null prototype', () => {
+    const logged = [];
+    const logger = createLogger({log: (...args) => logged.push(args), error: () => {}});
+    const req = makeReq();
+    const res = makeRes();
+    res.setHeader('x-custom', 'value');
+    logger(req, res);
+    res.emit('finish');
+    const entry = logged[0][0];
+    assert.equal(Object.getPrototypeOf(entry.response.headers), null);
+  });
+
   it('allows disabling redaction with empty set', () => {
     const logger = createLogger({
       log: () => {},
@@ -397,5 +431,18 @@ describe('[Module] http/logger', () => {
     const res = makeRes();
     const info = logger(req, res);
     assert.equal(info.request.headers.authorization, 'Bearer token');
+  });
+
+  it('default redaction is isolated from mutations to DEFAULT_REDACTED_HEADERS', () => {
+    const logger = createLogger({log: () => {}, error: () => {}});
+    DEFAULT_REDACTED_HEADERS.delete('authorization');
+    try {
+      const req = makeReq({headers: {authorization: 'Bearer token'}});
+      const res = makeRes();
+      const info = logger(req, res);
+      assert.equal(info.request.headers.authorization, '[REDACTED]');
+    } finally {
+      DEFAULT_REDACTED_HEADERS.add('authorization');
+    }
   });
 });

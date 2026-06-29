@@ -39,9 +39,8 @@
 import {STATUS_CODES} from 'node:http';
 import {hostname} from 'node:os';
 import {randomUUID} from 'node:crypto';
+import {redactHeaders as redact, DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 import {validateOptions} from '../lib/validate-options.js';
-
-const DEFAULT_REDACTED = new Set(['authorization', 'proxy-authorization', 'cookie', 'set-cookie']);
 
 /** @type {Set<string>} */
 const VALID_OPTIONS = new Set([
@@ -53,20 +52,6 @@ const VALID_OPTIONS = new Set([
   'redactErrors',
   'redactHeaders'
 ]);
-
-/**
- * @param {object} headers - Header object to redact
- * @param {Set<string>} redactSet - Header names to replace with '[REDACTED]'
- * @returns {object} - Copy with sensitive values replaced
- */
-function redact(headers, redactSet) {
-  if (!redactSet?.size) return headers;
-  const safe = {};
-  for (const [k, v] of Object.entries(headers)) {
-    safe[k] = redactSet.has(k) ? '[REDACTED]' : v;
-  }
-  return safe;
-}
 
 const host = Object.freeze({
   hostname: hostname(),
@@ -103,13 +88,13 @@ export default (options = {}) => {
     headerRequestIdName = 'x-request-id',
     headerRequestIpName = 'x-real-ip',
     redactErrors = true,
-    redactHeaders = DEFAULT_REDACTED
+    redactHeaders = new Set(DEFAULT_REDACTED_HEADERS)
   } = options;
   const inner = function loggerMiddleware(req, res, acc) {
     const time = performance.now();
     const timestamp = Date.now();
     const requestId =
-      res.getHeader(headerRequestIdName) || req.headers[headerRequestIdName] || uuid();
+      res.getHeader(headerRequestIdName) ?? req.headers[headerRequestIdName] ?? uuid();
     const ip = req.headers[headerRequestIpName];
 
     if (!res.getHeader(headerRequestIdName)) {
