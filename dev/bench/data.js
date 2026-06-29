@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782760528312,
+  "lastUpdate": 1782760593067,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12316,6 +12316,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1d2ba17b55550797c620fef4c45273c5f2480314",
+          "message": "fix: validate Location header against dangerous URI schemes (#188) (#203)\n\n* fix: validate Location header against dangerous URI schemes (#188)\n\nAdd lib/validate-location.js shared primitive that rejects javascript:,\ndata:, and vbscript: URI schemes in Location header values. Integrates\ninto send() before res.setHeader('Location', ...) to provide\ndefense-in-depth against CWE-601 XSS via open redirect.\n\n- Case-insensitive scheme matching per RFC 3986\n- Leading whitespace tolerance to prevent bypass\n- TypeError throw (consistent with formatLinkHeader pattern)\n- Three-layer test coverage (boundary, module, contract)\n\n* fix: normalize embedded control characters before scheme detection (#188)\n\nBrowsers strip ASCII tab, CR, and LF before URL scheme parsing (WHATWG\nURL §4.4), so inputs like java<TAB>script: bypass RFC 3986 scheme\nmatching but still resolve to javascript: on the client. Normalize\nthese characters out before extracting the scheme candidate.",
+          "timestamp": "2026-06-29T19:16:17Z",
+          "tree_id": "ad516966de6d3ae2840735267456c689956f7d58",
+          "url": "https://github.com/CentralPing/ergo/commit/1d2ba17b55550797c620fef4c45273c5f2480314"
+        },
+        "date": 1782760591894,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
