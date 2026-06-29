@@ -221,6 +221,7 @@ export interface LoggerOptions {
   uuid?: () => string;
   headerRequestIdName?: string;
   headerRequestIpName?: string;
+  redactErrors?: boolean;
   redactHeaders?: Set<string>;
 }
 

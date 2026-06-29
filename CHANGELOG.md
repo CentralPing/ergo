@@ -30,6 +30,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Logger `error()` callback now redacts sensitive error details by default.** (#183)
+  When `redactErrors` is `true` (default), the error callback logs generic HTTP status
+  text instead of `err.message`, and suppresses `err.stack` and `err.originalError`.
+  Prevents sensitive error details (database connection strings, file paths, token
+  validation messages) from leaking into structured log output. Mirrors `handler()`'s
+  `redactErrors` behavior for HTTP response bodies, applied to the log output boundary.
+
 - **`ajv-formats` default mode changed from full to fast (ReDoS mitigation).** (#182)
   The default format validation mode now uses simplified regexes that are safe for
   untrusted input. Full-mode regexes for `date`, `time`, `date-time`, `duration`,
