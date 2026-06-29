@@ -358,10 +358,10 @@ describe('[Module] http/body', () => {
       const req = {
         method: 'POST',
         url: '/',
-        headers: {
+        headers: Object.assign(Object.create(null), {
           'content-type': 'application/json',
           'content-length': '10'
-        },
+        }),
         [Symbol.asyncIterator]() {
           return {
             async next() {
