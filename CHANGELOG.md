@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`redactHeaders` option on `handler()` for onResponse hook header redaction.** (#181)
+  Controls which response headers are replaced with `'[REDACTED]'` in the
+  `responseInfo` snapshot passed to `onResponse` hooks. Defaults to
+  `authorization`, `proxy-authorization`, `cookie`, `set-cookie` — the same
+  set used by `logger()`. Pass an empty `Set` to disable redaction.
+
+- **`lib/redact-headers.js` shared redaction primitive.** (#181)
+  Exports `DEFAULT_REDACTED_HEADERS` and `redactHeaders(headers, redactSet)`.
+  Extracted from `http/logger.js`'s private implementation. Available via deep
+  import `@centralping/ergo/lib/redact-headers`.
+
 - **Factory-time warning for CORS wildcard + credentials misconfiguration.** (#177)
   `cors({origins: '*', allowCredentials: true})` now emits a one-time
   `process.emitWarning` with `{type: 'ErgoWarning', code: 'ERGO_CORS_WILDCARD_CREDENTIALS'}`.
@@ -25,6 +36,62 @@ All notable changes to this project will be documented in this file.
   rejects non-ASCII bytes (`\x80-\xFF`) that the denylist missed. Aligns with the
   allowlist patterns already used by `assertSafeName` (`TOKEN_RE`) and the parser
   (`valueRFC6265`).
+
+- **Location header rejects dangerous URI schemes.** (#188)
+  `send()` validates `responseAcc.location` against `javascript:`, `data:`, and
+  `vbscript:` schemes before setting the Location header. Throws `TypeError` for
+  blocked schemes, providing defense-in-depth against CWE-601 XSS via open redirect.
+
+- **JSDoc bare `{Array}` annotations replaced with `{*[]}` shorthand.** (#187)
+  Five annotations in `lib/paginate.js` (4) and `utils/flat-array.js` (1) used
+  imprecise `{Array}` without type parameters. Replaced with the `{*[]}` shorthand
+  for consistency with the codebase's parameterized `{Array<T>}` convention.
+
+- **Logger `error()` callback now redacts sensitive error details by default.** (#183)
+  When `redactErrors` is `true` (default), the error callback logs generic HTTP status
+  text instead of `err.message`, and suppresses `err.stack` and `err.originalError`.
+  Prevents sensitive error details (database connection strings, file paths, token
+  validation messages) from leaking into structured log output. Mirrors `handler()`'s
+  `redactErrors` behavior for HTTP response bodies, applied to the log output boundary.
+
+- **`ajv-formats` default mode changed from full to fast (ReDoS mitigation).** (#182)
+  The default format validation mode now uses simplified regexes that are safe for
+  untrusted input. Full-mode regexes for `date`, `time`, `date-time`, `duration`,
+  `uri`, `uri-reference`, `email`, and `idn-email` are vulnerable to ReDoS with
+  crafted payloads. Selective format arrays (e.g. `formats: ['email']`) continue
+  to use full-mode regexes — `ajv-formats` does not support per-format mode
+  selection. Opt in to full mode via `{mode: 'full'}` when strict RFC compliance
+  is required and input sources are trusted.
+
+- **Logger preserves empty-string request IDs (nullish coalescing).** (#186)
+  `http/logger.js` request-ID resolution chain now uses `??` instead of `||`.
+  An upstream proxy sending `x-request-id: ""` is treated as a present value
+  rather than falling through to UUID generation.
+
+- **Validation error `path` uses RFC 6901 empty string for root-level errors.** (#186)
+  `lib/validate.js` `formatError` no longer maps AJV's empty-string
+  `instancePath` to `'/'`. Per RFC 6901, the empty string is the correct
+  JSON Pointer representation of the root document. Consumers matching
+  `details[].path === '/'` for root-level errors should update to `=== ''`.
+
+- **`buildResponseInfo` now redacts sensitive response headers.** (#181)
+  Previously, `buildResponseInfo` passed `res.getHeaders()` directly into the
+  response info snapshot without redaction. The `onResponse` hook could leak
+  `set-cookie`, `authorization`, `proxy-authorization`, and `cookie` headers
+  even when `http/logger.js` correctly redacted them. The function now accepts
+  an optional `redactSet` parameter, and `handler()` forwards its
+  `redactHeaders` option (defaulting to the same 4-header set as the logger).
+
+- **`handler()` send catch block now emits errors for observability.** (#179)
+  The `send()` catch block previously used a bare `catch` without capturing the
+  error, silently swallowing serialization failures. The error is now emitted on
+  `res` via the guarded `listenerCount('error') > 0` pattern (enabling
+  `http/logger.js` error callbacks) and recorded on the OTEL span via
+  `span.recordException()` for distributed tracing visibility. Matches the
+  pipeline catch block's established observability convention.
+  Additionally, `responseAcc.statusCode` is now set to `500` in the send catch
+  so the OTEL span finalization reads the correct status instead of the
+  pipeline's stale value.
 
 - **Pagination `prev` link clamped to last page when `page` exceeds total.** (#180)
   `paginationLinks` now generates `prev` pointing to `lastPage` instead of

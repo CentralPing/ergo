@@ -26,6 +26,8 @@ describe('[Contract] http/send', () => {
         return {response: {statusCode: 201, body: {id: 99}}};
       case '201-location':
         return {response: {statusCode: 201, body: {id: 42}, location: '/items/42'}};
+      case 'location-dangerous-scheme':
+        return {response: {statusCode: 302, location: 'javascript:alert(1)'}};
       case 'last-modified':
         return {response: {body: {data: 'versioned'}, lastModified}};
       default:
@@ -128,6 +130,13 @@ describe('[Contract] http/send', () => {
     assert.equal(res.headers.get('location'), '/items/42');
     const body = await res.json();
     assert.equal(body.id, 42);
+  });
+
+  it('returns 500 when location contains a dangerous URI scheme', async () => {
+    const res = await fetch(`${baseUrl}/?scenario=location-dangerous-scheme`);
+    assert.equal(res.status, 500);
+    const text = await res.text();
+    assert.equal(text, '');
   });
 
   it('returns 412 for If-Unmodified-Since when resource is newer (PUT)', async () => {
