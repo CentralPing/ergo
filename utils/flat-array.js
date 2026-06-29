@@ -16,7 +16,7 @@
 
 /**
  * @param {...*} items - Values or nested arrays to flatten
- * @returns {Array} - Single-level flattened array
+ * @returns {*[]} - Single-level flattened array
  */
 export default (...items) => {
   return items.flat();
