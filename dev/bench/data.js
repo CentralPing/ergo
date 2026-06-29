@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782767880890,
+  "lastUpdate": 1782770223667,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12390,6 +12390,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.013,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8855950634425139a5697161d0a3b98ad62083e1",
+          "message": "fix: replace cookie value denylist with RFC 6265 cookie-octet allowlist (#206) (#209)\n\nSwitch assertSafeValue from a denylist regex (COOKIE_VALUE_UNSAFE_RE) to\nan anchored allowlist regex (COOKIE_VALUE_RE) matching RFC 6265 §4.1.1\ncookie-octet grammar. The denylist missed non-ASCII bytes (\\x80-\\xFF);\nthe allowlist rejects everything not explicitly permitted, closing the\nspec compliance gap. Aligns with the allowlist patterns already used by\nassertSafeName (TOKEN_RE) and the parser (valueRFC6265).",
+          "timestamp": "2026-06-29T17:56:47-04:00",
+          "tree_id": "5058ed66ad12c974370fef78d622159d7701ba67",
+          "url": "https://github.com/CentralPing/ergo/commit/8855950634425139a5697161d0a3b98ad62083e1"
+        },
+        "date": 1782770223117,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
