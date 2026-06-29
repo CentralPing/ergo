@@ -30,6 +30,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Parsed JSON bodies use null-prototype objects at all nesting levels.** (#214)
+  `acc.body.parsed` now returns objects created via `Object.create(null)` at every
+  depth, aligning with the null-prototype policy enforced by query, cookie, and
+  Prefer parsers. Applies to both the identity-encoded fast path and the
+  compressed-body lazy getter path.
+
 - **Cookie value validation uses RFC 6265 cookie-octet allowlist.** (#206)
   Replaces the denylist regex (`COOKIE_VALUE_UNSAFE_RE`) with an anchored allowlist
   (`COOKIE_VALUE_RE`) matching RFC 6265 §4.1.1 `cookie-octet` grammar. Now correctly
