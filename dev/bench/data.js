@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782744420411,
+  "lastUpdate": 1782744749019,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12128,6 +12128,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "70aa59702e9a00d94f9a495dadeb539bf2c1b3a8",
+          "message": "style: replace bare {Array} JSDoc types with {*[]} shorthand (#187) (#200)\n\nFive annotations in lib/paginate.js (4) and utils/flat-array.js (1)\nused imprecise {Array} without type parameters. Replace with the {*[]}\nshorthand for consistency with the codebase's parameterized {Array<T>}\nconvention and the DECISIONS.md lowercase-primitives policy.",
+          "timestamp": "2026-06-29T10:52:15-04:00",
+          "tree_id": "936cda25dfc9462be314c3cade6711b7ba0ee3f8",
+          "url": "https://github.com/CentralPing/ergo/commit/70aa59702e9a00d94f9a495dadeb539bf2c1b3a8"
+        },
+        "date": 1782744748442,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
             "unit": "us/op"
           },
           {
