@@ -29,6 +29,16 @@ function onFinish(res) {
   });
 }
 
+/**
+ * Create a null-prototype headers object from an optional initializer.
+ *
+ * @param {object} [init] - Header key-value pairs
+ * @returns {object} - Null-prototype headers object
+ */
+function makeHeaders(init) {
+  return Object.assign(Object.create(null), init);
+}
+
 describe('[Module] http/compress', () => {
   describe('factory defaults', () => {
     it('returns a named function "compressMiddleware"', () => {
@@ -40,19 +50,22 @@ describe('[Module] http/compress', () => {
   describe('encoding negotiation', () => {
     it('returns undefined when no Accept-Encoding header', () => {
       const compress = createCompress();
-      const result = compress({headers: {}}, createMockRes());
+      const result = compress({headers: makeHeaders()}, createMockRes());
       assert.equal(result, undefined);
     });
 
     it('returns undefined when Accept-Encoding is empty string', () => {
       const compress = createCompress();
-      const result = compress({headers: {'accept-encoding': ''}}, createMockRes());
+      const result = compress({headers: makeHeaders({'accept-encoding': ''})}, createMockRes());
       assert.equal(result, undefined);
     });
 
     it('returns undefined for Accept-Encoding: identity only', () => {
       const compress = createCompress();
-      const result = compress({headers: {'accept-encoding': 'identity'}}, createMockRes());
+      const result = compress(
+        {headers: makeHeaders({'accept-encoding': 'identity'})},
+        createMockRes()
+      );
       assert.equal(result, undefined);
     });
 
@@ -61,7 +74,7 @@ describe('[Module] http/compress', () => {
       const origEnd = res.end;
       const origWrite = res.write;
       const compress = createCompress();
-      compress({headers: {}}, res);
+      compress({headers: makeHeaders()}, res);
       assert.equal(res.end, origEnd);
       assert.equal(res.write, origWrite);
     });
@@ -73,7 +86,7 @@ describe('[Module] http/compress', () => {
       const origEnd = res.end;
       const origWrite = res.write;
       const compress = createCompress();
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
       assert.notEqual(res.end, origEnd, 'res.end should be replaced');
       assert.notEqual(res.write, origWrite, 'res.write should be replaced');
     });
@@ -81,14 +94,14 @@ describe('[Module] http/compress', () => {
     it('patched write function is named "compressedWrite"', () => {
       const res = createMockRes();
       const compress = createCompress();
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
       assert.equal(res.write.name, 'compressedWrite');
     });
 
     it('patched end function is named "compressedEnd"', () => {
       const res = createMockRes();
       const compress = createCompress();
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
       assert.equal(res.end.name, 'compressedEnd');
     });
   });
@@ -97,7 +110,7 @@ describe('[Module] http/compress', () => {
     it('skips compression when body is below threshold', () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1024});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       const small = '{"hi":"there"}';
@@ -113,7 +126,7 @@ describe('[Module] http/compress', () => {
     it('applies compression when body meets threshold', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 10});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
@@ -130,7 +143,7 @@ describe('[Module] http/compress', () => {
     it('skips compression for 204 No Content', () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.statusCode = 204;
       res.setHeader('Content-Type', 'application/json');
@@ -142,7 +155,7 @@ describe('[Module] http/compress', () => {
     it('skips compression for 304 Not Modified', () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.statusCode = 304;
       res.setHeader('Content-Type', 'application/json');
@@ -156,7 +169,7 @@ describe('[Module] http/compress', () => {
     it('skips compression for non-compressible content type (image/png)', () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.setHeader('Content-Type', 'image/png');
       res.end('x'.repeat(2000));
@@ -167,7 +180,7 @@ describe('[Module] http/compress', () => {
     it('compresses compressible content type (text/html)', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.setHeader('Content-Type', 'text/html');
       res.statusCode = 200;
@@ -184,7 +197,7 @@ describe('[Module] http/compress', () => {
     it('sets Content-Encoding to gzip for gzip request', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
@@ -199,7 +212,7 @@ describe('[Module] http/compress', () => {
     it('sets Content-Encoding to deflate for deflate request', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'deflate'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'deflate'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
@@ -214,7 +227,7 @@ describe('[Module] http/compress', () => {
     it('sets Content-Encoding to br for brotli request', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'br'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'br'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
@@ -232,7 +245,7 @@ describe('[Module] http/compress', () => {
       const res = createMockRes();
       res.setHeader('Content-Length', '5000');
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
@@ -249,7 +262,7 @@ describe('[Module] http/compress', () => {
     it('adds Accept-Encoding to Vary header', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
@@ -270,7 +283,7 @@ describe('[Module] http/compress', () => {
     it('ends response on compressor error without hanging', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
@@ -291,14 +304,14 @@ describe('[Module] http/compress', () => {
       const res = createMockRes();
       const origEnd = res.end;
       const compress = createCompress({encodings: ['gzip']});
-      compress({headers: {'accept-encoding': 'gzip;q=0'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip;q=0'})}, res);
       assert.equal(res.end, origEnd, 'should not patch res when gzip has q=0');
     });
 
     it('selects higher-quality encoding from Accept-Encoding', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1});
-      compress({headers: {'accept-encoding': 'gzip;q=0.5, deflate;q=1'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip;q=0.5, deflate;q=1'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
@@ -316,14 +329,14 @@ describe('[Module] http/compress', () => {
       const res = createMockRes();
       const origEnd = res.end;
       const compress = createCompress({encodings: ['deflate']});
-      compress({headers: {'accept-encoding': 'gzip'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
       assert.equal(res.end, origEnd, 'should not patch res when gzip not in encodings');
     });
 
     it('negotiates within custom encodings', async () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1, encodings: ['deflate']});
-      compress({headers: {'accept-encoding': 'gzip, deflate'}}, res);
+      compress({headers: makeHeaders({'accept-encoding': 'gzip, deflate'})}, res);
 
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
