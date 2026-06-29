@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782752240491,
+  "lastUpdate": 1782752297423,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12242,6 +12242,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.013,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cac41457ac80538cd2133e52a1f572384ee1be1e",
+          "message": "test: add boundary tests for attach-instance and vary (#189) (#202)\n\n* test: add boundary tests for attach-instance and vary shared primitives (#189)\n\nAdd dedicated Layer 1 (Boundary) test files for lib/attach-instance.js and\nlib/vary.js to close the coverage gap identified in #189. Both shared\nprimitives were previously tested only indirectly through their consumers\n(handler.js and send.js respectively).\n\n- attach-instance: header present/absent, preserve existing, optional chaining, urn:uuid format\n- vary: single token, append, case-insensitive dedup, wildcard, multi-token, no-op\n\n* fix: short-circuit appendVary when Vary is wildcard * (#189)\n\nAdd wildcard short-circuit to lib/vary.js — when existing Vary header\ncontains *, no tokens are appended (RFC 9110 §12.5.5). Add boundary\ntest for the Vary: * + non-wildcard token case.\n\nAddresses CodeRabbit review finding on PR #202.",
+          "timestamp": "2026-06-29T16:58:03Z",
+          "tree_id": "e1e394b265fbd2a9786ac1996be4fab4583568cc",
+          "url": "https://github.com/CentralPing/ergo/commit/cac41457ac80538cd2133e52a1f572384ee1be1e"
+        },
+        "date": 1782752296719,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
