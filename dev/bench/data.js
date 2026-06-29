@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782695561620,
+  "lastUpdate": 1782698700606,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -11880,6 +11880,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.013,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "90015bb829d804aca75dba10bf0b5752582e8d4c",
+          "message": "fix: redact sensitive error details in logger error callback (#183) (#198)\n\n* fix: redact sensitive error details in logger error callback (#183)\n\nLogger error() callback now applies redactErrors option (default: true)\nto prevent err.message, err.stack, and err.originalError from leaking\nsensitive information into structured log output. Uses STATUS_CODES\nlookup consistent with handler.js HTTP response redaction.\n\n* test: add err.status fallback coverage for logger error redaction (#183)\n\nVerifies the nullish coalescing fallback (err.statusCode ?? err.status)\nby testing with an error that has only .status set (no .statusCode).",
+          "timestamp": "2026-06-28T22:04:42-04:00",
+          "tree_id": "c7e303672ecf4f804033548b9a162d3a0b38c48b",
+          "url": "https://github.com/CentralPing/ergo/commit/90015bb829d804aca75dba10bf0b5752582e8d4c"
+        },
+        "date": 1782698699438,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
