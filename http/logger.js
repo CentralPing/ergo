@@ -24,6 +24,7 @@
  *
  * @module http/logger
  * @since 0.1.0
+ * @requires node:http
  * @requires node:os
  * @requires node:crypto
  *
@@ -35,11 +36,11 @@
  *   // On finish logs: {"requestId":"...","method":"GET","url":"/users","statusCode":200,"duration":12,...}
  * );
  */
+import {STATUS_CODES} from 'node:http';
 import {hostname} from 'node:os';
 import {randomUUID} from 'node:crypto';
+import {redactHeaders as redact, DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 import {validateOptions} from '../lib/validate-options.js';
-
-const DEFAULT_REDACTED = new Set(['authorization', 'proxy-authorization', 'cookie', 'set-cookie']);
 
 /** @type {Set<string>} */
 const VALID_OPTIONS = new Set([
@@ -48,21 +49,9 @@ const VALID_OPTIONS = new Set([
   'uuid',
   'headerRequestIdName',
   'headerRequestIpName',
+  'redactErrors',
   'redactHeaders'
 ]);
-
-/**
- * @param {object} headers - Header object to redact
- * @param {Set<string>} redactSet - Header names to replace with '[REDACTED]'
- * @returns {object} - Copy with sensitive values replaced
- */
-function redact(headers, redactSet) {
-  const safe = Object.create(null);
-  for (const [k, v] of Object.entries(headers)) {
-    safe[k] = redactSet?.has(k) ? '[REDACTED]' : v;
-  }
-  return safe;
-}
 
 const host = Object.freeze({
   hostname: hostname(),
@@ -81,6 +70,10 @@ const host = Object.freeze({
  *   is found on the response or request headers (default: crypto.randomUUID)
  * @param {string} [options.headerRequestIdName] - Request ID header name (default: 'x-request-id')
  * @param {string} [options.headerRequestIpName] - Client IP header name (default: 'x-real-ip')
+ * @param {boolean} [options.redactErrors=true] - When true, error log entries use generic HTTP
+ *   status text (from `STATUS_CODES`) instead of `err.message`, and suppress `stack` and
+ *   `originalError`. This prevents sensitive error details from leaking into log output.
+ *   Independent of `handler()`'s `redactErrors` option (which controls HTTP response bodies).
  * @param {Set<string>} [options.redactHeaders] - Header names to replace with '[REDACTED]' in logs
  *   (default: authorization, proxy-authorization, cookie, set-cookie)
  */
@@ -94,13 +87,14 @@ export default (options = {}) => {
     uuid = randomUUID,
     headerRequestIdName = 'x-request-id',
     headerRequestIpName = 'x-real-ip',
-    redactHeaders = DEFAULT_REDACTED
+    redactErrors = true,
+    redactHeaders = new Set(DEFAULT_REDACTED_HEADERS)
   } = options;
   const inner = function loggerMiddleware(req, res, acc) {
     const time = performance.now();
     const timestamp = Date.now();
     const requestId =
-      res.getHeader(headerRequestIdName) || req.headers[headerRequestIdName] || uuid();
+      res.getHeader(headerRequestIdName) ?? req.headers[headerRequestIdName] ?? uuid();
     const ip = req.headers[headerRequestIpName];
 
     if (!res.getHeader(headerRequestIdName)) {
@@ -168,15 +162,16 @@ export default (options = {}) => {
      * @param {*} err - The error emitted by the response stream
      */
     function error(err) {
+      const code = err?.statusCode ?? err?.status;
       logError({
         requestId,
         timestamp,
         name: err?.name,
-        message: err?.message,
+        message: redactErrors ? (STATUS_CODES[code] ?? STATUS_CODES[500]) : err?.message,
         status: err?.status,
         statusCode: err?.statusCode,
-        originalError: err?.originalError,
-        stack: err?.stack
+        originalError: redactErrors ? undefined : err?.originalError,
+        stack: redactErrors ? undefined : err?.stack
       });
     }
   };
