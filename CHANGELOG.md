@@ -30,6 +30,11 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **JSDoc bare `{Array}` annotations replaced with `{*[]}` shorthand.** (#187)
+  Five annotations in `lib/paginate.js` (4) and `utils/flat-array.js` (1) used
+  imprecise `{Array}` without type parameters. Replaced with the `{*[]}` shorthand
+  for consistency with the codebase's parameterized `{Array<T>}` convention.
+
 - **Logger `error()` callback now redacts sensitive error details by default.** (#183)
   When `redactErrors` is `true` (default), the error callback logs generic HTTP status
   text instead of `err.message`, and suppresses `err.stack` and `err.originalError`.
