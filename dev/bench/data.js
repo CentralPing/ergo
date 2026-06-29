@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782736791988,
+  "lastUpdate": 1782744420411,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12088,6 +12088,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "dddf562411b456240f1db0d14e41d8ad35b722a3",
+          "message": "fix: replace bare {Array} JSDoc types with {*[]} shorthand (#187)",
+          "timestamp": "2026-06-29T12:39:38Z",
+          "url": "https://github.com/CentralPing/ergo/pull/200/commits/dddf562411b456240f1db0d14e41d8ad35b722a3"
+        },
+        "date": 1782744419273,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
             "unit": "us/op"
           },
           {
