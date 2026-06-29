@@ -261,6 +261,24 @@ describe('[Module] http/logger', () => {
     assert.equal(entry.statusCode, 503);
   });
 
+  it('resolves status text from err.status when err.statusCode is absent', () => {
+    const errors = [];
+    const logger = createLogger({
+      log: () => {},
+      error: (...args) => errors.push(args)
+    });
+    const req = makeReq();
+    const res = makeRes();
+    logger(req, res);
+    const err = new Error('gateway error');
+    err.status = 502;
+    res.emit('error', err);
+    const entry = errors[0][0];
+    assert.equal(entry.message, 'Bad Gateway');
+    assert.equal(entry.status, 502);
+    assert.equal(entry.statusCode, undefined);
+  });
+
   it('explicit redactErrors: true behaves identically to default', () => {
     const errors = [];
     const logger = createLogger({
