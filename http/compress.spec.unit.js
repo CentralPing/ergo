@@ -21,8 +21,11 @@ import createCompress from './compress.js';
  */
 function onFinish(res) {
   return new Promise((resolve, reject) => {
-    res.on('finish', resolve);
-    setTimeout(() => reject(new Error('res finish timeout')), 2000);
+    const timeout = setTimeout(() => reject(new Error('res finish timeout')), 2000);
+    res.once('finish', () => {
+      clearTimeout(timeout);
+      resolve();
+    });
   });
 }
 
@@ -272,15 +275,14 @@ describe('[Module] http/compress', () => {
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 200;
 
-      const finished = new Promise(resolve => {
-        res.on('finish', resolve);
-        setTimeout(resolve, 500);
-      });
+      const finished = onFinish(res);
 
-      res.write('{');
-      res.end('}');
+      res.write(JSON.stringify({data: 'x'.repeat(100)}));
+      res.end();
+      res.write('after-end');
 
       await finished;
+      assert.ok(res.writableEnded, 'response should have ended via error handler');
     });
   });
 

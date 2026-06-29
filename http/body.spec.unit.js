@@ -30,7 +30,7 @@ function makeReq(headers, body) {
   return {
     method: 'POST',
     url: '/',
-    headers,
+    headers: Object.assign(Object.create(null), headers),
     destroy() {},
     async *[Symbol.asyncIterator]() {
       yield buf;
@@ -278,14 +278,13 @@ describe('[Module] http/body', () => {
   describe('body exceeding limit', () => {
     it('returns 413 when body exceeds limit during streaming', async () => {
       const bodyMw = createBody({limit: 5});
-      const payload = 'this body is much longer than 5 bytes';
-      const req = makeReq(
-        {
-          'content-type': 'application/json',
-          'content-length': String(Buffer.byteLength(payload))
-        },
-        payload
-      );
+      const req = {
+        ...makeReq({'content-type': 'application/json', 'transfer-encoding': 'chunked'}, ''),
+        async *[Symbol.asyncIterator]() {
+          yield Buffer.from('thi');
+          yield Buffer.from('s body is much longer than 5 bytes');
+        }
+      };
       const result = await bodyMw(req);
       assert.equal(result.response.statusCode, 413);
       assert.ok(result.response.detail.includes('limit'));
