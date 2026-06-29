@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782744749019,
+  "lastUpdate": 1782747813158,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12172,6 +12172,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "d64abb86a15a891dd2db01bbaf57ba27c80d0b3b",
+          "message": "test: add boundary tests for attach-instance and vary (#189)",
+          "timestamp": "2026-06-29T14:53:14Z",
+          "url": "https://github.com/CentralPing/ergo/pull/202/commits/d64abb86a15a891dd2db01bbaf57ba27c80d0b3b"
+        },
+        "date": 1782747811999,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
