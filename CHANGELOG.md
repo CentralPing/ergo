@@ -30,6 +30,10 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **JSDoc bare `{Buffer}` replaced with `{import('node:buffer').Buffer}`.** (#213)
+  Two annotations in `lib/idempotency.js` (1) and `http/body.spec.unit.js` (1) used bare
+  `Buffer` without the `import('node:...')` form required by JSDoc conventions.
+
 - **Cookie value validation uses RFC 6265 cookie-octet allowlist.** (#206)
   Replaces the denylist regex (`COOKIE_VALUE_UNSAFE_RE`) with an anchored allowlist
   (`COOKIE_VALUE_RE`) matching RFC 6265 §4.1.1 `cookie-octet` grammar. Now correctly
