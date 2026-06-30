@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782857626713,
+  "lastUpdate": 1782862169015,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13205,6 +13205,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4c5a344bf03f7251b497d051f001c495c03a6d36",
+          "message": "fix: replace parseIdempotencyKey denylist with RFC 8941 sf-string allowlist (#220) (#221)\n\nReplace the permissive SF_STRING_RE regex (negated character class [^\"\\\\])\nwith a positive allowlist derived from RFC 8941 §3.3.3's unescaped and\nescaped productions. Eliminates the denylist escape check — the regex\nitself now rejects invalid escape sequences at the match stage.\n\nCTL characters, DEL, non-ASCII bytes, and HTAB in the inner string are\nnow correctly rejected. Only valid RFC 8941 sf-string values are accepted.",
+          "timestamp": "2026-06-30T19:29:14-04:00",
+          "tree_id": "25a6fd495ab1fbcb334739a040483d65df779653",
+          "url": "https://github.com/CentralPing/ergo/commit/4c5a344bf03f7251b497d051f001c495c03a6d36"
+        },
+        "date": 1782862167817,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.029,
             "unit": "us/op"
           },
           {
