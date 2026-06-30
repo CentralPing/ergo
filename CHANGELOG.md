@@ -32,8 +32,9 @@ All notable changes to this project will be documented in this file.
 
 - **`sanitizeQuotedString` uses qdtext allowlist instead of CTL denylist.** (#208)
   Replaced the control-character denylist regex with a positive allowlist derived
-  from the RFC 7230 §3.2.6 `qdtext` and `quoted-pair` productions. Behavioral
-  equivalence maintained — strips the same character set (NUL–BS, LF–US, DEL).
+  from the RFC 7230 §3.2.6 `qdtext` and `quoted-pair` productions. Behavior is
+  preserved for the previous CTL cases (NUL–BS, LF–US, DEL), and the sanitizer
+  now also strips characters outside the quoted-string latin1 allowlist.
   Defense-in-depth improvement: any character not explicitly allowed is now
   stripped rather than relying on enumerating forbidden characters.
 
