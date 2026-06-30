@@ -166,6 +166,7 @@ export interface HandlerOptions {
   debug?: boolean;
   onResponse?: OnResponseHook;
   redactErrors?: boolean;
+  redactHeaders?: Set<string>;
   timing?: boolean | TimingOptions;
   prettify?: boolean;
   vary?: string[];
@@ -220,6 +221,7 @@ export interface LoggerOptions {
   uuid?: () => string;
   headerRequestIdName?: string;
   headerRequestIpName?: string;
+  redactErrors?: boolean;
   redactHeaders?: Set<string>;
 }
 
