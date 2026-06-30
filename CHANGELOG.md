@@ -42,6 +42,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Parsed JSON bodies use null-prototype objects at all nesting levels.** (#214)
+  `acc.body.parsed` now returns objects created via `Object.create(null)` at every
+  depth, aligning with the null-prototype policy enforced by query, cookie, and
+  Prefer parsers. Applies to both the identity-encoded fast path and the
+  compressed-body lazy getter path.
+
 - **JSDoc bare `{Buffer}` replaced with `{import('node:buffer').Buffer}`.** (#213)
   Two annotations in `lib/idempotency.js` (1) and `http/body.spec.unit.js` (1) used bare
   `Buffer` without the `import('node:...')` form required by JSDoc conventions.
