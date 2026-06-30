@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **`formatLinkHeader` href validation replaced with RFC 3986 URI-reference character
+  allowlist.** (#207)
+  Previously rejected only CR, LF, NUL, and `>` via a four-character denylist. Now
+  validates against the full RFC 3986 §2 URI-reference character repertoire — only
+  unreserved, reserved, and well-formed percent-encoded triplets (`%XX`) are accepted.
+  Bare `%` signs and malformed sequences like `%GG` or `%2` are rejected. Callers
+  passing href values with spaces, `<`, `{`, `}`, `\`, `^`, `` ` ``, or `|` will now
+  receive a `TypeError`. Callers producing IRIs must percent-encode non-ASCII
+  characters before calling `formatLinkHeader`.
+
 ### Added
 
 - **`redactHeaders` option on `handler()` for onResponse hook header redaction.** (#181)
@@ -35,6 +47,18 @@ All notable changes to this project will be documented in this file.
   depth, aligning with the null-prototype policy enforced by query, cookie, and
   Prefer parsers. Applies to both the identity-encoded fast path and the
   compressed-body lazy getter path.
+
+- **JSDoc bare `{Buffer}` replaced with `{import('node:buffer').Buffer}`.** (#213)
+  Two annotations in `lib/idempotency.js` (1) and `http/body.spec.unit.js` (1) used bare
+  `Buffer` without the `import('node:...')` form required by JSDoc conventions.
+
+- **`sanitizeQuotedString` uses qdtext allowlist instead of CTL denylist.** (#208)
+  Replaced the control-character denylist regex with a positive allowlist derived
+  from the RFC 7230 §3.2.6 `qdtext` and `quoted-pair` productions. Behavior is
+  preserved for the previous CTL cases (NUL–BS, LF–US, DEL), and the sanitizer
+  now also strips characters outside the quoted-string latin1 allowlist.
+  Defense-in-depth improvement: any character not explicitly allowed is now
+  stripped rather than relying on enumerating forbidden characters.
 
 - **Cookie value validation uses RFC 6265 cookie-octet allowlist.** (#206)
   Replaces the denylist regex (`COOKIE_VALUE_UNSAFE_RE`) with an anchored allowlist
