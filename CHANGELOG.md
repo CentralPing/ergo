@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **`formatLinkHeader` href validation replaced with RFC 3986 URI-reference character
+  allowlist.** (#207)
+  Previously rejected only CR, LF, NUL, and `>` via a four-character denylist. Now
+  validates against the full RFC 3986 §2 URI-reference character repertoire — only
+  unreserved, reserved, and well-formed percent-encoded triplets (`%XX`) are accepted.
+  Bare `%` signs and malformed sequences like `%GG` or `%2` are rejected. Callers
+  passing href values with spaces, `<`, `{`, `}`, `\`, `^`, `` ` ``, or `|` will now
+  receive a `TypeError`. Callers producing IRIs must percent-encode non-ASCII
+  characters before calling `formatLinkHeader`.
+
 ### Added
 
 - **`redactHeaders` option on `handler()` for onResponse hook header redaction.** (#181)
