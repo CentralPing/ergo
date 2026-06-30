@@ -42,6 +42,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`parseIdempotencyKey` uses RFC 8941 sf-string allowlist instead of permissive denylist.**
+  (#220)
+  Replaced the `SF_STRING_RE` regex (permissive negated character class `[^"\\]`) with a
+  positive allowlist derived from RFC 8941 §3.3.3's `unescaped` (`%x20-21 / %x23-5B /
+  %x5D-7E`) and `escaped` (`"\" ( DQUOTE / "\" )`) productions. CTL characters
+  (`\x00`–`\x1F`, `\x7F`), non-ASCII bytes (`\x80`+), and HTAB (`\x09`) in the inner
+  string are now correctly rejected. The denylist escape check is eliminated — the regex
+  itself rejects invalid escape sequences at the match stage. Previously-accepted malformed
+  keys will now produce 400 responses (only invalid inputs are affected; all valid RFC 8941
+  sf-strings continue to parse correctly).
+
 - **Parsed JSON bodies use null-prototype objects at all nesting levels.** (#214)
   `acc.body.parsed` now returns objects created via `Object.create(null)` at every
   depth, aligning with the null-prototype policy enforced by query, cookie, and
