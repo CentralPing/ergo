@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782852048618,
+  "lastUpdate": 1782852279001,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13067,6 +13067,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.014,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7edab0785896b732412a6feebee8c178d0593605",
+          "message": "fix: replace bare Buffer with import('node:buffer').Buffer in JSDoc (#213) (#215)\n\n* fix: replace bare Buffer with import('node:buffer').Buffer in JSDoc (#213)\n\nTwo JSDoc @param annotations used bare {Buffer} instead of the\nrequired {import('node:buffer').Buffer} form per DECISIONS.md\nCritical Constraints. Also normalizes pipe spacing to match\ncodebase convention (no spaces around |).\n\nAffected files:\n- http/body.spec.unit.js:25 — makeReq helper\n- lib/idempotency.js:132 — generateFingerprint\n\n* docs: add CHANGELOG entry for JSDoc bare Buffer fix (#213)",
+          "timestamp": "2026-06-30T16:44:25-04:00",
+          "tree_id": "91833e7076b00d7ebc703734423ac1fb9ffda1a7",
+          "url": "https://github.com/CentralPing/ergo/commit/7edab0785896b732412a6feebee8c178d0593605"
+        },
+        "date": 1782852278388,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
