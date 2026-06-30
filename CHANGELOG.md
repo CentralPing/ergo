@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **Prefer header parser enforces RFC 7240 token/quoted-string grammar.** (#219)
+  Replaced the loose regex with a character-by-character scanner that enforces
+  RFC 9110 §5.6.2 `token` and §5.6.4 `quoted-string` grammars. Preference names
+  now accept the full `tchar` set (digits, `!`, `#`, etc. at any position). Quoted
+  values handle backslash escapes (`quoted-pair`) and reject bare control characters.
+  Commas inside quoted values no longer break parsing. Malformed preferences are
+  silently skipped (graceful degradation). Non-breaking: valid RFC 7240 inputs
+  produce identical output; previously-accepted invalid inputs may now be skipped.
+
 - **`formatLinkHeader` href validation replaced with RFC 3986 URI-reference character
   allowlist.** (#207)
   Previously rejected only CR, LF, NUL, and `>` via a four-character denylist. Now
