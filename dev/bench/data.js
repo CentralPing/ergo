@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782830510892,
+  "lastUpdate": 1782830574963,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12818,6 +12818,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ef6a36b83c3f978763ae4c950fb4b6139326ecac",
+          "message": "fix: replace sanitizeQuotedString denylist with qdtext allowlist (#208) (#211)\n\n* fix: replace sanitizeQuotedString denylist with qdtext allowlist (#208)\n\nReplace the control-character denylist regex with a positive allowlist\nderived from RFC 7230 §3.2.6 qdtext and quoted-pair productions.\nBehavioral equivalence maintained — strips the same character set.\n\n* fix: remove Set-Cookie from sanitizeQuotedString JSDoc contract (#208)\n\nThe function is used for WWW-Authenticate and Link header\nquoted-string parameters, not cookie values. Cookie values\nhave separate validation via assertSafeValue/assertSafeName.\n\n* fix: restrict sanitizeQuotedString allowlist to latin1 obs-text (#208)\n\nRFC 7230 §3.2.6 defines obs-text as %x80-FF (latin1 bytes).\nThe previous range \\u0080-\\uffff included code points above\nU+00FF that node:http rejects with ERR_INVALID_CHAR at\nsetHeader() time. Narrow to \\x80-\\xff for spec conformance\nand Node.js header API compatibility.\n\n* docs: correct CHANGELOG to reflect latin1 stripping behavior change (#208)\n\nThe obs-text fix (938089c) narrowed the allowlist to latin1,\nwhich now strips characters >U+00FF that the old denylist\npreserved. Update the changelog entry to accurately describe\nthis as a behavior change rather than claiming equivalence.",
+          "timestamp": "2026-06-30T14:42:38Z",
+          "tree_id": "fc559f6687732a31138a7e07c310aaaa26b37819",
+          "url": "https://github.com/CentralPing/ergo/commit/ef6a36b83c3f978763ae4c950fb4b6139326ecac"
+        },
+        "date": 1782830573608,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
