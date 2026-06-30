@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782782804149,
+  "lastUpdate": 1782782869395,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12639,6 +12639,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1344f0c061486194e6389ccc75f7f53feb332539",
+          "message": "fix: replace Link href denylist with RFC 3986 URI-reference allowlist (#207) (#210)\n\n* fix: replace Link href denylist with RFC 3986 URI-reference allowlist (#207)\n\nReplace the four-character denylist (/[\\r\\n\\0>]/) in formatLinkHeader\nwith a positive character-set allowlist derived from RFC 3986 §2. Only\nunreserved, reserved, and percent-encoding characters are now accepted,\nrejecting all characters not permitted in a URI-reference by construction.\n\n* fix: require valid pct-encoded triplets in URI_REF_CHARS_RE (#207)\n\nTighten the href allowlist regex to require % followed by exactly two\nhex digits, rejecting bare percent signs and malformed sequences like\n%GG or %2. Addresses CodeRabbit review finding.\n\n* fix: separate empty-string rejection from URI-reference character validation (#207)\n\nEmpty href now throws a distinct error message (\"Link href must be a\nnon-empty URI-reference\") instead of the misleading \"contains characters\nnot permitted\" message. Updated JSDoc @throws and test expectation.",
+          "timestamp": "2026-06-30T01:27:38Z",
+          "tree_id": "15e9b50219cb1004dd1bf2fef800f7e3cdb37532",
+          "url": "https://github.com/CentralPing/ergo/commit/1344f0c061486194e6389ccc75f7f53feb332539"
+        },
+        "date": 1782782868725,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.018,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.006,
             "unit": "us/op"
           }
         ]
