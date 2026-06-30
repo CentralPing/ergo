@@ -42,6 +42,10 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **JSDoc bare `{Buffer}` replaced with `{import('node:buffer').Buffer}`.** (#213)
+  Two annotations in `lib/idempotency.js` (1) and `http/body.spec.unit.js` (1) used bare
+  `Buffer` without the `import('node:...')` form required by JSDoc conventions.
+
 - **`sanitizeQuotedString` uses qdtext allowlist instead of CTL denylist.** (#208)
   Replaced the control-character denylist regex with a positive allowlist derived
   from the RFC 7230 §3.2.6 `qdtext` and `quoted-pair` productions. Behavior is

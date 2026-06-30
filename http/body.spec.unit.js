@@ -22,7 +22,7 @@ const brotli = promisify(zlib.brotliCompress);
  * Create a minimal request-like object with an async iterable body.
  *
  * @param {object} headers - Request headers (lowercased keys)
- * @param {Buffer|string} body - Raw body content
+ * @param {import('node:buffer').Buffer|string} body - Raw body content
  * @returns {object} - Minimal req stub with async iterator
  */
 function makeReq(headers, body) {
