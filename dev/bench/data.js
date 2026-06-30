@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782777961753,
+  "lastUpdate": 1782779812295,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12569,6 +12569,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "1545e64aa59276948c7d025d7e0083a4b62d9006",
+          "message": "fix: replace Link href denylist with RFC 3986 URI-reference allowlist (#207)",
+          "timestamp": "2026-06-29T21:56:52Z",
+          "url": "https://github.com/CentralPing/ergo/pull/210/commits/1545e64aa59276948c7d025d7e0083a4b62d9006"
+        },
+        "date": 1782779811781,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.015,
             "unit": "us/op"
           }
         ]
