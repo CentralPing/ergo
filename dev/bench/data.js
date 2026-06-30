@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782832498777,
+  "lastUpdate": 1782852048618,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13032,6 +13032,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "d8e36bf0f7a09df12d42a0b8d0f63e559c304fab",
+          "message": "fix: replace bare Buffer with import('node:buffer').Buffer in JSDoc (#213)",
+          "timestamp": "2026-06-30T14:42:59Z",
+          "url": "https://github.com/CentralPing/ergo/pull/215/commits/d8e36bf0f7a09df12d42a0b8d0f63e559c304fab"
+        },
+        "date": 1782852048051,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.014,
             "unit": "us/op"
           }
         ]
