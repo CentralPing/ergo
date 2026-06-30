@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782853461579,
+  "lastUpdate": 1782856317512,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13141,6 +13141,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "928350bbea97d96d4c51c871d577ea8a2211dc93",
+          "message": "fix: wrap JSON.parse output with null-prototype conversion (#214) (#216)\n\nApply deep recursive toNullPrototype() to all JSON.parse() output in\nhttp/body.js, covering both the identity-encoded fast path and the\ncompressed-body lazy getter (Proxy fallback). Aligns parsed body\nobjects with the null-prototype policy enforced by query, cookie, and\nPrefer parsers.",
+          "timestamp": "2026-06-30T17:51:43-04:00",
+          "tree_id": "80e44494fd921267f2e1542d9bffa43ad28a76f7",
+          "url": "https://github.com/CentralPing/ergo/commit/928350bbea97d96d4c51c871d577ea8a2211dc93"
+        },
+        "date": 1782856316221,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.014,
             "unit": "us/op"
           }
         ]
