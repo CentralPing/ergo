@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782831796814,
+  "lastUpdate": 1782831926600,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -12927,6 +12927,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "9e641319da4c344fd75d275fe7800f95038beb76",
+          "message": "fix: cookie attribute validation uses per-attribute RFC grammars (#218)",
+          "timestamp": "2026-06-30T14:42:59Z",
+          "url": "https://github.com/CentralPing/ergo/pull/223/commits/9e641319da4c344fd75d275fe7800f95038beb76"
+        },
+        "date": 1782831925448,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.012,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.003,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.005,
             "unit": "us/op"
           }
         ]
