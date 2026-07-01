@@ -42,6 +42,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Cookie attribute validation uses per-attribute RFC grammars.** (#218)
+  `domain` validates against RFC 1034/1123 subdomain grammar (alphanumeric labels
+  with hyphens, dot-separated, optional leading dot). `path` validates against
+  RFC 6265 §4.1.2.4 `path-value` (any CHAR except CTLs or semicolons). `sameSite`
+  validates against the RFC 6265bis `{Strict, Lax, None}` enum (case-insensitive).
+  Previously all three attributes incorrectly used the `cookie-octet` grammar
+  intended only for cookie values. Domain now rejects injection characters (`!`,
+  `#`, `$`, `*`) that are invalid in DNS names. Path now accepts spaces and commas
+  that are valid per RFC 6265. SameSite now rejects arbitrary strings that do not
+  match the enum.
+
 - **`validateLocation` uses RFC 3986 URI-reference character allowlist.** (#217)
   Replaces the three-character denylist (`CONTROL_STRIP_RE`) that only stripped tab,
   CR, and LF. Now rejects all characters not permitted in a URI-reference — NUL, C0
