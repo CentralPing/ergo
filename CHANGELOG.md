@@ -42,6 +42,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`validateLocation` uses RFC 3986 URI-reference character allowlist.** (#217)
+  Replaces the three-character denylist (`CONTROL_STRIP_RE`) that only stripped tab,
+  CR, and LF. Now rejects all characters not permitted in a URI-reference — NUL, C0
+  controls, DEL, non-ASCII, bare percent signs, and malformed percent-encoding are
+  caught. Follows the same allowlist pattern applied in `formatLinkHeader` (#207),
+  `sanitizeQuotedString` (#208), and cookie-octet validation (#206).
+
 - **`parseIdempotencyKey` uses RFC 8941 sf-string allowlist instead of permissive denylist.**
   (#220)
   Replaced the `SF_STRING_RE` regex (permissive negated character class `[^"\\]`) with a

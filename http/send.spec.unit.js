@@ -445,21 +445,27 @@ describe('[Module] http/send', () => {
         () => send(req, res, {statusCode: 301, body: 'Moved', location: 'javascript:alert(1)'}, {}),
         {name: 'TypeError', message: /dangerous URI scheme/}
       );
+      assert.equal(res._headers['location'], undefined, 'Location header must not be set');
     });
 
     it('throws TypeError for data: scheme in location', () => {
       const req = createMockReq();
       const res = createMockRes();
       assert.throws(
-        () =>
-          send(
-            req,
-            res,
-            {statusCode: 201, body: {id: 1}, location: 'data:text/html,<script>xss</script>'},
-            {}
-          ),
+        () => send(req, res, {statusCode: 201, body: {id: 1}, location: 'data:text/html,xss'}, {}),
         {name: 'TypeError', message: /dangerous URI scheme/}
       );
+      assert.equal(res._headers['location'], undefined, 'Location header must not be set');
+    });
+
+    it('throws TypeError for invalid URI-reference characters in location', () => {
+      const req = createMockReq();
+      const res = createMockRes();
+      assert.throws(
+        () => send(req, res, {statusCode: 301, body: 'Moved', location: '/path\x00value'}, {}),
+        {name: 'TypeError', message: /characters not permitted in a URI-reference/}
+      );
+      assert.equal(res._headers['location'], undefined, 'Location header must not be set');
     });
 
     it('throws TypeError for vbscript: scheme in location', () => {
@@ -469,6 +475,7 @@ describe('[Module] http/send', () => {
         () => send(req, res, {statusCode: 302, body: 'Redirect', location: 'vbscript:code'}, {}),
         {name: 'TypeError', message: /dangerous URI scheme/}
       );
+      assert.equal(res._headers['location'], undefined, 'Location header must not be set');
     });
   });
 
