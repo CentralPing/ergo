@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782911142960,
+  "lastUpdate": 1782911160409,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13682,6 +13682,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "f305906df68907eee5c560f806be10c3c30a9b73",
+          "message": "feat: enforce RFC 7240 token/quoted-string grammar in Prefer header parser (#219)",
+          "timestamp": "2026-07-01T03:46:30Z",
+          "url": "https://github.com/CentralPing/ergo/pull/224/commits/f305906df68907eee5c560f806be10c3c30a9b73"
+        },
+        "date": 1782911159041,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.004,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.007,
             "unit": "us/op"
           }
         ]
