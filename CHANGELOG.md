@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **Prefer header parser normalizes preference names and values to lowercase.**
+  (#235) Preference names are lowercased per RFC 7240 §2 (case-insensitive
+  comparison). Preference values are also lowercased as a Postel's Law leniency
+  for practical interoperability — all IANA-registered preference values are
+  lowercase tokens. A client sending `Prefer: Return=Minimal` now produces
+  `{return: 'minimal'}` instead of `{Return: 'Minimal'}`. Non-breaking for
+  well-behaved clients: standard RFC 7240 inputs already use lowercase.
+
 - **Prefer header parser enforces RFC 7240 token/quoted-string grammar.** (#219)
   Replaced the loose regex with a character-by-character scanner that enforces
   RFC 9110 §5.6.2 `token` and §5.6.4 `quoted-string` grammars. Preference names
