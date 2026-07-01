@@ -42,6 +42,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`MemoryStore` constructor validates `maxKeys` and `now` parameters.** (#230)
+  `maxKeys` must be a positive integer; `now` must be a function. Invalid values
+  that previously caused silent misconfiguration (e.g. `maxKeys: null` coercing to
+  `0` in the eviction guard, making the store behave as a single-entry cache) now
+  throw `TypeError` at construction time. Default construction is unaffected.
+
 - **Cookie attribute validation uses per-attribute RFC grammars.** (#218)
   `domain` validates against RFC 1034/1123 subdomain grammar (alphanumeric labels
   with hyphens, dot-separated, optional leading dot). `path` validates against
