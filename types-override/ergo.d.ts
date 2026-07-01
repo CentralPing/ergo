@@ -190,8 +190,8 @@ export interface HandlerOptions {
 export interface IdempotencyOptions {
   store?: {
     get(key: string): unknown;
-    set(key: string, fingerprint: string): void;
-    complete(key: string, response: unknown): void;
+    set(key: string, fingerprint: string): string;
+    complete(key: string, response: unknown, generation: string): boolean;
     delete(key: string): void;
   };
   ttlMs?: number;
@@ -416,7 +416,7 @@ export interface TracingResult {
 /** Result stored at `acc.idempotency` by `[idempotency(), 'idempotency']`. */
 export type IdempotencyResult =
   | Record<string, never>
-  | {key: string; fingerprint: string; complete: (response: unknown) => void; discard: () => void}
+  | {key: string; fingerprint: string; complete: (response: unknown) => boolean; discard: () => void}
   | {replayed: true};
 
 // ---------------------------------------------------------------------------

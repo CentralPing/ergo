@@ -1,5 +1,6 @@
 import {describe, it, beforeEach} from 'node:test';
 import assert from 'node:assert/strict';
+import {IdempotencyStore} from '../lib/idempotency.js';
 import idempotency from './idempotency.js';
 
 describe('[Boundary] http/idempotency', () => {
@@ -183,6 +184,28 @@ describe('[Boundary] http/idempotency', () => {
       mw = idempotency();
       const result = mw(makeReq('POST', '"no-body"'), {}, {});
       assert.equal(typeof result.value.fingerprint, 'string');
+    });
+  });
+
+  describe('generation token lifecycle', () => {
+    it('complete returns false after entry eviction (maxKeys: 1)', () => {
+      mw = idempotency({store: new IdempotencyStore({maxKeys: 1})});
+      const domainAcc = {body: {raw: 'body'}};
+
+      const first = mw(makeReq('POST', '"key-a"'), {}, domainAcc);
+      assert.equal(typeof first.value.complete, 'function');
+
+      mw(makeReq('POST', '"key-b"'), {}, domainAcc);
+
+      assert.equal(first.value.complete({statusCode: 200}), false);
+    });
+
+    it('complete returns true on successful completion', () => {
+      mw = idempotency();
+      const domainAcc = {body: {raw: 'body'}};
+
+      const result = mw(makeReq('POST', '"success-key"'), {}, domainAcc);
+      assert.equal(result.value.complete({statusCode: 201}), true);
     });
   });
 

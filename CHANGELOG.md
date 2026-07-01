@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **`IdempotencyStore` eviction is now status-aware with generation token validation.**
+  (#225)
+  `set()` now prunes expired entries before checking capacity, preferentially evicts
+  `complete` entries over `processing` entries, and returns a generation token (string).
+  `complete(key, response, generation)` accepts the generation token and returns
+  `boolean` (`true` on success, `false` when the entry is absent, evicted, or the
+  generation token mismatches). Passing `undefined` or `null` as `response` returns
+  `false` without mutating the entry. When all entries are `processing` and a new entry
+  must be stored, the oldest `processing` entry is evicted and a one-time
+  `process.emitWarning` is emitted with `{type: 'ErgoWarning',
+  code: 'ERGO_IDEMPOTENCY_PROCESSING_EVICTED'}`. Custom store implementations must
+  update `set()` to return a `string` and `complete()` to accept a third `generation`
+  parameter and return `boolean`.
+
 - **`formatLinkHeader` href validation replaced with RFC 3986 URI-reference character
   allowlist.** (#207)
   Previously rejected only CR, LF, NUL, and `>` via a four-character denylist. Now

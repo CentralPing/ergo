@@ -209,7 +209,7 @@ function testOptionsInterfaces() {
 function testResultShapes() {
   const prefer: PreferResult = { return: 'minimal', 'respond-async': true };
   const auth: AuthorizationResult = { user: { id: 1 } };
-  const idempNew: IdempotencyResult = { key: 'k', fingerprint: 'f', complete: () => {}, discard: () => {} };
+  const idempNew: IdempotencyResult = { key: 'k', fingerprint: 'f', complete: () => true, discard: () => {} };
   const idempReplay: IdempotencyResult = { replayed: true };
   const idempSkip: IdempotencyResult = {};
   void prefer;
