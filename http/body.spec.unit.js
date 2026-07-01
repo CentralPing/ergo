@@ -18,11 +18,13 @@ const gzip = promisify(zlib.gzip);
 const deflate = promisify(zlib.deflate);
 const brotli = promisify(zlib.brotliCompress);
 
+const np = props => Object.assign(Object.create(null), props);
+
 /**
  * Create a minimal request-like object with an async iterable body.
  *
  * @param {object} headers - Request headers (lowercased keys)
- * @param {Buffer|string} body - Raw body content
+ * @param {import('node:buffer').Buffer|string} body - Raw body content
  * @returns {object} - Minimal req stub with async iterator
  */
 function makeReq(headers, body) {
@@ -64,7 +66,7 @@ describe('[Module] http/body', () => {
       assert.equal(result.charset, 'utf-8');
       assert.equal(result.encoding, undefined);
       assert.equal(result.received, Buffer.byteLength(payload));
-      assert.deepEqual(result.parsed, {hello: 'world'});
+      assert.deepEqual(result.parsed, np({hello: 'world'}));
 
       const descriptor = Object.getOwnPropertyDescriptor(result, 'parsed');
       assert.equal(
@@ -101,7 +103,7 @@ describe('[Module] http/body', () => {
       );
       const result = await bodyMw(req);
       assert.equal(result.type, 'application/merge-patch+json');
-      assert.deepEqual(result.parsed, {name: 'updated'});
+      assert.deepEqual(result.parsed, np({name: 'updated'}));
     });
 
     it('parses application/json-patch+json (RFC 6902)', async () => {
@@ -118,6 +120,21 @@ describe('[Module] http/body', () => {
       assert.equal(result.type, 'application/json-patch+json');
       assert.ok(Array.isArray(result.parsed));
       assert.equal(result.parsed[0].op, 'replace');
+    });
+
+    it('returns null-prototype objects at all nesting levels', async () => {
+      const bodyMw = createBody();
+      const payload = JSON.stringify({top: {nested: {deep: true}}, list: [{item: 1}]});
+      const req = makeReq(
+        {'content-type': 'application/json', 'content-length': String(Buffer.byteLength(payload))},
+        payload
+      );
+      const result = await bodyMw(req);
+      assert.equal(Object.getPrototypeOf(result.parsed), null);
+      assert.equal(Object.getPrototypeOf(result.parsed.top), null);
+      assert.equal(Object.getPrototypeOf(result.parsed.top.nested), null);
+      assert.ok(Array.isArray(result.parsed.list));
+      assert.equal(Object.getPrototypeOf(result.parsed.list[0]), null);
     });
 
     it('returns complete result shape', async () => {
@@ -317,7 +334,7 @@ describe('[Module] http/body', () => {
       );
       const result = await bodyMw(req);
       assert.equal(result.type, 'application/json');
-      assert.deepEqual(result.parsed, {chunked: true});
+      assert.deepEqual(result.parsed, np({chunked: true}));
     });
   });
 
@@ -393,7 +410,7 @@ describe('[Module] http/body', () => {
       const result = await bodyMw(req);
       assert.equal(result.type, 'application/json');
       assert.equal(result.encoding, 'gzip');
-      assert.deepEqual(result.parsed, {compressed: true});
+      assert.deepEqual(result.parsed, np({compressed: true}));
     });
 
     it('parses deflate-compressed JSON body', async () => {
@@ -410,7 +427,7 @@ describe('[Module] http/body', () => {
       );
       const result = await bodyMw(req);
       assert.equal(result.type, 'application/json');
-      assert.deepEqual(result.parsed, {encoding: 'deflate'});
+      assert.deepEqual(result.parsed, np({encoding: 'deflate'}));
     });
 
     it('parses brotli-compressed JSON body', async () => {
@@ -427,7 +444,24 @@ describe('[Module] http/body', () => {
       );
       const result = await bodyMw(req);
       assert.equal(result.type, 'application/json');
-      assert.deepEqual(result.parsed, {encoding: 'br'});
+      assert.deepEqual(result.parsed, np({encoding: 'br'}));
+    });
+
+    it('returns null-prototype objects for compressed JSON bodies', async () => {
+      const bodyMw = createBody();
+      const payload = JSON.stringify({outer: {inner: 'value'}});
+      const compressed = await gzip(Buffer.from(payload));
+      const req = makeReq(
+        {
+          'content-type': 'application/json',
+          'content-encoding': 'gzip',
+          'content-length': String(compressed.length)
+        },
+        compressed
+      );
+      const result = await bodyMw(req);
+      assert.equal(Object.getPrototypeOf(result.parsed), null);
+      assert.equal(Object.getPrototypeOf(result.parsed.outer), null);
     });
 
     it('returns 415 for unsupported Content-Encoding', async () => {
@@ -494,7 +528,7 @@ describe('[Module] http/body', () => {
       );
       const result = await bodyMw(req);
       assert.equal(result.type, 'application/json');
-      assert.deepEqual(result.parsed, {ok: true});
+      assert.deepEqual(result.parsed, np({ok: true}));
     });
   });
 });

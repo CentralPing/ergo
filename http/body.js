@@ -51,6 +51,30 @@ import multiParse from '../lib/body/multiparse.js';
 import httpErrors from '../utils/http-errors.js';
 import {validateOptions} from '../lib/validate-options.js';
 
+/**
+ * Recursively converts a JSON-parsed value to use null-prototype objects at all
+ * nesting levels. Enforces the codebase-wide null-prototype policy (DECISIONS.md
+ * Section 1) for user-input-derived data returned by `JSON.parse()`.
+ *
+ * - Primitives and `null` pass through unchanged
+ * - Arrays are mapped element-wise (array identity preserved)
+ * - Plain objects are copied to `Object.create(null)` with recursive descent
+ *
+ * @param {*} value - The JSON.parse() output to convert
+ * @returns {*} - The converted value with null-prototype objects
+ */
+function toNullPrototype(value) {
+  if (value === null || typeof value !== 'object') return value;
+
+  if (Array.isArray(value)) return value.map(toNullPrototype);
+
+  const obj = Object.create(null);
+  for (const key of Object.keys(value)) {
+    obj[key] = toNullPrototype(value[key]);
+  }
+  return obj;
+}
+
 const errors = {
   TooLarge({limit, length} = {}) {
     return httpErrors(413, {
@@ -88,7 +112,7 @@ const parsers = new Proxy(
   },
   {
     get(o, p) {
-      return Object.hasOwn(o, p) ? o[p] : JSON.parse;
+      return Object.hasOwn(o, p) ? o[p] : raw => toNullPrototype(JSON.parse(raw));
     }
   }
 );
@@ -210,7 +234,7 @@ export default (options = {}) => {
         type !== 'application/x-www-form-urlencoded'
       ) {
         try {
-          result.parsed = JSON.parse(raw);
+          result.parsed = toNullPrototype(JSON.parse(raw));
         } catch (err) {
           throw errors.Malformed({type, err});
         }
