@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782864178654,
+  "lastUpdate": 1782866932661,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13314,6 +13314,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "296c53b78d872eea7e3c83bab42feee535e776a3",
+          "message": "fix: replace validateLocation denylist with RFC 3986 URI-reference allowlist (#217) (#222)\n\n* fix: replace validateLocation denylist with RFC 3986 URI-reference allowlist (#217)\n\nReplace the three-character CONTROL_STRIP_RE denylist with a URI_REF_CHARS_RE\nallowlist derived from RFC 3986 §2. Now rejects all characters not permitted\nin a URI-reference — NUL, C0 controls, DEL, non-ASCII, bare percent signs,\nand malformed percent-encoding. Follows the same pattern applied in\nformatLinkHeader (#207), sanitizeQuotedString (#208), and cookie-octet\nvalidation (#206). This is the last remaining denylist in the codebase.\n\n* test: assert no Location header set on validation throw (#217)\n\nAdd side-effect assertion to all four location-throws tests verifying\nres._headers['location'] is absent after validateLocation rejects.\nCatches regressions that reverse the validate-then-setHeader order.",
+          "timestamp": "2026-06-30T20:48:37-04:00",
+          "tree_id": "7f18e579a273b4b69c90e49f8ccc6705d708744b",
+          "url": "https://github.com/CentralPing/ergo/commit/296c53b78d872eea7e3c83bab42feee535e776a3"
+        },
+        "date": 1782866931882,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
             "unit": "us/op"
           },
           {
