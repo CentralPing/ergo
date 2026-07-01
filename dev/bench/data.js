@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782941456777,
+  "lastUpdate": 1782941522612,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13966,6 +13966,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a64b5f93506b68e5469cf536dedb892d76e1944f",
+          "message": "test: strengthen IdempotencyStore assertion specificity (#228) (#229)\n\nAdd pre-condition assertions, specific field checks, lazy-prune\nverification, field survival proofs, and deterministic hash assertion\nto eliminate vacuous test passes.",
+          "timestamp": "2026-07-01T21:31:44Z",
+          "tree_id": "53c38aba0191b023275b6e4f8f19c44863c9a727",
+          "url": "https://github.com/CentralPing/ergo/commit/a64b5f93506b68e5469cf536dedb892d76e1944f"
+        },
+        "date": 1782941521236,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
