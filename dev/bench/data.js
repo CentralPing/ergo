@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782912506938,
+  "lastUpdate": 1782923880224,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13822,6 +13822,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.006,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bcde7ca1600a3ced9bcb635c7788fb7cba3f8e49",
+          "message": "feat: enforce RFC 7240 token/quoted-string grammar in Prefer header parser (#219) (#224)\n\n* feat: enforce RFC 7240 token/quoted-string grammar in Prefer header parser (#219)\n\nReplace the loose regex in lib/prefer.js with a character-by-character\nscanner that enforces RFC 9110 §5.6.2 token and §5.6.4 quoted-string\ngrammars. Preference names now accept the full tchar set, quoted values\nhandle backslash escapes and reject bare CTLs, and commas inside quoted\nvalues no longer break parsing. Malformed preferences are silently\nskipped (graceful degradation).\n\n* fix: address review findings (#219)\n\n- Restrict obs-text to Latin-1 bytes (%x80-FF) in quoted-string parser\n- Reject preferences with trailing junk after value (terminator check)\n- Update test: malformed unquoted tokens skip instead of truncate\n- Add tests for trailing-junk-after-quoted-value and non-Latin-1 rejection\n\n* fix: use skipToNextComma for malformed quoted value recovery (#219)\n\nPrevents spurious orphan keys when non-comma text follows a rejected\nquoted value's closing DQUOTE before the next comma separator.\n\n* fix: recover from unterminated quotes in skipToNextComma (#219)\n\nTrack the first comma inside an unterminated quoted-string scan so\nrecovery falls back to the next list delimiter instead of consuming\nall remaining preferences.",
+          "timestamp": "2026-07-01T12:37:42-04:00",
+          "tree_id": "3a30049485c7d41926b23b0f1c7c2bf260572003",
+          "url": "https://github.com/CentralPing/ergo/commit/bcde7ca1600a3ced9bcb635c7788fb7cba3f8e49"
+        },
+        "date": 1782923879369,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
