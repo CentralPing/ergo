@@ -30,7 +30,7 @@ import {validateOptions} from '../lib/validate-options.js';
 const DEFAULT_METHODS = new Set(['POST', 'PATCH']);
 
 /** @type {Set<string>} */
-const VALID_OPTIONS = new Set(['store', 'ttlMs', 'required', 'methods']);
+const VALID_OPTIONS = new Set(['store', 'ttlMs', 'required', 'methods', 'keyGenerator']);
 
 /**
  * Create an idempotency middleware.
@@ -44,12 +44,16 @@ const VALID_OPTIONS = new Set(['store', 'ttlMs', 'required', 'methods']);
  *   on applicable methods
  * @param {Set<string>|string[]} [options.methods] - HTTP methods to apply idempotency to
  *   (default: POST, PATCH)
+ * @param {function} [options.keyGenerator] - `(parsedKey, req, domainAcc) => string` transforms
+ *   the parsed idempotency key into a scoped store key. Use to bind keys to an auth principal,
+ *   route, or HTTP method for multi-tenant isolation. Defaults to identity (unscoped).
  */
 export default function idempotency(options = {}) {
   validateOptions(options, VALID_OPTIONS, 'idempotency');
-  const {store, ttlMs, required = false, methods} = options;
+  const {store, ttlMs, required = false, methods, keyGenerator} = options;
   const _store = store ?? new IdempotencyStore(ttlMs ? {ttlMs} : undefined);
   const _methods = methods instanceof Set ? methods : new Set(methods ?? DEFAULT_METHODS);
+  const _keyGen = keyGenerator ?? (key => key);
 
   const inner = function idempotencyMiddleware(req, _res, domainAcc) {
     if (!_methods.has(req.method)) return {};
@@ -78,12 +82,14 @@ export default function idempotency(options = {}) {
       return {};
     }
 
+    const resolvedKey = _keyGen(key, req, domainAcc);
+
     const rawBody = domainAcc?.body?.raw ?? domainAcc?.body?.parsed ?? '';
     const fingerprint = generateFingerprint(
       typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody)
     );
 
-    const existing = _store.get(key);
+    const existing = _store.get(resolvedKey);
 
     if (existing) {
       if (existing.fingerprint !== fingerprint) {
@@ -111,14 +117,14 @@ export default function idempotency(options = {}) {
       };
     }
 
-    _store.set(key, fingerprint);
+    _store.set(resolvedKey, fingerprint);
 
     return {
       value: {
         key,
         fingerprint,
-        complete: response => _store.complete(key, response),
-        discard: () => _store.delete(key)
+        complete: response => _store.complete(resolvedKey, response),
+        discard: () => _store.delete(resolvedKey)
       }
     };
   };
