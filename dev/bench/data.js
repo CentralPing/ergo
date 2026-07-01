@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782874624314,
+  "lastUpdate": 1782877601171,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -13388,6 +13388,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "017692980fab173c54c209eddb4cf1cb3d9a4c2f",
+          "message": "fix: cookie attribute validation uses per-attribute RFC grammars (#218) (#223)\n\n* fix: cookie attribute validation uses per-attribute RFC grammars (#218)\n\nDomain validates against RFC 1034/1123 subdomain grammar, path validates\nagainst RFC 6265 §4.1.2.4 path-value, and SameSite validates against the\nRFC 6265bis {Strict, Lax, None} enum. Previously all three incorrectly\nused the cookie-octet grammar intended only for cookie values.\n\n* fix: coerce cookie fields to primitives before validation (#218)\n\nBoxed strings and objects with custom toString() bypass the typeof-based\nassertSafe* guards but still interpolate into the Set-Cookie header via\ntemplate literals. Coerce name, value, domain, path, and sameSite to\nprimitive strings via String() in toHeader() before validation, consistent\nwith the sibling pattern in sanitize-quoted-string.js, link.js, and\nresponse-schema.js. Adds 8 regression tests for boxed/object inputs.",
+          "timestamp": "2026-06-30T23:46:25-04:00",
+          "tree_id": "2105621458cd6f0a08031ca15c3287e217ce3f47",
+          "url": "https://github.com/CentralPing/ergo/commit/017692980fab173c54c209eddb4cf1cb3d9a4c2f"
+        },
+        "date": 1782877599919,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
             "unit": "us/op"
           },
           {
