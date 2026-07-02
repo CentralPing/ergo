@@ -47,6 +47,9 @@ const VALID_OPTIONS = new Set(['store', 'ttlMs', 'required', 'methods', 'keyGene
  * @param {function} [options.keyGenerator] - `(parsedKey, req, domainAcc) => string` transforms
  *   the parsed idempotency key into a scoped store key. Use to bind keys to an auth principal,
  *   route, or HTTP method for multi-tenant isolation. Defaults to identity (unscoped).
+ *   Ensure the transform is collision-free — naive delimiter concatenation can alias distinct
+ *   scopes if a component may itself contain the delimiter. Prefer `JSON.stringify([...parts])`
+ *   or a fixed-length hash of the components.
  */
 export default function idempotency(options = {}) {
   validateOptions(options, VALID_OPTIONS, 'idempotency');
