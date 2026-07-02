@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783028727990,
+  "lastUpdate": 1783032815351,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14324,6 +14324,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "91c3c87d78c70e09172b650bba5087a85f884146",
+          "message": "feat: add keyGenerator option to idempotency middleware (#227) (#232)\n\n* feat: add keyGenerator option to idempotency middleware (#227)\n\nAdd consumer-provided key scoping to the idempotency middleware via a\nkeyGenerator option, following the established rate-limit keyGenerator\npattern. Enables multi-tenant isolation by binding store keys to auth\nprincipal, route, or HTTP method per IETF draft §5 composite key\nrecommendation. Defaults to identity (unscoped), preserving existing\nbehavior.\n\n* docs: add collision-free warning to keyGenerator JSDoc (#227)",
+          "timestamp": "2026-07-02T18:53:22-04:00",
+          "tree_id": "2d7e402f422bd670287f840299d462f2e5f17c64",
+          "url": "https://github.com/CentralPing/ergo/commit/91c3c87d78c70e09172b650bba5087a85f884146"
+        },
+        "date": 1783032814661,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
