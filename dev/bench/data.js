@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783016733657,
+  "lastUpdate": 1783020399643,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14210,6 +14210,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8bdb200317607e3ac9c097610da89377968f1591",
+          "message": "fix: IdempotencyStore defensive coding improvements (#226) (#231)\n\n* fix: IdempotencyStore defensive coding improvements (#226)\n\nConstructor validates maxKeys (positive integer) and ttlMs (positive\nfinite number) with TypeError. get() returns a frozen shallow copy\ninstead of the live internal entry. complete() stores a shallow copy\nof the response object. Non-breaking: existing valid usage unaffected.\n\n* fix: freeze response snapshot in get() to prevent store corruption\n\nObject.freeze(snapshot) only protected the top-level wrapper — the\nresponse reference was still mutable through the returned snapshot.\nShallow-copy and freeze the response (including headers array) on\neach get() call, matching the copy-on-write pattern in complete().\n\nAdds regression test verifying response mutation isolation.\n\n* fix: atomic status+response assignment in complete()\n\nCompute the cloned response before mutating entry.status so a\nTypeError from null/undefined response does not leave the entry\nin a corrupted 'complete' state with no replay payload.\n\nAdds regression test verifying entry state is preserved on throw.\n\n* fix: deep-clone header tuples to prevent tuple-level mutation leaks\n\n[...headers] only copies the outer array — individual tuples remain\nshared references. Use .map(header => [...header]) in both get() and\ncomplete() to ensure tuple-level mutations by callers or consumers\ncannot affect stored state.\n\nAdds regression tests for tuple-element mutation on both paths.\n\n* fix: deep-clone full response via structuredClone for complete isolation\n\nReplace manual spread+header-map with structuredClone in both get() and\ncomplete() — nested objects (response.body, etc.) are now fully isolated\nfrom store state, not just headers. Adds explicit TypeError guard in\ncomplete() for nullish responses. Updates JSDoc and CHANGELOG to reflect\ndeep-clone guarantee.\n\n* docs: fix JSDoc return type for get() and add @throws to complete()\n\n- get() @returns: response field is object|undefined (undefined when\n  entry is still processing)\n- complete() @throws: document the new TypeError guard for nullish\n  response inputs",
+          "timestamp": "2026-07-02T15:26:26-04:00",
+          "tree_id": "4fd5e107135a9352475baf59be05ad8e1289933b",
+          "url": "https://github.com/CentralPing/ergo/commit/8bdb200317607e3ac9c097610da89377968f1591"
+        },
+        "date": 1783020399056,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
             "unit": "us/op"
           },
           {
