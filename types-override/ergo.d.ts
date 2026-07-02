@@ -197,6 +197,11 @@ export interface IdempotencyOptions {
   ttlMs?: number;
   required?: boolean;
   methods?: Set<string> | string[];
+  keyGenerator?: (
+    parsedKey: string,
+    req: import('node:http').IncomingMessage,
+    domainAcc: Record<string, unknown>
+  ) => string;
 }
 
 /** Options for `paginate()` — pagination parameter parsing middleware. */

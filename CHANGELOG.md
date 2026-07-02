@@ -27,6 +27,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`keyGenerator` option on `idempotency()` for store key scoping.** (#227)
+  Transforms the parsed `Idempotency-Key` header value into a scoped store key via
+  `(parsedKey, req, domainAcc) => string`. Enables multi-tenant isolation by binding
+  keys to auth principal, route, or HTTP method — per IETF
+  draft-ietf-httpapi-idempotency-key-header-07 §5 composite key recommendation.
+  Defaults to identity (unscoped), preserving existing behavior. Follows the
+  `rateLimit()` `keyGenerator` pattern.
+
 - **`redactHeaders` option on `handler()` for onResponse hook header redaction.** (#181)
   Controls which response headers are replaced with `'[REDACTED]'` in the
   `responseInfo` snapshot passed to `onResponse` hooks. Defaults to
