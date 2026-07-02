@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782966598273,
+  "lastUpdate": 1782998460740,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14110,6 +14110,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "a16db55e13fe8694e6743206eac85a7d14106cf7",
+          "message": "fix: IdempotencyStore defensive coding improvements (#226)",
+          "timestamp": "2026-07-01T21:31:49Z",
+          "url": "https://github.com/CentralPing/ergo/pull/231/commits/a16db55e13fe8694e6743206eac85a7d14106cf7"
+        },
+        "date": 1782998459387,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.028,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
