@@ -20,6 +20,15 @@ All notable changes to this project will be documented in this file.
   update `set()` to return a `string` and `complete()` to accept a third `generation`
   parameter and return `boolean`.
 
+- **Prefer header parser enforces RFC 7240 token/quoted-string grammar.** (#219)
+  Replaced the loose regex with a character-by-character scanner that enforces
+  RFC 9110 §5.6.2 `token` and §5.6.4 `quoted-string` grammars. Preference names
+  now accept the full `tchar` set (digits, `!`, `#`, etc. at any position). Quoted
+  values handle backslash escapes (`quoted-pair`) and reject bare control characters.
+  Commas inside quoted values no longer break parsing. Malformed preferences are
+  silently skipped (graceful degradation). Non-breaking: valid RFC 7240 inputs
+  produce identical output; previously-accepted invalid inputs may now be skipped.
+
 - **`formatLinkHeader` href validation replaced with RFC 3986 URI-reference character
   allowlist.** (#207)
   Previously rejected only CR, LF, NUL, and `>` via a four-character denylist. Now
@@ -31,6 +40,14 @@ All notable changes to this project will be documented in this file.
   characters before calling `formatLinkHeader`.
 
 ### Added
+
+- **`keyGenerator` option on `idempotency()` for store key scoping.** (#227)
+  Transforms the parsed `Idempotency-Key` header value into a scoped store key via
+  `(parsedKey, req, domainAcc) => string`. Enables multi-tenant isolation by binding
+  keys to auth principal, route, or HTTP method — per IETF
+  draft-ietf-httpapi-idempotency-key-header-07 §5 composite key recommendation.
+  Defaults to identity (unscoped), preserving existing behavior. Follows the
+  `rateLimit()` `keyGenerator` pattern.
 
 - **`redactHeaders` option on `handler()` for onResponse hook header redaction.** (#181)
   Controls which response headers are replaced with `'[REDACTED]'` in the
@@ -55,6 +72,16 @@ All notable changes to this project will be documented in this file.
   counters between test cases without reconstructing the middleware or router.
 
 ### Fixed
+
+- **`IdempotencyStore` defensive coding improvements.** (#226)
+  Three hardening fixes for the public `IdempotencyStore` primitive: (1) constructor
+  validates `maxKeys` (positive integer) and `ttlMs` (positive finite number), throwing
+  `TypeError` for invalid types that previously caused silent misconfiguration;
+  (2) `get()` returns a frozen deep clone instead of the live internal entry, preventing
+  callers from corrupting store state via mutation of any nested field; (3) `complete()`
+  deep-clones the response object via `structuredClone`, preventing post-call mutation of
+  the original (including nested objects) from affecting stored replay data. Existing valid
+  usage is unaffected — only previously-invalid constructor arguments now throw.
 
 - **Cookie attribute validation uses per-attribute RFC grammars.** (#218)
   `domain` validates against RFC 1034/1123 subdomain grammar (alphanumeric labels
