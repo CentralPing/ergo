@@ -1,5 +1,6 @@
 import {describe, it, beforeEach} from 'node:test';
 import assert from 'node:assert/strict';
+import {IdempotencyStore} from '../lib/idempotency.js';
 import idempotency from './idempotency.js';
 
 describe('[Boundary] http/idempotency', () => {
@@ -186,6 +187,28 @@ describe('[Boundary] http/idempotency', () => {
     });
   });
 
+  describe('generation token lifecycle', () => {
+    it('complete returns false after entry eviction (maxKeys: 1)', () => {
+      mw = idempotency({store: new IdempotencyStore({maxKeys: 1})});
+      const domainAcc = {body: {raw: 'body'}};
+
+      const first = mw(makeReq('POST', '"key-a"'), {}, domainAcc);
+      assert.equal(typeof first.value.complete, 'function');
+
+      mw(makeReq('POST', '"key-b"'), {}, domainAcc);
+
+      assert.equal(first.value.complete({statusCode: 200}), false);
+    });
+
+    it('complete returns true on successful completion', () => {
+      mw = idempotency();
+      const domainAcc = {body: {raw: 'body'}};
+
+      const result = mw(makeReq('POST', '"success-key"'), {}, domainAcc);
+      assert.equal(result.value.complete({statusCode: 201}), true);
+    });
+  });
+
   describe('custom store', () => {
     it('uses the provided store', () => {
       const calls = [];
@@ -204,6 +227,85 @@ describe('[Boundary] http/idempotency', () => {
 
       assert.ok(calls.some(([op]) => op === 'get'));
       assert.ok(calls.some(([op]) => op === 'set'));
+    });
+  });
+
+  describe('keyGenerator option', () => {
+    it('uses keyGenerator to scope store key', () => {
+      mw = idempotency({
+        keyGenerator: (key, _req, acc) => `${acc.auth?.subject}:${key}`
+      });
+      const domainAcc = {body: {raw: 'same-body'}};
+
+      const first = mw(
+        makeReq('POST', '"shared-key"'),
+        {},
+        {
+          ...domainAcc,
+          auth: {subject: 'user-a'}
+        }
+      );
+      first.value.complete({statusCode: 201, body: {owner: 'a'}});
+
+      const second = mw(
+        makeReq('POST', '"shared-key"'),
+        {},
+        {
+          ...domainAcc,
+          auth: {subject: 'user-b'}
+        }
+      );
+      assert.equal(second.value.key, 'shared-key');
+      assert.equal(typeof second.value.complete, 'function');
+      assert.equal(second.response, undefined);
+    });
+
+    it('replays within same scope', () => {
+      mw = idempotency({
+        keyGenerator: (key, _req, acc) => `${acc.auth?.subject}:${key}`
+      });
+      const storedResponse = {statusCode: 201, body: {id: 1}};
+      const domainAcc = {body: {raw: 'same-body'}, auth: {subject: 'user-a'}};
+
+      const first = mw(makeReq('POST', '"replay-key"'), {}, domainAcc);
+      first.value.complete(storedResponse);
+
+      const second = mw(makeReq('POST', '"replay-key"'), {}, domainAcc);
+      assert.deepEqual(second.response, storedResponse);
+      assert.equal(second.value.replayed, true);
+    });
+
+    it('returns original parsed key in value.key', () => {
+      mw = idempotency({
+        keyGenerator: (key, _req, acc) => `${acc.auth?.subject}:${key}`
+      });
+      const result = mw(
+        makeReq('POST', '"original-key"'),
+        {},
+        {
+          auth: {subject: 'tenant-1'}
+        }
+      );
+      assert.equal(result.value.key, 'original-key');
+    });
+
+    it('defaults to identity when keyGenerator not provided', () => {
+      const calls = [];
+      const customStore = {
+        get: k => {
+          calls.push(['get', k]);
+          return undefined;
+        },
+        set: (k, fp) => calls.push(['set', k, fp]),
+        complete: () => {},
+        delete: () => {}
+      };
+
+      mw = idempotency({store: customStore});
+      mw(makeReq('POST', '"identity-key"'), {}, {});
+
+      assert.ok(calls.some(([op, k]) => op === 'get' && k === 'identity-key'));
+      assert.ok(calls.some(([op, k]) => op === 'set' && k === 'identity-key'));
     });
   });
 });
