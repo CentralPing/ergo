@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **`IdempotencyStore` eviction lookup is now O(1) via internal side index.** (#239)
+  Added a `_completeKeys` Set as a secondary index tracking keys with `complete` status.
+  Eviction in `set()` now uses `_completeKeys.values().next().value` instead of scanning
+  the entire `_entries` Map. Under sustained load where all entries are in-flight
+  (`processing`), worst-case eviction was previously O(maxKeys); it is now O(1) for the
+  common case (complete entries available) with unchanged fallback behavior (oldest
+  processing entry evicted with warning). Internal optimization only — no public API
+  changes; custom store implementations are unaffected.
+
 - **`IdempotencyStore` eviction is now status-aware with generation token validation.**
   (#225)
   `set()` now prunes expired entries before checking capacity, preferentially evicts
