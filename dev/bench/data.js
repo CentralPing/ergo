@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783121410308,
+  "lastUpdate": 1783121469161,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -15013,6 +15013,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0433e3122792f2e6a6f7d4642701d30cc32c3026",
+          "message": "chore(deps-dev): Bump the dev-minor group with 2 updates (#243)\n\nBumps the dev-minor group with 2 updates: [eslint](https://github.com/eslint/eslint) and [globals](https://github.com/sindresorhus/globals).\n\n\nUpdates `eslint` from 10.5.0 to 10.6.0\n- [Release notes](https://github.com/eslint/eslint/releases)\n- [Commits](https://github.com/eslint/eslint/compare/v10.5.0...v10.6.0)\n\nUpdates `globals` from 17.6.0 to 17.7.0\n- [Release notes](https://github.com/sindresorhus/globals/releases)\n- [Commits](https://github.com/sindresorhus/globals/compare/v17.6.0...v17.7.0)\n\n---\nupdated-dependencies:\n- dependency-name: eslint\n  dependency-version: 10.6.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: globals\n  dependency-version: 17.7.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-07-03T23:30:57Z",
+          "tree_id": "600188b8bccfc2a4587411896708f9ee601dad19",
+          "url": "https://github.com/CentralPing/ergo/commit/0433e3122792f2e6a6f7d4642701d30cc32c3026"
+        },
+        "date": 1783121468497,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
