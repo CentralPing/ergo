@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783121469161,
+  "lastUpdate": 1783121558769,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -15042,6 +15042,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "b16ef90a2793188c3f751d689fea01ff80986aa0",
+          "message": "chore(deps-dev): Bump @types/node from 25.9.3 to 26.0.0 in the dev-major group",
+          "timestamp": "2026-07-03T23:31:01Z",
+          "url": "https://github.com/CentralPing/ergo/pull/244/commits/b16ef90a2793188c3f751d689fea01ff80986aa0"
+        },
+        "date": 1783121558127,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
             "unit": "us/op"
           },
           {
