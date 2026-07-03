@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783089222768,
+  "lastUpdate": 1783089801997,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14651,6 +14651,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bb3e633a9828ff2deb9029b3f0c867e76fa7769f",
+          "message": "fix: normalize Prefer header names and values to lowercase (#235) (#236)\n\nPreference names lowercased per RFC 7240 §2 (case-insensitive comparison).\nPreference values lowercased as Postel's Law leniency for interoperability.\nA client sending `Prefer: Return=Minimal` now produces `{return: 'minimal'}`.",
+          "timestamp": "2026-07-03T10:43:08-04:00",
+          "tree_id": "284dc42d8f2b5bbeefb839eeb8e845269a34f42e",
+          "url": "https://github.com/CentralPing/ergo/commit/bb3e633a9828ff2deb9029b3f0c867e76fa7769f"
+        },
+        "date": 1783089801202,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
