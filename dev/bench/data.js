@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783032815351,
+  "lastUpdate": 1783036816876,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14353,6 +14353,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "b34d111d838a868b5fcecf3649ff5331d2bde5b0",
+          "message": "fix: IdempotencyStore eviction correctness with generation token validation (#225)",
+          "timestamp": "2026-07-02T22:53:27Z",
+          "url": "https://github.com/CentralPing/ergo/pull/233/commits/b34d111d838a868b5fcecf3649ff5331d2bde5b0"
+        },
+        "date": 1783036815652,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
             "unit": "us/op"
           },
           {
