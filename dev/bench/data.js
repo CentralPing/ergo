@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783114463823,
+  "lastUpdate": 1783121027033,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14939,6 +14939,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c325f84e24e5c3c02973af78dd11fb7b6cc43801",
+          "message": "perf: O(1) eviction-candidate lookup via side index (#239) (#240)\n\n* perf: O(1) eviction-candidate lookup via side index (#239)\n\nAdd _completeKeys Set as a secondary index to IdempotencyStore tracking\nkeys with complete status. Eviction in set() now uses\n_completeKeys.values().next().value instead of linear-scanning the\nentire _entries Map for the first non-processing entry.\n\nAll mutation paths maintain the side index: get() lazy expiry, set()\nTTL prune, set() delete-before-insert, set() eviction, complete()\nstatus transition, and delete(). Invariant tests verify side-index\nconsistency across all paths.\n\nInternal optimization — no public API changes; custom store\nimplementations are unaffected.\n\n* test: add multi-complete-key eviction order test (#239)\n\nVerifies that eviction selects the first-completed entry (Set\ninsertion order) when multiple complete entries exist, proving\nthe side-index mechanism rather than incidental single-entry\nbehavior.",
+          "timestamp": "2026-07-03T19:23:29-04:00",
+          "tree_id": "6d10edeeacf39fab6ba12681117dd01595119666",
+          "url": "https://github.com/CentralPing/ergo/commit/c325f84e24e5c3c02973af78dd11fb7b6cc43801"
+        },
+        "date": 1783121025745,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
