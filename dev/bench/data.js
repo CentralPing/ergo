@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783089801997,
+  "lastUpdate": 1783104186350,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14680,6 +14680,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "8a3184abe066358edd5fc4a8fb7afa10dfa4b2c7",
+          "message": "test: add IdempotencyStore cross-concern boundary test (TTL x eviction) (#237)",
+          "timestamp": "2026-07-03T14:43:13Z",
+          "url": "https://github.com/CentralPing/ergo/pull/238/commits/8a3184abe066358edd5fc4a8fb7afa10dfa4b2c7"
+        },
+        "date": 1783104185737,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
             "unit": "us/op"
           },
           {
