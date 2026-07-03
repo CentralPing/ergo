@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783084737210,
+  "lastUpdate": 1783085539542,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14577,6 +14577,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f2d09fe72c33c85b6a214291bd96fe301bac1b17",
+          "message": "fix: validate MemoryStore constructor parameters (#230) (#234)\n\nmaxKeys must be a positive integer; now must be a function. Invalid\nvalues that previously caused silent misconfiguration now throw\nTypeError at construction time.",
+          "timestamp": "2026-07-03T09:32:03-04:00",
+          "tree_id": "544d915f88319e624641111e46a2ae82d6980900",
+          "url": "https://github.com/CentralPing/ergo/commit/f2d09fe72c33c85b6a214291bd96fe301bac1b17"
+        },
+        "date": 1783085538920,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
