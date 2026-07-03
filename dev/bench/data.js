@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783104186350,
+  "lastUpdate": 1783104254258,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14725,6 +14725,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3abb56560dee8789616b50522b163798581369fa",
+          "message": "test: add IdempotencyStore cross-concern boundary test (TTL x eviction) (#237) (#238)\n\nAdd a boundary test exercising the interaction between TTL expiry and\nmaxKeys eviction in IdempotencyStore. The test verifies that expired\nentries accessed via get() free capacity for subsequent set() calls,\nclosing a defense-in-depth test coverage gap identified during PR #229\nreview.\n\nCloses #237",
+          "timestamp": "2026-07-03T18:44:01Z",
+          "tree_id": "2b1c76b9a36c8e28b34447b1619fb894dadf22f2",
+          "url": "https://github.com/CentralPing/ergo/commit/3abb56560dee8789616b50522b163798581369fa"
+        },
+        "date": 1783104253575,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
