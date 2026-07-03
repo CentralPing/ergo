@@ -120,13 +120,13 @@ export default function idempotency(options = {}) {
       };
     }
 
-    _store.set(resolvedKey, fingerprint);
+    const generation = _store.set(resolvedKey, fingerprint);
 
     return {
       value: {
         key,
         fingerprint,
-        complete: response => _store.complete(resolvedKey, response),
+        complete: response => _store.complete(resolvedKey, response, generation),
         discard: () => _store.delete(resolvedKey)
       }
     };
