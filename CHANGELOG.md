@@ -15,6 +15,14 @@ All notable changes to this project will be documented in this file.
   processing entry evicted with warning). Internal optimization only — no public API
   changes; custom store implementations are unaffected.
 
+- **Prefer header parser normalizes preference names and values to lowercase.**
+  (#235) Preference names are lowercased per RFC 7240 §2 (case-insensitive
+  comparison). Preference values are also lowercased as a Postel's Law leniency
+  for practical interoperability — all IANA-registered preference values are
+  lowercase tokens. A client sending `Prefer: Return=Minimal` now produces
+  `{return: 'minimal'}` instead of `{Return: 'Minimal'}`. Non-breaking for
+  well-behaved clients: standard RFC 7240 inputs already use lowercase.
+
 - **`IdempotencyStore` eviction is now status-aware with generation token validation.**
   (#225)
   `set()` now prunes expired entries before checking capacity, preferentially evicts
@@ -81,6 +89,12 @@ All notable changes to this project will be documented in this file.
   counters between test cases without reconstructing the middleware or router.
 
 ### Fixed
+
+- **`MemoryStore` constructor validates `maxKeys` and `now` parameters.** (#230)
+  `maxKeys` must be a positive integer; `now` must be a function. Invalid values
+  that previously caused silent misconfiguration (e.g. `maxKeys: null` coercing to
+  `0` in the eviction guard, making the store behave as a single-entry cache) now
+  throw `TypeError` at construction time. Default construction is unaffected.
 
 - **`IdempotencyStore` defensive coding improvements.** (#226)
   Three hardening fixes for the public `IdempotencyStore` primitive: (1) constructor
