@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783051496488,
+  "lastUpdate": 1783081002736,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14468,6 +14468,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cf1e1803f48d3c9d946ef83933a3b2cbfe72c971",
+          "message": "fix: IdempotencyStore eviction correctness with generation token validation (#225) (#233)\n\n* fix: IdempotencyStore eviction correctness with generation token validation (#225)\n\nset() now prunes expired entries before capacity check, preferentially\nevicts complete entries over processing entries, and returns a generation\ntoken. complete() validates the token and returns boolean. Missing\nresponse arguments are rejected. Processing entry eviction emits a\none-time ErgoWarning diagnostic.\n\nCloses #225\n\n* perf: early break in TTL prune loop (#225)\n\nMap insertion order guarantees ascending expiresAt (constant ttlMs),\nso once an unexpired entry is found all subsequent entries are also\nunexpired. Stops O(n) full-scan on every set() call.\n\n* test: strengthen eviction test to prove status over age (#225)\n\nCompletes b for status=complete instead of a (the oldest), so FIFO\nwould evict a while status-aware eviction evicts b. The test now\ndistinguishes the two strategies.\n\n* fix: prevent spurious eviction and ordering invariant break on key re-set (#225)\n\nMap.set() on an existing key does not move it to end of iteration order,\nwhich breaks the prune loop's ascending-expiresAt early-break invariant.\nDelete-before-insert ensures correct ordering and prevents the capacity\ncheck from triggering when the map isn't actually growing.",
+          "timestamp": "2026-07-03T08:16:29-04:00",
+          "tree_id": "0b571f8a35cde1466dec08419dd976b2a7ca7f60",
+          "url": "https://github.com/CentralPing/ergo/commit/cf1e1803f48d3c9d946ef83933a3b2cbfe72c971"
+        },
+        "date": 1783081001588,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
