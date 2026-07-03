@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783105230620,
+  "lastUpdate": 1783106265310,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -14799,6 +14799,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "4f74e7866cbbaccd23ad3d017cae5adf55bca7a2",
+          "message": "perf: O(1) eviction-candidate lookup via side index (#239)",
+          "timestamp": "2026-07-03T18:44:06Z",
+          "url": "https://github.com/CentralPing/ergo/pull/240/commits/4f74e7866cbbaccd23ad3d017cae5adf55bca7a2"
+        },
+        "date": 1783106264044,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.014,
             "unit": "us/op"
           }
         ]
