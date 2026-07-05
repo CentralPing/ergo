@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-05
+
 ### Changed
 
 - **`IdempotencyStore` eviction lookup is now O(1) via internal side index.** (#239)
