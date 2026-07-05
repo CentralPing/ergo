@@ -4,7 +4,7 @@
  * Black-box tests for the body parser factory using minimal async-iterable
  * request stubs. Covers factory defaults, fast path (identity-encoded JSON),
  * type filtering, charset handling, Content-Length validation, decompression
- * limits, lazy getter behavior, error paths, and result shapes.
+ * limits, eager parse behavior, error paths, and result shapes.
  *
  * @module http/body.spec.unit
  */
@@ -338,8 +338,8 @@ describe('[Module] http/body', () => {
     });
   });
 
-  describe('lazy getter (urlencoded)', () => {
-    it('has parsed as lazy getter for urlencoded content', async () => {
+  describe('eager parse (urlencoded)', () => {
+    it('has parsed as data property for urlencoded content', async () => {
       const bodyMw = createBody();
       const payload = 'name=alice&age=30';
       const req = makeReq(
@@ -354,18 +354,14 @@ describe('[Module] http/body', () => {
       assert.equal(result.raw, payload);
 
       const descriptor = Object.getOwnPropertyDescriptor(result, 'parsed');
-      assert.equal(typeof descriptor.get, 'function', 'parsed should be a getter');
-
-      const parsed = result.parsed;
-      assert.equal(parsed.name, 'alice');
-      assert.equal(parsed.age, '30');
-
-      const afterAccess = Object.getOwnPropertyDescriptor(result, 'parsed');
       assert.equal(
-        typeof afterAccess.get,
+        typeof descriptor.get,
         'undefined',
-        'getter should be replaced after first access'
+        'parsed should be a data property, not a getter'
       );
+
+      assert.equal(result.parsed.name, 'alice');
+      assert.equal(result.parsed.age, '30');
     });
   });
 
@@ -494,6 +490,59 @@ describe('[Module] http/body', () => {
       const result = await bodyMw(req);
       assert.equal(result.response.statusCode, 415);
       assert.ok(result.response.detail.includes('charset'));
+    });
+  });
+
+  describe('malformed compressed body', () => {
+    it('returns 400 for malformed gzip-compressed JSON body', async () => {
+      const bodyMw = createBody();
+      const payload = '{invalid json!!!}';
+      const compressed = await gzip(Buffer.from(payload));
+      const req = makeReq(
+        {
+          'content-type': 'application/json',
+          'content-encoding': 'gzip',
+          'content-length': String(compressed.length)
+        },
+        compressed
+      );
+      const result = await bodyMw(req);
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('Malformed'));
+    });
+
+    it('returns 400 for malformed deflate-compressed JSON body', async () => {
+      const bodyMw = createBody();
+      const payload = '{invalid json!!!}';
+      const compressed = await deflate(Buffer.from(payload));
+      const req = makeReq(
+        {
+          'content-type': 'application/json',
+          'content-encoding': 'deflate',
+          'content-length': String(compressed.length)
+        },
+        compressed
+      );
+      const result = await bodyMw(req);
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('Malformed'));
+    });
+
+    it('returns 400 for malformed brotli-compressed JSON body', async () => {
+      const bodyMw = createBody();
+      const payload = '{invalid json!!!}';
+      const compressed = await brotli(Buffer.from(payload));
+      const req = makeReq(
+        {
+          'content-type': 'application/json',
+          'content-encoding': 'br',
+          'content-length': String(compressed.length)
+        },
+        compressed
+      );
+      const result = await bodyMw(req);
+      assert.equal(result.response.statusCode, 400);
+      assert.ok(result.response.detail.includes('Malformed'));
     });
   });
 

@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Body middleware now eagerly parses all content types within its error boundary.**
+  (#323) Compressed JSON, form-urlencoded, and multipart bodies previously used a
+  self-replacing lazy getter on `result.parsed` that deferred parse execution outside
+  the body middleware's `try/catch` scope. When a compressed JSON body was malformed,
+  the parse error propagated to `handler.js`'s catch-all, producing a 500 Internal
+  Server Error for what is semantically a 400 Bad Request. All paths now parse eagerly
+  within the middleware — malformed compressed JSON correctly returns 400.
+
 ## [0.7.0] - 2026-07-05
 
 ### Changed
