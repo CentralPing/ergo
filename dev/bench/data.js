@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783267260286,
+  "lastUpdate": 1783282388863,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -15690,6 +15690,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "48a9c3dc0a20b1da3126fdf6001ef66cd3049f73",
+          "message": "fix: recognize RFC 6838 structured syntax suffixes in compression (#307) (#365)\n\nCOMPRESSIBLE_RE now matches application/*+json and application/*+xml\ncontent types per RFC 6838 Section 4.2.8. Previously only exact\napplication/json and application/xml subtypes triggered compression,\ncausing responses with types like application/problem+json (ergo's\nerror format) and application/vnd.api+json (JSON:API) to bypass\ncompression entirely. Word boundaries (\\b) prevent false matches\non types like application/jsonp.",
+          "timestamp": "2026-07-05T16:12:56-04:00",
+          "tree_id": "5fcb5ea1182b10405d36bd0744b03ca761be15f0",
+          "url": "https://github.com/CentralPing/ergo/commit/48a9c3dc0a20b1da3126fdf6001ef66cd3049f73"
+        },
+        "date": 1783282387921,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
