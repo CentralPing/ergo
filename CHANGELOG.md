@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Logger double-logging when response stream emits `error` followed by `close`.** (#312)
+  The `error` event handler now calls `cleanup()` before logging, deregistering sibling
+  listeners (`finish`, `close`) to prevent the subsequent `close` event from triggering a
+  spurious "aborted" log entry. All three terminal event handlers (`finish`, `abort` via
+  `close`, `error`) now follow the same pattern: deregister first, then log. Ensures
+  exactly one structured log entry per request lifecycle outcome.
+
 ## [0.7.0] - 2026-07-05
 
 ### Changed
