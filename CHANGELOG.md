@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Response compression now recognizes RFC 6838 structured syntax suffixes (`+json`, `+xml`).** (#307)
+  `application/problem+json` (ergo's error format), `application/vnd.api+json` (JSON:API),
+  and other structured suffix types are now correctly identified as compressible. Previously,
+  only exact `application/json` and `application/xml` subtypes triggered compression. The
+  `\b` word boundary also prevents false matches on types like `application/jsonp`.
+
 ## [0.7.0] - 2026-07-05
 
 ### Changed
