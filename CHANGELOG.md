@@ -39,6 +39,14 @@ All notable changes to this project will be documented in this file.
 
 - Corrected Vary token typo in CORS preflight responses: `Access-Control-Request-Methods` (plural) → `Access-Control-Request-Method` (singular). The previous value referenced a non-existent HTTP header, preventing correct cache-key variance for preflight method negotiation. (#259)
 
+### Removed
+
+- **Removed `utils/observables` module and `./utils/observables` export.** (#333, #334, #336)
+  The push-based generator coroutine module had zero internal or external consumers.
+  The multipart body parser uses the pull-based `utils/iterables/buffer-split` instead.
+  Resolves three design findings: dead infrastructure (#333), chain/buffer-split
+  protocol incompatibility (#334), and incorrect "Observable" terminology (#336).
+
 ## [0.7.0] - 2026-07-05
 
 ### Changed
