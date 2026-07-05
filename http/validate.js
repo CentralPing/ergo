@@ -18,6 +18,7 @@
  * @module http/validate
  * @since 0.1.0
  * @requires ../lib/validate.js
+ * @requires ../lib/validate-options.js
  *
  * @example
  * import {compose, body, url, validate} from '@centralping/ergo';
@@ -39,9 +40,13 @@
  * );
  */
 import createValidator from '../lib/validate.js';
+import {validateOptions} from '../lib/validate-options.js';
 
 /** @type {Set<string>} - Recognized keys for the schemas parameter. */
 const VALID_SCHEMA_KEYS = new Set(['body', 'query', 'params']);
+
+/** @type {Set<string>} - Recognized keys for the options parameter. */
+const VALID_OPTIONS = new Set(['formats', 'allErrors', 'coerceTypes', 'ajv']);
 
 /**
  * @type {Set<string>} - Root-level JSON Schema keywords used to detect shorthand form.
@@ -103,8 +108,11 @@ const emittedWarnings = new Set();
  * @param {object} [schemas.query] - JSON Schema for parsed query parameters
  * @param {object} [schemas.params] - JSON Schema for route path parameters (reads `acc.route.params` or `acc.params`)
  * @param {object} [options] - AJV options forwarded to each compiled validator
+ * @param {boolean} [options.allErrors=true] - Report all errors instead of stopping at the first
+ * @param {boolean} [options.coerceTypes=false] - Coerce input values to match schema types
  * @param {boolean|Array<string>|object} [options.formats] - Format keyword support via
  *   `ajv-formats`; forwarded to `createValidator`. Defaults to all standard formats enabled
+ * @param {object} [options.ajv] - Additional AJV constructor options
  *
  * @example
  * // Shorthand form — raw JSON Schema interpreted as body validation
@@ -122,6 +130,7 @@ const emittedWarnings = new Set();
  * });
  */
 export default (schemas = {}, options = {}) => {
+  validateOptions(options, VALID_OPTIONS, 'validate');
   const resolved = isSchemaShorthand(schemas) ? {body: schemas} : schemas;
 
   const unknownKeys = Object.keys(resolved).filter(k => !VALID_SCHEMA_KEYS.has(k));

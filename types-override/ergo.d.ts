@@ -301,8 +301,10 @@ export interface TracingOptions {
 
 /** Options for `validate()` — AJV JSON Schema validation middleware. */
 export interface ValidateOptions {
+  allErrors?: boolean;
+  coerceTypes?: boolean;
   formats?: boolean | AjvFormatName[] | Record<string, unknown>;
-  [key: string]: unknown;
+  ajv?: Record<string, unknown>;
 }
 
 /** JSON Schema objects for `validate()` first parameter. */
