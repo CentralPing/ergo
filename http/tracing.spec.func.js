@@ -74,9 +74,9 @@ describe('http/tracing contract', () => {
     const spans = exporter.getFinishedSpans();
     assert.equal(spans.length, 1);
     assert.equal(spans[0].name, 'ergo.pipeline');
-    assert.equal(spans[0].attributes['http.method'], 'GET');
-    assert.equal(spans[0].attributes['http.url'], '/test');
-    assert.equal(spans[0].attributes['http.status_code'], 200);
+    assert.equal(spans[0].attributes['http.request.method'], 'GET');
+    assert.equal(spans[0].attributes['url.path'], '/test');
+    assert.equal(spans[0].attributes['http.response.status_code'], 200);
   });
 
   it('propagates incoming trace context as parent', async () => {
@@ -111,7 +111,7 @@ describe('http/tracing contract', () => {
     const spans = exporter.getFinishedSpans();
     assert.equal(spans.length, 1);
     assert.equal(spans[0].status.code, 2); // SpanStatusCode.ERROR = 2
-    assert.equal(spans[0].attributes['http.status_code'], 503);
+    assert.equal(spans[0].attributes['http.response.status_code'], 503);
   });
 
   it('sets span status UNSET for 4xx responses', async () => {

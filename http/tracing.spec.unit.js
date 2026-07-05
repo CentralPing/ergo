@@ -137,7 +137,7 @@ describe('http/tracing', () => {
       result.value.span.end();
     });
 
-    it('sets http.method and http.url attributes on span', () => {
+    it('sets http.request.method and url.path attributes on span', () => {
       const mockTracer = createMockTracer();
       const mw = tracing({tracer: mockTracer});
       const req = mockReq('POST', '/api/users');
@@ -147,8 +147,36 @@ describe('http/tracing', () => {
       result.value.span.end();
 
       assert.equal(mockTracer.spans.length, 1);
-      assert.equal(mockTracer.spans[0].attributes['http.method'], 'POST');
-      assert.equal(mockTracer.spans[0].attributes['http.url'], '/api/users');
+      assert.equal(mockTracer.spans[0].attributes['http.request.method'], 'POST');
+      assert.equal(mockTracer.spans[0].attributes['url.path'], '/api/users');
+      assert.equal(mockTracer.spans[0].attributes['url.query'], undefined);
+    });
+
+    it('sets url.query when request URL contains a query string', () => {
+      const mockTracer = createMockTracer();
+      const mw = tracing({tracer: mockTracer});
+      const req = mockReq('GET', '/search?q=hello&page=2');
+      const res = mockRes();
+
+      const result = mw(req, res, {});
+      result.value.span.end();
+
+      assert.equal(mockTracer.spans[0].attributes['http.request.method'], 'GET');
+      assert.equal(mockTracer.spans[0].attributes['url.path'], '/search');
+      assert.equal(mockTracer.spans[0].attributes['url.query'], 'q=hello&page=2');
+    });
+
+    it('omits url.query when request URL has no query string', () => {
+      const mockTracer = createMockTracer();
+      const mw = tracing({tracer: mockTracer});
+      const req = mockReq('GET', '/plain');
+      const res = mockRes();
+
+      const result = mw(req, res, {});
+      result.value.span.end();
+
+      assert.equal(mockTracer.spans[0].attributes['url.path'], '/plain');
+      assert.equal('url.query' in mockTracer.spans[0].attributes, false);
     });
 
     it('applies custom attributes from options', () => {

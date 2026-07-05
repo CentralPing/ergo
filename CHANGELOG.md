@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **OTEL span attributes use stable HTTP semantic conventions.** (#324)
+  Replaced deprecated pre-v1.20 attribute names with the stable conventions
+  declared in November 2023: `http.method` → `http.request.method`,
+  `http.url` → `url.path` + `url.query`, `http.status_code` →
+  `http.response.status_code`. The `url.query` attribute is set conditionally
+  (only when the request URL contains a `?`). Named constants are defined in
+  a new `lib/otel-attributes.js` module to avoid a runtime dependency on
+  `@opentelemetry/semantic-conventions`.
+
 ## [0.7.0] - 2026-07-05
 
 ### Changed
