@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783265385825,
+  "lastUpdate": 1783265400974,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -15550,6 +15550,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "dfa8b49ec9bfc0a8fe1ff4c4d7f4e7da1cf52f1b",
+          "message": "fix: add validateOptions() call to validate() factory (#320)",
+          "timestamp": "2026-07-05T04:11:37Z",
+          "url": "https://github.com/CentralPing/ergo/pull/364/commits/dfa8b49ec9bfc0a8fe1ff4c4d7f4e7da1cf52f1b"
+        },
+        "date": 1783265399911,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
