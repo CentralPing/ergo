@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783265380898,
+  "lastUpdate": 1783265385825,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -15505,6 +15505,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "0898dcb91ef3b77fd3136aafb23dcd3efe6083d6",
+          "message": "fix: csrf encoding forwarding and factory-time secret validation (#308)",
+          "timestamp": "2026-07-05T04:11:37Z",
+          "url": "https://github.com/CentralPing/ergo/pull/363/commits/0898dcb91ef3b77fd3136aafb23dcd3efe6083d6"
+        },
+        "date": 1783265385160,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
             "unit": "us/op"
           },
           {
