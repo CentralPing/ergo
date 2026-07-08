@@ -121,6 +121,7 @@
     "url": "https://github.com/sponsors/jasoncust"
   },
   "dependencies": {
+    "@centralping/ergo-wire": "github:CentralPing/ergo-wire#v0.1.0-beta.1",
     "@opentelemetry/api": "^1.0.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
