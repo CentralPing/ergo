@@ -9,8 +9,8 @@ All notable changes to this project will be documented in this file.
 - **`createDispatcher()` prototype poisoning vulnerability.** (#254)
   The scheme-to-handler map in `lib/authorization.js` used a plain `{}` reduce
   accumulator, inheriting `Object.prototype`. Crafted `Authorization` headers with
-  scheme names matching prototype properties (e.g., `Constructor`, `ToString`,
-  `__proto__`) would bypass the strategy-not-found guard and crash with `TypeError`
+  scheme names matching prototype properties (e.g., `Constructor`, `__proto__`)
+  would bypass the strategy-not-found guard and crash with `TypeError`
   — a denial-of-service vector. Replaced with `Object.create(null)` to align with
   the project-wide null-prototype policy enforced in all other user-input-keyed
   parsers.
