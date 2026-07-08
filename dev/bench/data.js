@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783528334249,
+  "lastUpdate": 1783533173583,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -15789,6 +15789,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "3934e5fe909baaad56cb4127c7884641726c14e0",
+          "message": "refactor: re-export wire primitives from @centralping/ergo-wire (#369)",
+          "timestamp": "2026-07-05T20:13:00Z",
+          "url": "https://github.com/CentralPing/ergo/pull/370/commits/3934e5fe909baaad56cb4127c7884641726c14e0"
+        },
+        "date": 1783533172237,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
             "unit": "us/op"
           },
           {
