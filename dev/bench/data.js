@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783564954284,
+  "lastUpdate": 1783565464606,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -15904,6 +15904,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1a5f470f4360099fd1160b5d4107a4a51bbdeb89",
+          "message": "refactor: re-export wire primitives from @centralping/ergo-wire (#369) (#370)\n\n* refactor: re-export wire primitives from @centralping/ergo-wire\n\nKeep server-only IdempotencyStore and pagination response helpers in ergo\nwhile delegating parse/format to ergo-wire for symmetric client alignment.\n\n* fix(ci): skip Deno type-check for github npm dependency\n\nDeno 2.2+ cannot type-check @centralping/ergo-wire while it is installed\nfrom github: in package.json. Runtime resolution works via node_modules\nafter npm ci; add deno.json (nodeModulesDir: manual) and --no-check.\n\n* fix: address review findings for ergo-wire shims (#369)\n\nAdd CHANGELOG entry for @centralping/ergo-wire delegation and restore\ncomprehensive CTL stripping tests on the sanitize-quoted-string re-export.",
+          "timestamp": "2026-07-08T22:50:51-04:00",
+          "tree_id": "b1d2dda526d1b08ca4a75047263d1fb8cc2068e2",
+          "url": "https://github.com/CentralPing/ergo/commit/1a5f470f4360099fd1160b5d4107a4a51bbdeb89"
+        },
+        "date": 1783565463758,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.009,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.014,
             "unit": "us/op"
           }
         ]
