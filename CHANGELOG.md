@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Wire-format primitives delegated to `@centralping/ergo-wire`.** (#369)
+  Link header formatting, pagination parse/serialize, idempotency key parse/format,
+  and quoted-string sanitization now re-export from `@centralping/ergo-wire` for
+  symmetric client/server alignment. Server-only code (`IdempotencyStore`,
+  `generateFingerprint`, `offsetResponse`, `cursorResponse`) remains in ergo.
+  Existing `@centralping/ergo/lib/*` import paths are unchanged.
+
 ### Fixed
 
 - **`createDispatcher()` prototype poisoning vulnerability.** (#254)
