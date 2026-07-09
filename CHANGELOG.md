@@ -15,6 +15,15 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`createDispatcher()` prototype poisoning vulnerability.** (#254)
+  The scheme-to-handler map in `lib/authorization.js` used a plain `{}` reduce
+  accumulator, inheriting `Object.prototype`. Crafted `Authorization` headers with
+  scheme names matching prototype properties (e.g., `Constructor`, `__proto__`)
+  would bypass the strategy-not-found guard and crash with `TypeError`
+  — a denial-of-service vector. Replaced with `Object.create(null)` to align with
+  the project-wide null-prototype policy enforced in all other user-input-keyed
+  parsers.
+
 - **Response compression now recognizes RFC 6838 structured syntax suffixes (`+json`, `+xml`).** (#307)
   `application/problem+json` (ergo's error format), `application/vnd.api+json` (JSON:API),
   and other structured suffix types are now correctly identified as compressible. Previously,
