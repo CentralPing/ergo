@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783622388600,
+  "lastUpdate": 1783624017461,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -15978,6 +15978,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.014,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aaca59a0f9f6295738d4f31bef498752a5458a6c",
+          "message": "fix: use null-prototype object in createDispatcher() (#254) (#357)\n\n* fix: use null-prototype object in createDispatcher() (#254)\n\nReplace plain {} reduce accumulator with Object.create(null) to prevent\nprototype poisoning via crafted Authorization headers. Crafted scheme\nnames matching Object.prototype properties (Constructor, ToString,\n__proto__) bypassed the strategy-not-found guard and crashed with\nTypeError — a denial-of-service vector.\n\nAligns with the project-wide null-prototype policy already enforced in\nall other user-input-keyed parsers (query, cookies, prefer, multipart).\n\n* test: remove vacuous ToString prototype pollution test (#254)\n\nThe ToString test was not exercising prototype pollution — after\ntoLowerCase(), 'tostring' does not exist on Object.prototype (JS is\ncase-sensitive). The Constructor and __proto__ tests are the meaningful\nvectors that prove the null-prototype fix.\n\n* docs: remove inaccurate ToString from changelog examples (#254)\n\nAfter toLowerCase(), 'ToString' becomes 'tostring' which does not match\nObject.prototype.toString (case-sensitive). Only Constructor and __proto__\nare meaningful prototype collision vectors for this fix.",
+          "timestamp": "2026-07-09T15:06:42-04:00",
+          "tree_id": "e17f6eca67802cc964a69ed4002b479fde03677c",
+          "url": "https://github.com/CentralPing/ergo/commit/aaca59a0f9f6295738d4f31bef498752a5458a6c"
+        },
+        "date": 1783624016709,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.027,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
