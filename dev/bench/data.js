@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783626811747,
+  "lastUpdate": 1783627082111,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16047,6 +16047,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0db6e961b3d652788ba9dd83d7a5698dce3dea62",
+          "message": "chore: ignore deno.lock local artifact (#371)\n\nnpm/package-lock.json is the authoritative dependency lock; deno.json\nuses nodeModulesDir manual so Deno consumes node_modules after npm ci.",
+          "timestamp": "2026-07-09T15:57:43-04:00",
+          "tree_id": "5eac39226e86ac087e5a6ca144d3e9a313160acb",
+          "url": "https://github.com/CentralPing/ergo/commit/0db6e961b3d652788ba9dd83d7a5698dce3dea62"
+        },
+        "date": 1783627080740,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.028,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
             "unit": "us/op"
           },
           {
