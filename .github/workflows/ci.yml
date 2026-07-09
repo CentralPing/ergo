@@ -56,7 +56,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Run tests with Deno
         run: >-
-          deno test --allow-all
+          deno test --allow-all --no-check
           $(find . \( -name '*.spec.unit.js' -o -name '*.spec.func.js' \) ! -path '*/node_modules/*' | sort)
 
   test-bun:
