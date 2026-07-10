@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783656213205,
+  "lastUpdate": 1783659544558,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16160,6 +16160,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.008,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "ad7f7c898daa2e63c1ee542fa5b65ad40e954cd1",
+          "message": "fix: correct Vary token typo in CORS preflight responses (#259)",
+          "timestamp": "2026-07-10T04:03:20Z",
+          "url": "https://github.com/CentralPing/ergo/pull/359/commits/ad7f7c898daa2e63c1ee542fa5b65ad40e954cd1"
+        },
+        "date": 1783659543433,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.009,
             "unit": "us/op"
           },
           {
