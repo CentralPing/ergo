@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783659544558,
+  "lastUpdate": 1783659616892,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16200,6 +16200,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7362007e32e2c55ee091f128a3dd0b5423338e5e",
+          "message": "fix: correct Vary token typo in CORS preflight responses (#259) (#359)\n\nThe preflightHeaders array emitted 'Access-Control-Request-Methods'\n(plural) as a Vary token — a non-existent HTTP header. This prevented\ncorrect cache-key variance for preflight method negotiation. The spec\nheader name is 'Access-Control-Request-Method' (singular) per Fetch\nStandard §3.2.2 and W3C CORS REC §6.2.\n\nAlso adds boundary tests for preflight Vary tokens and aligns\npackage-lock.json version with package.json.",
+          "timestamp": "2026-07-10T05:00:01Z",
+          "tree_id": "2cd48f5f806f7443f3d5d020fbe5dc53e9913dc3",
+          "url": "https://github.com/CentralPing/ergo/commit/7362007e32e2c55ee091f128a3dd0b5423338e5e"
+        },
+        "date": 1783659615893,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
