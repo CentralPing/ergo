@@ -433,6 +433,38 @@ describe('[Module] http/logger', () => {
     assert.equal(info.request.headers.authorization, 'Bearer token');
   });
 
+  it('logs exactly once on error followed by close (no double-logging)', () => {
+    const logged = [];
+    const errors = [];
+    const logger = createLogger({
+      log: (...args) => logged.push(args),
+      error: (...args) => errors.push(args)
+    });
+    const req = makeReq();
+    const res = makeRes();
+    logger(req, res);
+    res.emit('error', new Error('stream write failure'));
+    res.emit('close');
+    assert.equal(errors.length, 1, 'should call error exactly once');
+    assert.equal(logged.length, 0, 'should not call log after error');
+  });
+
+  it('cleanup in error handler prevents finish from firing after error', () => {
+    const logged = [];
+    const errors = [];
+    const logger = createLogger({
+      log: (...args) => logged.push(args),
+      error: (...args) => errors.push(args)
+    });
+    const req = makeReq();
+    const res = makeRes();
+    logger(req, res);
+    res.emit('error', new Error('stream destroyed'));
+    res.emit('finish');
+    assert.equal(errors.length, 1, 'should call error exactly once');
+    assert.equal(logged.length, 0, 'should not call log after error');
+  });
+
   it('default redaction is isolated from mutations to DEFAULT_REDACTED_HEADERS', () => {
     const logger = createLogger({log: () => {}, error: () => {}});
     DEFAULT_REDACTED_HEADERS.delete('authorization');
