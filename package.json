@@ -41,10 +41,6 @@
       "types": "./types/utils/iterables/index.d.ts",
       "default": "./utils/iterables/index.js"
     },
-    "./utils/observables": {
-      "types": "./types/utils/observables/index.d.ts",
-      "default": "./utils/observables/index.js"
-    },
     "./utils/streams": {
       "types": "./types/utils/streams/index.d.ts",
       "default": "./utils/streams/index.js"
