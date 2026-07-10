@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783697223915,
+  "lastUpdate": 1783697284941,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16348,6 +16348,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e96f6b433f7a36a66457559915e148a4461daa32",
+          "message": "fix: wrap authorization success return in protocol-form {value} (#288) (#361)\n\nAuthorization middleware returned opaque user `info` directly, causing\nextractReturn() to misinterpret user data containing `value` or\n`response` keys as compose protocol objects. Wrap as `{value: info}`\nconsistent with paginate, tracing, and idempotency middleware.",
+          "timestamp": "2026-07-10T15:27:49Z",
+          "tree_id": "56694d1c69425a8e59650732f242fa54a4eee9a2",
+          "url": "https://github.com/CentralPing/ergo/commit/e96f6b433f7a36a66457559915e148a4461daa32"
+        },
+        "date": 1783697283805,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
