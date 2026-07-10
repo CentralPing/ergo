@@ -37,6 +37,8 @@ All notable changes to this project will be documented in this file.
   `close`, `error`) now follow the same pattern: deregister first, then log. Ensures
   exactly one structured log entry per request lifecycle outcome.
 
+- Corrected Vary token typo in CORS preflight responses: `Access-Control-Request-Methods` (plural) → `Access-Control-Request-Method` (singular). The previous value referenced a non-existent HTTP header, preventing correct cache-key variance for preflight method negotiation. (#259)
+
 ## [0.7.0] - 2026-07-05
 
 ### Changed
