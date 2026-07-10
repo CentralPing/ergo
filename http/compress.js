@@ -12,6 +12,10 @@
  * - Non-compressible content types (binary, images, etc.)
  * - Bodies below the configurable `threshold` byte count (default 1 KiB)
  *
+ * Compressible content types include all `text/*` types, specific
+ * `application/` subtypes (json, javascript, xml, x-www-form-urlencoded),
+ * and RFC 6838 structured syntax suffixes (`+json`, `+xml`).
+ *
  * @module http/compress
  * @since 0.1.0
  * @requires node:zlib
@@ -26,6 +30,7 @@
  * );
  *
  * @see {@link https://www.rfc-editor.org/rfc/rfc9110#section-12.5.3 RFC 9110 Section 12.5.3 - Accept-Encoding}
+ * @see {@link https://www.rfc-editor.org/rfc/rfc6838#section-4.2.8 RFC 6838 Section 4.2.8 - Structured Syntax Suffixes}
  */
 import zlib from 'node:zlib';
 import Negotiator from 'negotiator';
@@ -33,7 +38,8 @@ import appendVary from '../lib/vary.js';
 import {validateOptions} from '../lib/validate-options.js';
 
 const NO_COMPRESS_STATUSES = new Set([204, 304]);
-const COMPRESSIBLE_RE = /^(text\/|application\/(json|javascript|xml|x-www-form-urlencoded))/;
+const COMPRESSIBLE_RE =
+  /^(text\/|application\/(json|javascript|xml|x-www-form-urlencoded)\b|application\/[a-z0-9.+-]+\+(json|xml)\b)/;
 
 /** @type {Set<string>} */
 const VALID_OPTIONS = new Set(['threshold', 'encodings']);

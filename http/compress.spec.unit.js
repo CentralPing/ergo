@@ -191,6 +191,73 @@ describe('[Module] http/compress', () => {
 
       assert.equal(res.getHeader('content-encoding'), 'gzip');
     });
+
+    it('compresses structured suffix +json (application/problem+json)', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/problem+json');
+      res.statusCode = 200;
+
+      const finished = onFinish(res);
+      res.end(JSON.stringify({type: 'about:blank', title: 'Bad Request', status: 400}));
+      await finished;
+
+      assert.equal(res.getHeader('content-encoding'), 'gzip');
+    });
+
+    it('compresses structured suffix +json (application/vnd.api+json)', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/vnd.api+json');
+      res.statusCode = 200;
+
+      const finished = onFinish(res);
+      res.end(JSON.stringify({data: {id: '1', type: 'articles'}}));
+      await finished;
+
+      assert.equal(res.getHeader('content-encoding'), 'gzip');
+    });
+
+    it('compresses structured suffix +xml (application/hal+xml)', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/hal+xml');
+      res.statusCode = 200;
+
+      const finished = onFinish(res);
+      res.end('<resource><name>test</name></resource>');
+      await finished;
+
+      assert.equal(res.getHeader('content-encoding'), 'gzip');
+    });
+
+    it('skips compression for non-compressible type (application/octet-stream)', () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.end('x'.repeat(2000));
+
+      assert.ok(!res.getHeader('content-encoding'), 'should not compress application/octet-stream');
+    });
+
+    it('does not false-match application/jsonp (word boundary)', () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/jsonp');
+      res.end('x'.repeat(2000));
+
+      assert.ok(!res.getHeader('content-encoding'), 'should not compress application/jsonp');
+    });
   });
 
   describe('compressor selection', () => {
