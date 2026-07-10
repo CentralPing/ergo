@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783693209539,
+  "lastUpdate": 1783693279763,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16274,6 +16274,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4a196f18fc48fe4685b29ae2102ea336564ec209",
+          "message": "refactor: remove dead utils/observables module (#333) (#360)\n\nDelete the push-based generator coroutine module (5 source files, 1 test\nfile) and its ./utils/observables package.json export. The module had zero\nconsumers — internal, cross-package, or external — and carried a protocol\nincompatibility between chain.js and buffer-split.js (#334) as well as\nmisleading \"Observable\" terminology (#336).\n\nCloses #333\nCloses #334\nCloses #336",
+          "timestamp": "2026-07-10T14:21:01Z",
+          "tree_id": "5515587462f5a6cd65020fea5db91d7a6cc65222",
+          "url": "https://github.com/CentralPing/ergo/commit/4a196f18fc48fe4685b29ae2102ea336564ec209"
+        },
+        "date": 1783693278194,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.029,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
