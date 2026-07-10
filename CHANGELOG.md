@@ -15,6 +15,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Authorization middleware now uses explicit `{value: info}` return wrapping.** (#288)
+  Previously, `http/authorization.js` returned the opaque `info` object directly on
+  authorization success. If the user's authorizer returned an object containing `value`
+  or `response` keys, `extractReturn()` in `compose-with.js` would misinterpret the
+  return as a compose protocol-form object — extracting `info.value` as the domain
+  result or merging `info.response` into the response accumulator. The fix wraps the
+  return as `{value: info}`, consistent with other domain-producing middleware that
+  handle user-controlled data (`paginate.js`, `tracing.js`, `idempotency.js`).
+  No change to composed pipeline behavior — `acc.auth` still receives the full `info`
+  object.
+
 - **`createDispatcher()` prototype poisoning vulnerability.** (#254)
   The scheme-to-handler map in `lib/authorization.js` used a plain `{}` reduce
   accumulator, inheriting `Object.prototype`. Crafted `Authorization` headers with
