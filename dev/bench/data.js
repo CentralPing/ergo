@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783700895958,
+  "lastUpdate": 1783719480792,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16461,6 +16461,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.013,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "3fe33ab52154ad38e531487f19a6e9a2640567e1",
+          "message": "ci(deps): Bump the actions-patches group with 4 updates",
+          "timestamp": "2026-07-10T16:29:56Z",
+          "url": "https://github.com/CentralPing/ergo/pull/373/commits/3fe33ab52154ad38e531487f19a6e9a2640567e1"
+        },
+        "date": 1783719480044,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
