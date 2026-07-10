@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783655256949,
+  "lastUpdate": 1783656213205,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16126,6 +16126,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.008,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "40d949fac2fb2bcc2a7ef6320bd7a0d444433364",
+          "message": "fix: logger error handler calls cleanup() to prevent double-logging (#312) (#358)\n\nThe error event handler now deregisters sibling listeners (finish, close)\nbefore logging, ensuring exactly one structured log entry per request\nlifecycle outcome. Previously, a response stream error followed by the\ninevitable close event would produce a spurious \"aborted\" log entry.\n\nAll three terminal event handlers (finish, abort via close, error) now\nfollow the same pattern: cleanup first, then log.",
+          "timestamp": "2026-07-10T00:03:15-04:00",
+          "tree_id": "bb75b274e1a19f3405e59194e079734dd9592f3f",
+          "url": "https://github.com/CentralPing/ergo/commit/40d949fac2fb2bcc2a7ef6320bd7a0d444433364"
+        },
+        "date": 1783656212564,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.008,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
