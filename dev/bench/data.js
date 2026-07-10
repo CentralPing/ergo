@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783699196637,
+  "lastUpdate": 1783700895958,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16422,6 +16422,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d206687a1ef278389da735967031c3f20f0e68c7",
+          "message": "chore: bump ergo-wire to v0.1.0-beta.2 (#372)\n\nAdopts ergo-wire 0.1.0-beta.2 which adds serializeCursorParams and\nhardens fingerprint() to reject unsupported body types. ergo's lib\nshims re-export the updated wire primitives unchanged.",
+          "timestamp": "2026-07-10T12:27:54-04:00",
+          "tree_id": "93b35c383fb5b3acf4b175d8b8de17a648767900",
+          "url": "https://github.com/CentralPing/ergo/commit/d206687a1ef278389da735967031c3f20f0e68c7"
+        },
+        "date": 1783700894479,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.027,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
