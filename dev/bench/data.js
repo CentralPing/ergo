@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783693279763,
+  "lastUpdate": 1783697223915,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16308,6 +16308,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "83e7735de68038683e5888fa9b3e6f86c4bb5b44",
+          "message": "fix: wrap authorization success return in protocol-form {value} (#288)",
+          "timestamp": "2026-07-10T14:22:37Z",
+          "url": "https://github.com/CentralPing/ergo/pull/361/commits/83e7735de68038683e5888fa9b3e6f86c4bb5b44"
+        },
+        "date": 1783697223160,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
             "unit": "us/op"
           },
           {
