@@ -4,7 +4,31 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Wire-format primitives delegated to `@centralping/ergo-wire`.** (#369)
+  Link header formatting, pagination parse/serialize, idempotency key parse/format,
+  and quoted-string sanitization now re-export from `@centralping/ergo-wire` for
+  symmetric client/server alignment. Server-only code (`IdempotencyStore`,
+  `generateFingerprint`, `offsetResponse`, `cursorResponse`) remains in ergo.
+  Existing `@centralping/ergo/lib/*` import paths are unchanged.
+
 ### Fixed
+
+- **`createDispatcher()` prototype poisoning vulnerability.** (#254)
+  The scheme-to-handler map in `lib/authorization.js` used a plain `{}` reduce
+  accumulator, inheriting `Object.prototype`. Crafted `Authorization` headers with
+  scheme names matching prototype properties (e.g., `Constructor`, `__proto__`)
+  would bypass the strategy-not-found guard and crash with `TypeError`
+  — a denial-of-service vector. Replaced with `Object.create(null)` to align with
+  the project-wide null-prototype policy enforced in all other user-input-keyed
+  parsers.
+
+- **Response compression now recognizes RFC 6838 structured syntax suffixes (`+json`, `+xml`).** (#307)
+  `application/problem+json` (ergo's error format), `application/vnd.api+json` (JSON:API),
+  and other structured suffix types are now correctly identified as compressible. Previously,
+  only exact `application/json` and `application/xml` subtypes triggered compression. The
+  `\b` word boundary also prevents false matches on types like `application/jsonp`.
 
 - **Logger double-logging when response stream emits `error` followed by `close`.** (#312)
   The `error` event handler now calls `cleanup()` before logging, deregistering sibling
