@@ -162,6 +162,8 @@ export default (options = {}) => {
      * @param {*} err - The error emitted by the response stream
      */
     function error(err) {
+      cleanup();
+
       const code = err?.statusCode ?? err?.status;
       logError({
         requestId,

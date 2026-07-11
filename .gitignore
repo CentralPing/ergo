@@ -4,6 +4,9 @@ types
 npm-debug.log
 .DS_Store
 
+# Deno local artifact — npm/package-lock.json is authoritative (see deno.json nodeModulesDir: manual)
+deno.lock
+
 # Agent/editor local files
 DECISIONS.md
 .cursor/
