@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783737657357,
+  "lastUpdate": 1783738405438,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16669,6 +16669,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b7a7a2ea9e2f6c2c1d9061189a264a0ca23f8f1a",
+          "message": "fix: add validateOptions() call to validate() factory (#320) (#364)\n\nThe validate() middleware factory was the sole factory (of 19) that did\nnot call validateOptions() on its options parameter. Typos like\n{format: ['email']} silently produced misconfigured AJV instances.\n\n- Import validateOptions and add VALID_OPTIONS Set (formats, allErrors,\n  coerceTypes, ajv) matching the 4 keys consumed by lib/validate.js\n- Add validateOptions() call at top of factory body\n- Add @param JSDoc for allErrors, coerceTypes, and ajv options\n- Add 4 test cases: unknown key warning with suggestion, valid keys no\n  warning, empty/omitted options no warning, deduplication\n- Tighten ValidateOptions TypeScript interface: explicit fields, remove\n  index signature\n- Update CHANGELOG.md with [Unreleased] entry",
+          "timestamp": "2026-07-10T22:53:11-04:00",
+          "tree_id": "cf6b5a4e6a7e156508acf669804f3f3b64234bb9",
+          "url": "https://github.com/CentralPing/ergo/commit/b7a7a2ea9e2f6c2c1d9061189a264a0ca23f8f1a"
+        },
+        "date": 1783738404725,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
             "unit": "us/op"
           },
           {
