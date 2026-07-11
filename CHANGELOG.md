@@ -13,7 +13,17 @@ All notable changes to this project will be documented in this file.
   `generateFingerprint`, `offsetResponse`, `cursorResponse`) remains in ergo.
   Existing `@centralping/ergo/lib/*` import paths are unchanged.
 
+- **`csrf()` validates `secret` at construction time.** (#313) The required `secret` parameter
+  is now validated at factory time (`typeof` + length check). Missing or invalid `secret` throws
+  `TypeError` immediately instead of deferring the error to the first request. This is the first
+  `http/` middleware factory with factory-time required-parameter validation.
+
 ### Fixed
+
+- **`csrf()` `encoding` option now forwarded to `verify()`.** (#308) The `encoding` factory
+  option was forwarded to `issue()` but omitted from `verify()`, causing unconditional CSRF
+  verification failure when a non-default encoding (e.g. `'hex'`) was configured. `verify()`
+  now receives the same encoding used at issuance time.
 
 - **Body middleware now eagerly parses all content types within its error boundary.**
   (#323) Compressed JSON, form-urlencoded, and multipart bodies previously used a

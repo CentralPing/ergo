@@ -113,4 +113,36 @@ describe('[Module] http/csrf', () => {
     const tokenHeader = headers.find(h => h.startsWith('CSRF-TOKEN='));
     assert.ok(!tokenHeader.includes('HttpOnly'), 'token cookie must be JS-readable');
   });
+
+  it('throws TypeError when secret is missing', () => {
+    assert.throws(() => createCsrf({}), {
+      name: 'TypeError',
+      message: 'csrf(): "secret" option is required and must be a non-empty string'
+    });
+  });
+
+  it('throws TypeError when secret is an empty string', () => {
+    assert.throws(() => createCsrf({secret: ''}), {
+      name: 'TypeError',
+      message: 'csrf(): "secret" option is required and must be a non-empty string'
+    });
+  });
+
+  it('throws TypeError when secret is not a string', () => {
+    assert.throws(() => createCsrf({secret: 42}), {
+      name: 'TypeError',
+      message: 'csrf(): "secret" option is required and must be a non-empty string'
+    });
+  });
+
+  it('encoding option is forwarded to verify() for non-default encodings', () => {
+    const csrf = createCsrf({secret, encoding: 'hex'});
+    const requestCookies = issueCycleJar(csrf);
+    const token = requestCookies['CSRF-TOKEN'];
+
+    assert.ok(token, 'should have CSRF-TOKEN in parsed jar');
+    assert.ok(/^[0-9a-f]+$/i.test(token), 'token should be hex-encoded');
+    const result = csrf.verify({headers: {'x-csrf-token': token}}, {}, {cookies: requestCookies});
+    assert.equal(result, undefined, 'verify should succeed with matching hex encoding');
+  });
 });
