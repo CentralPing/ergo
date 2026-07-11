@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783729169135,
+  "lastUpdate": 1783729230963,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16531,6 +16531,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.007,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2648fbe50974c38a947ccd54348a570788cf3f72",
+          "message": "fix: body middleware eagerly parses all content types within error boundary (#323) (#362)\n\nCompressed JSON, form-urlencoded, and multipart bodies previously used a\nself-replacing lazy getter on `result.parsed` that deferred parse\nexecution outside the body middleware's try/catch scope. Malformed\ncompressed JSON propagated to handler.js's catch-all, producing 500\ninstead of the correct 400.\n\nAll paths now parse eagerly via `parsers[type](raw, boundary)` within\nthe middleware — eliminating the error scope mismatch and aligning\nbehavior with the identity-encoded JSON fast path.",
+          "timestamp": "2026-07-11T00:20:17Z",
+          "tree_id": "ddf74db1b05e66be0a437b05de6cae58f3532782",
+          "url": "https://github.com/CentralPing/ergo/commit/2648fbe50974c38a947ccd54348a570788cf3f72"
+        },
+        "date": 1783729230158,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
