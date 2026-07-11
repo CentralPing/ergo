@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`validate()` now validates option keys at factory time.** (#320)
+  The `options` parameter (second argument) is validated against the recognized keys
+  (`formats`, `allErrors`, `coerceTypes`, `ajv`) using the shared `lib/validate-options.js`
+  utility. Typos like `{format: ['email']}` now emit an `ERGO_VALIDATE_UNKNOWN_OPTION`
+  warning with a "did you mean?" suggestion, matching the behavior of all other middleware
+  factories. The `ValidateOptions` TypeScript interface is tightened to list all four
+  accepted fields explicitly (index signature removed).
+
 ### Changed
 
 - **Wire-format primitives delegated to `@centralping/ergo-wire`.** (#369)
@@ -75,7 +85,6 @@ All notable changes to this project will be documented in this file.
   The multipart body parser uses the pull-based `utils/iterables/buffer-split` instead.
   Resolves three design findings: dead infrastructure (#333), chain/buffer-split
   protocol incompatibility (#334), and incorrect "Observable" terminology (#336).
-
 
 ## [0.7.0] - 2026-07-05
 
