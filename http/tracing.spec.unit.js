@@ -158,7 +158,7 @@ describe('http/tracing', () => {
       const req = mockReq('GET', '/search?q=hello&page=2');
       const res = mockRes();
 
-      const result = mw(req, res, {});
+      const result = mw(req, res);
       result.value.span.end();
 
       assert.equal(mockTracer.spans[0].attributes['http.request.method'], 'GET');
@@ -172,7 +172,7 @@ describe('http/tracing', () => {
       const req = mockReq('GET', '/plain');
       const res = mockRes();
 
-      const result = mw(req, res, {});
+      const result = mw(req, res);
       result.value.span.end();
 
       assert.equal(mockTracer.spans[0].attributes['url.path'], '/plain');
