@@ -137,6 +137,41 @@ describe('[Contract] http/compress', () => {
     }
   });
 
+  it('compresses structured suffix +json content type (application/problem+json)', async () => {
+    let u, c;
+    const p = compose(createCompress({threshold: 1}), (req, res) => {
+      res.setHeader('Content-Type', 'application/problem+json');
+      return {response: {body: {type: 'about:blank', title: 'Bad Request', status: 400}}};
+    });
+    ({baseUrl: u, close: c} = await setupServer(createHandler(p)));
+    try {
+      const res = await fetch(`${u}/`, {headers: {'accept-encoding': 'gzip'}});
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('content-encoding'), 'gzip');
+      const body = await res.json();
+      assert.equal(body.type, 'about:blank');
+    } finally {
+      await c();
+    }
+  });
+
+  it('compresses structured suffix +xml content type (application/hal+xml)', async () => {
+    let u, c;
+    const p = compose(createCompress({threshold: 1}), (req, res) => {
+      res.setHeader('Content-Type', 'application/hal+xml');
+      return {response: {body: '<resource><name>test</name></resource>'}};
+    });
+    ({baseUrl: u, close: c} = await setupServer(createHandler(p)));
+    try {
+      const res = await fetch(`${u}/`, {headers: {'accept-encoding': 'gzip'}});
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('content-encoding'), 'gzip');
+      await res.body?.cancel();
+    } finally {
+      await c();
+    }
+  });
+
   it('compresses via res.write() (chunked streaming path)', async () => {
     let u, c;
     const rawHandler = (req, res) => {

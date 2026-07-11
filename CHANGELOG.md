@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Wire-format primitives delegated to `@centralping/ergo-wire`.** (#369)
+  Link header formatting, pagination parse/serialize, idempotency key parse/format,
+  and quoted-string sanitization now re-export from `@centralping/ergo-wire` for
+  symmetric client/server alignment. Server-only code (`IdempotencyStore`,
+  `generateFingerprint`, `offsetResponse`, `cursorResponse`) remains in ergo.
+  Existing `@centralping/ergo/lib/*` import paths are unchanged.
+
+- **`csrf()` validates `secret` at construction time.** (#313) The required `secret` parameter
+  is now validated at factory time (`typeof` + length check). Missing or invalid `secret` throws
+  `TypeError` immediately instead of deferring the error to the first request. This is the first
+  `http/` middleware factory with factory-time required-parameter validation.
+
 ### Fixed
 
 - **`csrf()` `encoding` option now forwarded to `verify()`.** (#308) The `encoding` factory
@@ -11,12 +25,57 @@ All notable changes to this project will be documented in this file.
   verification failure when a non-default encoding (e.g. `'hex'`) was configured. `verify()`
   now receives the same encoding used at issuance time.
 
-### Changed
+- **Body middleware now eagerly parses all content types within its error boundary.**
+  (#323) Compressed JSON, form-urlencoded, and multipart bodies previously used a
+  self-replacing lazy getter on `result.parsed` that deferred parse execution outside
+  the body middleware's `try/catch` scope. When a compressed JSON body was malformed,
+  the parse error propagated to `handler.js`'s catch-all, producing a 500 Internal
+  Server Error for what is semantically a 400 Bad Request. All paths now parse eagerly
+  within the middleware — malformed compressed JSON correctly returns 400.
 
-- **`csrf()` validates `secret` at construction time.** (#313) The required `secret` parameter
-  is now validated at factory time (`typeof` + length check). Missing or invalid `secret` throws
-  `TypeError` immediately instead of deferring the error to the first request. This is the first
-  `http/` middleware factory with factory-time required-parameter validation.
+- **Authorization middleware now uses explicit `{value: info}` return wrapping.** (#288)
+  Previously, `http/authorization.js` returned the opaque `info` object directly on
+  authorization success. If the user's authorizer returned an object containing `value`
+  or `response` keys, `extractReturn()` in `compose-with.js` would misinterpret the
+  return as a compose protocol-form object — extracting `info.value` as the domain
+  result or merging `info.response` into the response accumulator. The fix wraps the
+  return as `{value: info}`, consistent with other domain-producing middleware that
+  handle user-controlled data (`paginate.js`, `tracing.js`, `idempotency.js`).
+  No change to composed pipeline behavior — `acc.auth` still receives the full `info`
+  object.
+
+- **`createDispatcher()` prototype poisoning vulnerability.** (#254)
+  The scheme-to-handler map in `lib/authorization.js` used a plain `{}` reduce
+  accumulator, inheriting `Object.prototype`. Crafted `Authorization` headers with
+  scheme names matching prototype properties (e.g., `Constructor`, `__proto__`)
+  would bypass the strategy-not-found guard and crash with `TypeError`
+  — a denial-of-service vector. Replaced with `Object.create(null)` to align with
+  the project-wide null-prototype policy enforced in all other user-input-keyed
+  parsers.
+
+- **Response compression now recognizes RFC 6838 structured syntax suffixes (`+json`, `+xml`).** (#307)
+  `application/problem+json` (ergo's error format), `application/vnd.api+json` (JSON:API),
+  and other structured suffix types are now correctly identified as compressible. Previously,
+  only exact `application/json` and `application/xml` subtypes triggered compression. The
+  `\b` word boundary also prevents false matches on types like `application/jsonp`.
+
+- **Logger double-logging when response stream emits `error` followed by `close`.** (#312)
+  The `error` event handler now calls `cleanup()` before logging, deregistering sibling
+  listeners (`finish`, `close`) to prevent the subsequent `close` event from triggering a
+  spurious "aborted" log entry. All three terminal event handlers (`finish`, `abort` via
+  `close`, `error`) now follow the same pattern: deregister first, then log. Ensures
+  exactly one structured log entry per request lifecycle outcome.
+
+- Corrected Vary token typo in CORS preflight responses: `Access-Control-Request-Methods` (plural) → `Access-Control-Request-Method` (singular). The previous value referenced a non-existent HTTP header, preventing correct cache-key variance for preflight method negotiation. (#259)
+
+### Removed
+
+- **Removed `utils/observables` module and `./utils/observables` export.** (#333, #334, #336)
+  The push-based generator coroutine module had zero internal or external consumers.
+  The multipart body parser uses the pull-based `utils/iterables/buffer-split` instead.
+  Resolves three design findings: dead infrastructure (#333), chain/buffer-split
+  protocol incompatibility (#334), and incorrect "Observable" terminology (#336).
+
 
 ## [0.7.0] - 2026-07-05
 
