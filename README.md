@@ -178,7 +178,7 @@ ergo is designed for Node.js and uses `node:http`, `node:stream`, `node:zlib`, a
 - **`process.emitWarning`** (Bun): The `http/validate` middleware's developer-experience warnings emit correctly at runtime, but Bun's `process.on('warning')` listener support differs from Node.js, causing 5 unit test assertions to fail.
 - **Timer precision** (both): One `MemoryStore` timing test in `lib/rate-limit` has microsecond-level sensitivity that can fail across all runtimes under load.
 
-ergo's pipeline core (`compose`, `compose-with`, all `utils/iterables`, `utils/observables`) has zero `node:*` imports and is fully portable. The coupling to Node.js APIs concentrates in 6 boundary files: `handler.js`, `send.js`, `body.js`, `compress.js`, `logger.js`, and `timeout.js`.
+ergo's pipeline core (`compose`, `compose-with`, all `utils/iterables`) has zero `node:*` imports and is fully portable. The coupling to Node.js APIs concentrates in 6 boundary files: `handler.js`, `send.js`, `body.js`, `compress.js`, `logger.js`, and `timeout.js`.
 
 CI runs the full test suite on Deno and Bun alongside Node.js. These jobs use `continue-on-error` and are informational rather than required checks.
 

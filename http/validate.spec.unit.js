@@ -248,6 +248,83 @@ describe('[Module] http/validate', () => {
     }
   });
 
+  it('emits ERGO_VALIDATE_UNKNOWN_OPTION warning for unknown option keys', () => {
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
+
+    try {
+      createValidate({body: {type: 'object'}}, {format: ['email']});
+
+      const calls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_OPTION');
+      assert.equal(calls.length, 1);
+      assert.ok(calls[0].message.includes('"format"'));
+      assert.ok(calls[0].message.includes('did you mean "formats"'));
+      assert.equal(calls[0].type, 'ErgoWarning');
+    } finally {
+      process.emitWarning = orig;
+    }
+  });
+
+  it('does not emit option warning when all option keys are valid', () => {
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
+
+    try {
+      createValidate(
+        {body: {type: 'object'}},
+        {formats: true, allErrors: false, coerceTypes: true, ajv: {}}
+      );
+
+      const calls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_OPTION');
+      assert.equal(calls.length, 0);
+    } finally {
+      process.emitWarning = orig;
+    }
+  });
+
+  it('does not emit option warning when options is empty or omitted', () => {
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
+
+    try {
+      createValidate({body: {type: 'object'}}, {});
+      createValidate({body: {type: 'object'}});
+
+      const calls = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_OPTION');
+      assert.equal(calls.length, 0);
+    } finally {
+      process.emitWarning = orig;
+    }
+  });
+
+  it('deduplicates option warnings for identical unknown key sets', () => {
+    const warnings = [];
+    const orig = process.emitWarning;
+    process.emitWarning = (msg, opts) => warnings.push({message: msg, ...opts});
+
+    try {
+      createValidate({body: {type: 'object'}}, {bogus: true});
+
+      const first = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_OPTION');
+      assert.equal(first.length, 1);
+
+      createValidate({body: {type: 'object'}}, {bogus: true});
+
+      const second = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_OPTION');
+      assert.equal(second.length, 1, 'repeated key set is deduplicated');
+
+      createValidate({body: {type: 'object'}}, {other: true});
+
+      const third = warnings.filter(w => w.code === 'ERGO_VALIDATE_UNKNOWN_OPTION');
+      assert.equal(third.length, 2, 'different key set emits a separate warning');
+    } finally {
+      process.emitWarning = orig;
+    }
+  });
+
   it('emits per-key-set warnings and deduplicates identical key sets', () => {
     const warnings = [];
     const orig = process.emitWarning;
