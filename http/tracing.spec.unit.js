@@ -149,7 +149,7 @@ describe('http/tracing', () => {
       assert.equal(mockTracer.spans.length, 1);
       assert.equal(mockTracer.spans[0].attributes['http.request.method'], 'POST');
       assert.equal(mockTracer.spans[0].attributes['url.path'], '/api/users');
-      assert.equal(mockTracer.spans[0].attributes['url.query'], undefined);
+      assert.equal('url.query' in mockTracer.spans[0].attributes, false);
     });
 
     it('sets url.query when request URL contains a query string', () => {
