@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783735178173,
+  "lastUpdate": 1783735249106,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16605,6 +16605,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "901f620e3c3ed2f4ea8e4e389a32295df4a090f2",
+          "message": "fix: csrf encoding forwarding and factory-time secret validation (#308) (#363)\n\nForward the `encoding` factory option to `verify()` so non-default\nencodings (e.g. 'hex') no longer cause unconditional CSRF verification\nfailure. Add factory-time TypeError validation for the required `secret`\nparameter so configuration errors fail at startup instead of at the\nfirst request.\n\nCloses #308\nCloses #313",
+          "timestamp": "2026-07-11T02:00:31Z",
+          "tree_id": "46345d77e7dca4430b510055ecdf6f72b9b7bb33",
+          "url": "https://github.com/CentralPing/ergo/commit/901f620e3c3ed2f4ea8e4e389a32295df4a090f2"
+        },
+        "date": 1783735247689,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.01,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
