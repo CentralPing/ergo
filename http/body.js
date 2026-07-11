@@ -227,34 +227,11 @@ export default (options = {}) => {
 
       const result = {type, charset: charsetEncoding, encoding, length, received, boundary, raw};
 
-      // Fast path: for JSON types, parse immediately instead of a lazy getter
-      if (
-        isIdentity &&
-        type !== 'multipart/form-data' &&
-        type !== 'application/x-www-form-urlencoded'
-      ) {
-        try {
-          result.parsed = toNullPrototype(JSON.parse(raw));
-        } catch (err) {
-          throw errors.Malformed({type, err});
-        }
-        return result;
+      try {
+        result.parsed = parsers[type](raw, boundary);
+      } catch (err) {
+        throw errors.Malformed({type, err});
       }
-
-      Object.defineProperty(result, 'parsed', {
-        get() {
-          try {
-            return (this.parsed = parsers[type](this.raw, this.boundary));
-          } catch (err) {
-            throw errors.Malformed({type, err});
-          }
-        },
-        set(v) {
-          delete this.parsed;
-          this.parsed = v;
-        },
-        configurable: true
-      });
 
       return result;
     } catch (err) {

@@ -332,6 +332,53 @@ describe('[Contract] http/body', () => {
     });
   });
 
+  describe('malformed compressed body', () => {
+    it('returns 400 for malformed gzip-compressed JSON body', async () => {
+      const payload = '{not valid json!}';
+      const compressed = await gzip(Buffer.from(payload));
+      const res = await fetch(`${baseUrl}/`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'content-encoding': 'gzip',
+          'content-length': String(compressed.length)
+        },
+        body: compressed
+      });
+      assert.equal(res.status, 400);
+    });
+
+    it('returns 400 for malformed deflate-compressed JSON body', async () => {
+      const payload = '{not valid json!}';
+      const compressed = await deflate(Buffer.from(payload));
+      const res = await fetch(`${baseUrl}/`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'content-encoding': 'deflate',
+          'content-length': String(compressed.length)
+        },
+        body: compressed
+      });
+      assert.equal(res.status, 400);
+    });
+
+    it('returns 400 for malformed brotli-compressed JSON body', async () => {
+      const payload = '{not valid json!}';
+      const compressed = await brotli(Buffer.from(payload));
+      const res = await fetch(`${baseUrl}/`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'content-encoding': 'br',
+          'content-length': String(compressed.length)
+        },
+        body: compressed
+      });
+      assert.equal(res.status, 400);
+    });
+  });
+
   describe('Content-Length mismatch (readBodyDirect guards)', () => {
     it('returns 413 when actual body exceeds the configured limit', async () => {
       let u, c;

@@ -15,6 +15,14 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Body middleware now eagerly parses all content types within its error boundary.**
+  (#323) Compressed JSON, form-urlencoded, and multipart bodies previously used a
+  self-replacing lazy getter on `result.parsed` that deferred parse execution outside
+  the body middleware's `try/catch` scope. When a compressed JSON body was malformed,
+  the parse error propagated to `handler.js`'s catch-all, producing a 500 Internal
+  Server Error for what is semantically a 400 Bad Request. All paths now parse eagerly
+  within the middleware — malformed compressed JSON correctly returns 400.
+
 - **Authorization middleware now uses explicit `{value: info}` return wrapping.** (#288)
   Previously, `http/authorization.js` returned the opaque `info` object directly on
   authorization success. If the user's authorizer returned an object containing `value`
@@ -57,6 +65,7 @@ All notable changes to this project will be documented in this file.
   The multipart body parser uses the pull-based `utils/iterables/buffer-split` instead.
   Resolves three design findings: dead infrastructure (#333), chain/buffer-split
   protocol incompatibility (#334), and incorrect "Observable" terminology (#336).
+
 
 ## [0.7.0] - 2026-07-05
 
