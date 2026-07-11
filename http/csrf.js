@@ -57,6 +57,7 @@ const VALID_OPTIONS = new Set([
  * @param {string} options.secret - HMAC secret for token signing
  * @param {string} [options.encoding] - Token encoding (default: base64)
  * @param {object} [options.cookieOptions={}] - Cookie directives passed to the cookie factory
+ * @throws {TypeError} If `secret` is not a non-empty string
  */
 export default (options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'csrf');
@@ -68,6 +69,10 @@ export default (options = {}) => {
     encoding,
     cookieOptions = {}
   } = options;
+
+  if (typeof secret !== 'string' || secret.length === 0) {
+    throw new TypeError('csrf(): "secret" option is required and must be a non-empty string');
+  }
 
   return {
     issue(req, res, acc) {
@@ -81,7 +86,11 @@ export default (options = {}) => {
     verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, res, acc) {
       const {cookies: {[cookieUuidName]: uuid} = {}} = acc;
 
-      if (headerToken === undefined || uuid === undefined || !verify(headerToken, {secret, uuid})) {
+      if (
+        headerToken === undefined ||
+        uuid === undefined ||
+        !verify(headerToken, {secret, uuid, encoding})
+      ) {
         return {response: {statusCode: 403, detail: 'CSRF verification failed'}};
       }
     }

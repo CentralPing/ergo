@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import createAuthorization from './authorization.js';
 
 describe('[Module] http/authorization', () => {
-  it('returns info on success', async () => {
+  it('returns info wrapped in protocol-form {value} on success', async () => {
     const authorization = createAuthorization({
       strategies: [
         {
@@ -13,7 +13,23 @@ describe('[Module] http/authorization', () => {
       ]
     });
     const result = await authorization({headers: {authorization: 'Bearer tok'}});
-    assert.equal(result.userId, 'u1');
+    assert.deepEqual(result.value, {userId: 'u1'});
+  });
+
+  it('does not misinterpret info keys that collide with compose protocol', async () => {
+    const authorization = createAuthorization({
+      strategies: [
+        {
+          type: 'Bearer',
+          authorizer: async () => ({
+            authorized: true,
+            info: {value: 'user-data', response: {audit: true}}
+          })
+        }
+      ]
+    });
+    const result = await authorization({headers: {authorization: 'Bearer tok'}});
+    assert.deepEqual(result.value, {value: 'user-data', response: {audit: true}});
   });
 
   it('returns 401 response when Bearer authorization is denied (default for invalid token)', async () => {

@@ -64,7 +64,7 @@ export default (options = {}) => {
       return {response: {statusCode, headers}};
     }
 
-    return info;
+    return {value: info};
   };
 
   Object.defineProperty(inner, 'setPath', {value: 'auth'});
