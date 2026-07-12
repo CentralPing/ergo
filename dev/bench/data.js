@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783798034399,
+  "lastUpdate": 1783868379416,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -16858,6 +16858,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "99d340d1d70c7015967c0e386b59ff930f62dacd",
+          "message": "fix: replace deprecated OTEL HTTP semantic convention attributes (#324) (#366)\n\n* fix: replace deprecated OTEL HTTP semantic convention attributes (#324)\n\nReplace pre-v1.20 experimental attribute names with the stable conventions\ndeclared in November 2023:\n\n- http.method → http.request.method\n- http.url → url.path + url.query (conditional)\n- http.status_code → http.response.status_code\n\nAdd lib/otel-attributes.js with named constants to avoid a runtime\ndependency on @opentelemetry/semantic-conventions (11.3 MB for 4 strings).\nSplit req.url into path and query components using the established\nindexOf('?') + slice pattern from http/url.js.\n\nCloses #324\n\n* fix: remove superfluous trailing arguments in tracing tests (#324)\n\n* fix: use key-absence assertion for omitted url.query attribute (#324)\n\n* fix: assert deprecated OTEL attribute keys are absent (#324)",
+          "timestamp": "2026-07-12T10:59:22-04:00",
+          "tree_id": "d372559726c18603c6a476ec5ca710494c36e59d",
+          "url": "https://github.com/CentralPing/ergo/commit/99d340d1d70c7015967c0e386b59ff930f62dacd"
+        },
+        "date": 1783868378090,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
