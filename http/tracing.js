@@ -34,6 +34,7 @@
  * const server = http.createServer(handler(pipeline));
  */
 import {createTracer, extractContext, injectContext, trace, SpanKind} from '../lib/tracing.js';
+import {ATTR_HTTP_REQUEST_METHOD, ATTR_URL_PATH, ATTR_URL_QUERY} from '../lib/otel-attributes.js';
 import {validateOptions} from '../lib/validate-options.js';
 
 /** @type {Set<string>} */
@@ -60,13 +61,15 @@ export default (options = {}) => {
   const inner = function tracingMiddleware(req, res) {
     const parentContext = extractContext(req.headers);
 
+    const qIdx = req.url.indexOf('?');
     const span = resolvedTracer.startSpan(
       'ergo.pipeline',
       {
         kind: SpanKind.SERVER,
         attributes: {
-          'http.method': req.method,
-          'http.url': req.url,
+          [ATTR_HTTP_REQUEST_METHOD]: req.method,
+          [ATTR_URL_PATH]: qIdx === -1 ? req.url : req.url.slice(0, qIdx),
+          ...(qIdx !== -1 ? {[ATTR_URL_QUERY]: req.url.slice(qIdx + 1)} : undefined),
           ...attributes
         }
       },

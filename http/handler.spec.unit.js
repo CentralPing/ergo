@@ -267,7 +267,11 @@ describe('[Module] http/handler', () => {
     assert.equal(recorded.length, 1, 'should record exception on span');
     assert.equal(recorded[0], sendErr);
     assert.equal(res.statusCode, 500);
-    assert.equal(attrs['http.status_code'], 500, 'span must reflect forced 500, not pipeline 200');
+    assert.equal(
+      attrs['http.response.status_code'],
+      500,
+      'span must reflect forced 500, not pipeline 200'
+    );
     assert.ok(res.writableEnded);
   });
 

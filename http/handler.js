@@ -39,6 +39,7 @@ import applyResponseTiming, {
   DEFAULT_TIMING_PRECISION
 } from '../lib/response-time.js';
 import {statusFromHttp} from '../lib/tracing.js';
+import {ATTR_HTTP_RESPONSE_STATUS_CODE} from '../lib/otel-attributes.js';
 import buildResponseInfo from '../lib/response-info.js';
 import {DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 import createSend, {SEND_VALID_OPTIONS} from './send.js';
@@ -188,7 +189,7 @@ export default (pipeline, options = {}) => {
     const span = domainAcc.trace?.span;
     if (span) {
       const code = responseAcc.statusCode ?? res.statusCode;
-      span.setAttribute('http.status_code', code);
+      span.setAttribute(ATTR_HTTP_RESPONSE_STATUS_CODE, code);
       span.setStatus(statusFromHttp(code));
       span.end();
     }
