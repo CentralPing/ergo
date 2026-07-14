@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784062532734,
+  "lastUpdate": 1784062612525,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -17006,6 +17006,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.018,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4b608f073cc97ffc4fd99a73abbfc6a9b85851ec",
+          "message": "chore: sync package-lock.json version to 0.8.0 (#377)\n\nThe 0.8.0 release (#375) updated package.json but left the lockfile\nroot version at 0.7.0. Align both fields so npm install does not dirty\nthe working tree.",
+          "timestamp": "2026-07-14T16:56:35-04:00",
+          "tree_id": "8c2842d37e0e32f1650bbadb56d1c482a401914a",
+          "url": "https://github.com/CentralPing/ergo/commit/4b608f073cc97ffc4fd99a73abbfc6a9b85851ec"
+        },
+        "date": 1784062611095,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.01,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
