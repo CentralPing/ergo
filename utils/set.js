@@ -33,8 +33,8 @@ export const PATH_TRAVERSE_ERROR_CODE = 'ERGO_SET_PATH_TRAVERSE';
  * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
- * @throws {TypeError} When an existing intermediate at `path` is not a traversable
- *   object (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
+ * @throws {TypeError} When an existing intermediate at `path` is null or a
+ *   non-object primitive (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
