@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784065809674,
+  "lastUpdate": 1784067800749,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -17150,6 +17150,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "146a8e54f40dcc47b46ca97f1ec9f389c3eb13b2",
+          "message": "fix: harden utils/set path semantics and query conflict skip (#353)",
+          "timestamp": "2026-07-14T20:56:40Z",
+          "url": "https://github.com/CentralPing/ergo/pull/378/commits/146a8e54f40dcc47b46ca97f1ec9f389c3eb13b2"
+        },
+        "date": 1784067799357,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
