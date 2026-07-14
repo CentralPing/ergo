@@ -3,7 +3,9 @@
  *
  * Sets a value at a dot-delimited path in an object, creating intermediate objects
  * or arrays as needed. Uses `Object.hasOwn()` to check for existing nodes.
- * Array nodes are created when the next path segment is a valid integer string.
+ * Array nodes are created when the next path segment is a non-negative integer
+ * string (`/^\d+$/`). Existing non-object intermediates throw a descriptive
+ * `TypeError` with `code` {@link PATH_TRAVERSE_ERROR_CODE}.
  *
  * @module utils/set
  * @since 0.1.0
@@ -16,22 +18,66 @@
  * set(obj, 'tags.0', 'x'); // obj.tags => ['x']
  */
 
+/** Strict non-negative integer string — used to decide Array vs object intermediates. */
+const IS_ARRAY_INDEX = /^\d+$/;
+
+/**
+ * Stable error code for path-conflict TypeErrors thrown by {@link set}.
+ * Callers that absorb user-controlled path conflicts (e.g. `lib/query.js`) should
+ * match on `err.code` rather than message text — or use {@link trySet}.
+ */
+export const PATH_TRAVERSE_ERROR_CODE = 'ERGO_SET_PATH_TRAVERSE';
+
 /**
  * @param {object} obj - Target object
  * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
+ * @throws {TypeError} When an existing intermediate at `path` is not a traversable
+ *   object (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
-export default (obj, path = '', val) => {
+export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
+  const last = subPaths.at(-1);
 
-  return (subPaths
-    .slice(0, -1)
-    .reduce(
-      (o, p, i) =>
-        Object.hasOwn(o, p)
-          ? o[p]
-          : (o[p] = Number.isNaN(Number(subPaths[i + 1])) ? Object.create(null) : []),
-      obj
-    )[subPaths.at(-1)] = val);
-};
+  const leaf = subPaths.slice(0, -1).reduce((o, p, i) => {
+    if (Object.hasOwn(o, p)) {
+      const existing = o[p];
+      if (existing === null || typeof existing !== 'object') {
+        const kind = existing === null ? 'null' : typeof existing;
+        const err = new TypeError(
+          `Cannot traverse path '${path}': '${p}' is ${kind}, not an object`
+        );
+        err.code = PATH_TRAVERSE_ERROR_CODE;
+        throw err;
+      }
+      return existing;
+    }
+
+    return (o[p] = IS_ARRAY_INDEX.test(subPaths[i + 1]) ? [] : Object.create(null));
+  }, obj);
+
+  leaf[last] = val;
+  return val;
+}
+
+/**
+ * Like {@link set}, but returns `false` for path-conflict TypeErrors instead of throwing.
+ * Unexpected errors still propagate.
+ *
+ * @param {object} obj - Target object
+ * @param {string} path - Dot-delimited property path
+ * @param {*} val - Value to assign
+ * @returns {boolean} - `true` if the value was set; `false` if a path conflict was skipped
+ */
+export function trySet(obj, path, val) {
+  try {
+    set(obj, path, val);
+    return true;
+  } catch (err) {
+    if (err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE) {
+      return false;
+    }
+    throw err;
+  }
+}

@@ -3,7 +3,7 @@
  */
 import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
-import set from './set.js';
+import set, {PATH_TRAVERSE_ERROR_CODE, trySet} from './set.js';
 
 describe('[Boundary] utils/set', () => {
   it('sets a top-level property', () => {
@@ -58,5 +58,75 @@ describe('[Boundary] utils/set', () => {
     const obj = Object.create(null);
     set(obj, 'a.b', 42);
     assert.equal(Object.getPrototypeOf(obj.a), null);
+  });
+
+  describe('strict array-index detection (#353)', () => {
+    for (const segment of ['', '-1', 'Infinity', '0x1', '1e2']) {
+      it(`does not create an Array for coerced-but-non-index segment ${JSON.stringify(segment)}`, () => {
+        const obj = Object.create(null);
+        set(obj, `x.${segment}.y`, 1);
+        assert.equal(
+          Array.isArray(obj.x),
+          false,
+          `expected object for segment ${JSON.stringify(segment)}`
+        );
+        assert.equal(Object.getPrototypeOf(obj.x), null);
+        assert.equal(obj.x[segment].y, 1);
+      });
+    }
+
+    it('creates an Array for digit-only index segments', () => {
+      const obj = Object.create(null);
+      set(obj, 'items.42', 'v');
+      assert.ok(Array.isArray(obj.items));
+      assert.equal(obj.items[42], 'v');
+    });
+  });
+
+  describe('path-conflict type guard (#354)', () => {
+    it('throws descriptive TypeError with PATH_TRAVERSE_ERROR_CODE for primitive intermediate', () => {
+      assert.throws(
+        () => set({a: 42}, 'a.b', 1),
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes("Cannot traverse path 'a.b'") &&
+          err.message.includes("'a' is number")
+      );
+    });
+
+    it('throws for null intermediate', () => {
+      assert.throws(
+        () => set({a: null}, 'a.b', 1),
+        err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
+      );
+    });
+
+    it('reuses an existing array intermediate', () => {
+      const arr = ['keep'];
+      const obj = {tags: arr};
+      set(obj, 'tags.1', 'next');
+      assert.equal(obj.tags, arr);
+      assert.equal(obj.tags[1], 'next');
+    });
+  });
+
+  describe('trySet', () => {
+    it('returns true when the value is set', () => {
+      const obj = Object.create(null);
+      assert.equal(trySet(obj, 'a.b', 1), true);
+      assert.equal(obj.a.b, 1);
+    });
+
+    it('returns false on path-conflict TypeError without mutating past the conflict', () => {
+      const obj = {a: 42};
+      assert.equal(trySet(obj, 'a.b', 1), false);
+      assert.equal(obj.a, 42);
+    });
+
+    it('rethrows unexpected TypeErrors (not path-conflict)', () => {
+      const obj = Object.preventExtensions(Object.create(null));
+      assert.throws(() => trySet(obj, 'a.b', 1), TypeError);
+    });
   });
 });

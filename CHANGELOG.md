@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`utils/set` uses strict digit-only array-index detection.** (#353) Intermediate nodes
+  are Arrays only when the next path segment matches `/^\d+$/`. Previously, permissive
+  `Number()` coercion treated `''`, `-1`, `Infinity`, `0x1`, and `1e2` as numeric and created
+  Arrays with non-index properties (reachable via query paths like `fields[a..b]=x`).
+
+- **`utils/set` throws a descriptive path-conflict `TypeError`.** (#354) Reusing a primitive
+  or `null` intermediate now throws with message context and stable
+  `code: 'ERGO_SET_PATH_TRAVERSE'` instead of an opaque engine assignment error.
+  New `trySet()` returns `false` for that conflict (rethrows unexpected errors);
+  `lib/query.js` uses it for first-wins skip so inputs like `a=42&a[b]=99` no longer 500
+  through `url()` middleware.
+
+- **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
+  assignment body is split into explicit statements while still returning the assigned value
+  (public `@centralping/ergo/utils/set` export — non-breaking).
+
 ## [0.8.0] - 2026-07-13
 
 ### Added
