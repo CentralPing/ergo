@@ -109,6 +109,14 @@ describe('[Boundary] utils/set', () => {
       assert.equal(obj.tags, arr);
       assert.equal(obj.tags[1], 'next');
     });
+
+    it('reuses an existing function intermediate', () => {
+      const handler = () => {};
+      const obj = {handler};
+      set(obj, 'handler.timeout', 500);
+      assert.equal(obj.handler, handler);
+      assert.equal(obj.handler.timeout, 500);
+    });
   });
 
   describe('trySet', () => {

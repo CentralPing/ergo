@@ -43,7 +43,8 @@ export default function set(obj, path = '', val) {
   const leaf = subPaths.slice(0, -1).reduce((o, p, i) => {
     if (Object.hasOwn(o, p)) {
       const existing = o[p];
-      if (existing === null || typeof existing !== 'object') {
+      // Functions are objects in JS and are valid intermediates (e.g. handler.timeout).
+      if (existing === null || (typeof existing !== 'object' && typeof existing !== 'function')) {
         const kind = existing === null ? 'null' : typeof existing;
         const err = new TypeError(
           `Cannot traverse path '${path}': '${p}' is ${kind}, not an object`
