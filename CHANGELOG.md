@@ -16,7 +16,8 @@ All notable changes to this project will be documented in this file.
   `code: 'ERGO_SET_PATH_TRAVERSE'` instead of an opaque engine assignment error.
   New `trySet()` returns `false` for that conflict (rethrows unexpected errors);
   `lib/query.js` uses it for first-wins skip so inputs like `a=42&a[b]=99` no longer 500
-  through `url()` middleware.
+  through `url()` middleware. First-wins is bidirectional (#379): nested-then-scalar
+  (`a[b]=99&a=42`) also preserves the earlier nested structure.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
   assignment body is split into explicit statements while still returning the assigned value

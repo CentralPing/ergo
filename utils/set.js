@@ -4,8 +4,10 @@
  * Sets a value at a dot-delimited path in an object, creating intermediate objects
  * or arrays as needed. Uses `Object.hasOwn()` to check for existing nodes.
  * Array nodes are created when the next path segment is a non-negative integer
- * string (`/^\d+$/`). Existing non-object intermediates throw a descriptive
- * `TypeError` with `code` {@link PATH_TRAVERSE_ERROR_CODE}.
+ * string (`/^\d+$/`). Existing intermediates that are `null` or non-object
+ * primitives throw a descriptive `TypeError` with `code`
+ * {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates (they are
+ * objects in JS — e.g. `handler.timeout`).
  *
  * @module utils/set
  * @since 0.1.0
@@ -33,8 +35,9 @@ export const PATH_TRAVERSE_ERROR_CODE = 'ERGO_SET_PATH_TRAVERSE';
  * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
- * @throws {TypeError} When an existing intermediate at `path` is null or a
- *   non-object primitive (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
+ * @throws {TypeError} When an existing intermediate at `path` is `null` or a
+ *   non-object primitive — not including functions
+ *   (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');

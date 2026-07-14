@@ -85,21 +85,25 @@ describe('[Boundary] utils/set', () => {
 
   describe('path-conflict type guard (#354)', () => {
     it('throws descriptive TypeError with PATH_TRAVERSE_ERROR_CODE for primitive intermediate', () => {
+      const obj = {a: 42};
       assert.throws(
-        () => set({a: 42}, 'a.b', 1),
+        () => set(obj, 'a.b', 1),
         err =>
           err instanceof TypeError &&
           err.code === PATH_TRAVERSE_ERROR_CODE &&
           err.message.includes("Cannot traverse path 'a.b'") &&
           err.message.includes("'a' is number")
       );
+      assert.equal(obj.a, 42);
     });
 
     it('throws for null intermediate', () => {
+      const obj = {a: null};
       assert.throws(
-        () => set({a: null}, 'a.b', 1),
+        () => set(obj, 'a.b', 1),
         err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
       );
+      assert.equal(obj.a, null);
     });
 
     it('reuses an existing array intermediate', () => {
