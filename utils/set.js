@@ -10,11 +10,10 @@
  * ordinary own properties (e.g. `handler.timeout`), but path segments
  * `__proto__`, `prototype`, and `constructor` are always rejected to prevent
  * prototype-chain mutations. The root and existing intermediates that are
- * constructor `.prototype` objects, `globalThis` host objects (own bindings and
- * nested values resolved from those bindings / their prototypes — `Intl`,
- * `console`, `Proxy`, `crypto.subtle`, …), or Proxies are rejected — not via a
- * hand-maintained denylist. Assigning `length` on an Array leaf is forbidden
- * (sparse-array DoS).
+ * constructor `.prototype` objects, `globalThis` host objects (depth-limited
+ * graph from own bindings — `Intl`, `Proxy`, `crypto.subtle`, `process._events`,
+ * `Array.prototype.push`, …), or Proxies are rejected — not via a hand-maintained
+ * denylist. Assigning `length` on an Array leaf is forbidden (sparse-array DoS).
  *
  * @module utils/set
  * @since 0.1.0
@@ -118,40 +117,51 @@ function isPrototypeObject(value) {
 }
 
 /**
- * @param {WeakSet<object>} values - Accumulator
- * @param {*} candidate - Value to record when object/function
+ * Expansion rounds from `globalThis`: owns → nested hosts → intrinsic methods
+ * (`Array.prototype.push`, `crypto.subtle.encrypt`, …). Empirically depth 3
+ * covers those; deeper walks add cost without tightening the public `set` API.
  */
-function addHostValue(values, candidate) {
-  if (candidate !== null && (typeof candidate === 'object' || typeof candidate === 'function')) {
-    values.add(candidate);
+const HOST_GRAPH_DEPTH = 3;
+
+/**
+ * @param {WeakSet<object>} values - Accumulator
+ * @param {*} candidate - Value to record when newly seen object/function
+ * @param {object[]} next - Frontier for the next expansion round
+ */
+function enrollHostValue(values, candidate, next) {
+  if (candidate === null || (typeof candidate !== 'object' && typeof candidate !== 'function')) {
+    return;
   }
+  if (values.has(candidate)) {
+    return;
+  }
+  values.add(candidate);
+  next.push(candidate);
 }
 
 /**
- * Host objects reachable from `globalThis` at module load: own bindings, their
- * own properties, and values resolved through their prototype accessors
- * (`crypto.subtle`, `process.stdout`, …). Identity match is durable without a
- * hand-maintained denylist; snapshotted once for the hot path.
+ * Expand one host seed: own keys plus values resolved through its prototype
+ * accessors (e.g. `Crypto.prototype.subtle` against `crypto`).
+ * @param {WeakSet<object>} values - Accumulator
+ * @param {object|Function} seed - Host object already enrolled
+ * @returns {object[]} - Newly enrolled values for the next depth round
  */
-const GLOBAL_THIS_HOST_VALUES = (() => {
-  const values = new WeakSet();
-  values.add(globalThis);
-  const seeds = [];
-
-  for (const key of Reflect.ownKeys(globalThis)) {
-    let bound;
-    try {
-      bound = globalThis[key];
-    } catch {
-      continue;
-    }
-    if (bound !== null && (typeof bound === 'object' || typeof bound === 'function')) {
-      values.add(bound);
-      seeds.push(bound);
-    }
+/**
+ * @param {object|Function} seed - Host object
+ * @param {PropertyKey} key - Property to read
+ * @returns {*} - Property value, or `undefined` when the getter throws
+ */
+function tryGetHostProperty(seed, key) {
+  try {
+    return Reflect.get(seed, key);
+  } catch {
+    return undefined;
   }
+}
 
-  for (const seed of seeds) {
+function expandHostSeed(values, seed) {
+  const next = [];
+  try {
     let ownKeys;
     try {
       ownKeys = Reflect.ownKeys(seed);
@@ -159,20 +169,14 @@ const GLOBAL_THIS_HOST_VALUES = (() => {
       ownKeys = [];
     }
     for (const key of ownKeys) {
-      let bound;
-      try {
-        bound = seed[key];
-      } catch {
-        continue;
-      }
-      addHostValue(values, bound);
+      enrollHostValue(values, tryGetHostProperty(seed, key), next);
     }
 
     let proto;
     try {
       proto = Object.getPrototypeOf(seed);
     } catch {
-      continue;
+      return next;
     }
     while (proto && proto !== Object.prototype) {
       let protoKeys;
@@ -182,14 +186,8 @@ const GLOBAL_THIS_HOST_VALUES = (() => {
         break;
       }
       for (const key of protoKeys) {
-        let bound;
-        try {
-          // Resolve accessors against the seed instance (e.g. Crypto.prototype.subtle).
-          bound = seed[key];
-        } catch {
-          continue;
-        }
-        addHostValue(values, bound);
+        // Resolve accessors against the seed instance (e.g. Crypto.prototype.subtle).
+        enrollHostValue(values, tryGetHostProperty(seed, key), next);
       }
       try {
         proto = Object.getPrototypeOf(proto);
@@ -197,8 +195,26 @@ const GLOBAL_THIS_HOST_VALUES = (() => {
         break;
       }
     }
+  } catch {
+    // Host graph walks must never fail module load.
   }
+  return next;
+}
 
+/**
+ * Host objects reachable from `globalThis` at module load (depth-limited graph).
+ * Identity match is durable without a hand-maintained denylist (#386–#389).
+ */
+const GLOBAL_THIS_HOST_VALUES = (() => {
+  const values = new WeakSet([globalThis]);
+  let frontier = [globalThis];
+  for (let depth = 0; depth < HOST_GRAPH_DEPTH; depth++) {
+    const next = [];
+    for (const seed of frontier) {
+      next.push(...expandHostSeed(values, seed));
+    }
+    frontier = next;
+  }
   return values;
 })();
 
@@ -216,10 +232,11 @@ function isGlobalThisHostValue(value) {
 
 /**
  * True when `value` must not be used as a path root or intermediate.
- * Safe: Arrays (except `Array.prototype`), null-proto objects, plain objects,
- * user class instances, and ordinary functions (`handler.timeout`).
- * Unsafe: Proxies (checked before Array/null-proto shortcuts), constructor
- * `.prototype` objects, and host objects reachable from `globalThis` (#386–#388).
+ * Safe: Arrays (except `Array.prototype`), null-proto objects (except snapshotted
+ * hosts like `process._events`), plain objects, user class instances, and
+ * ordinary functions (`handler.timeout`).
+ * Unsafe: Proxies (before Array/null-proto shortcuts), constructor `.prototype`
+ * objects, and host objects from the `globalThis` graph (#386–#389).
  * @param {*} value - Existing path container
  * @returns {boolean}
  */
@@ -235,13 +252,17 @@ function isUnsafeIntermediate(value) {
   if (isPrototypeObject(value)) {
     return true;
   }
+  // Host check before null-proto shortcut: process._events is null-proto (#388).
+  if (isGlobalThisHostValue(value)) {
+    return true;
+  }
   if (Array.isArray(value)) {
     return false;
   }
   if (typeof value === 'object' && Object.getPrototypeOf(value) === null) {
     return false;
   }
-  return isGlobalThisHostValue(value);
+  return false;
 }
 
 /**

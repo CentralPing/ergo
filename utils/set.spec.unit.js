@@ -169,6 +169,10 @@ describe('[Boundary] utils/set', () => {
       });
 
       it('rejects nested host objects reachable from globalThis (#388)', () => {
+        assert.ok(
+          globalThis.process?.stdout || globalThis.crypto?.subtle,
+          'expected process.stdout or crypto.subtle for nested-host oracle'
+        );
         if (globalThis.crypto?.subtle) {
           assert.equal(trySet({a: crypto.subtle}, 'a.x', 1), false);
           assert.equal(Object.hasOwn(crypto.subtle, 'x'), false);
@@ -176,6 +180,24 @@ describe('[Boundary] utils/set', () => {
         if (globalThis.process?.stdout) {
           assert.equal(trySet({a: process.stdout}, 'a.x', 1), false);
           assert.equal(Object.hasOwn(process.stdout, 'x'), false);
+        }
+      });
+
+      it('rejects null-proto host objects before null-proto shortcut (process._events)', () => {
+        assert.ok(process._events, 'expected process._events');
+        assert.equal(Object.getPrototypeOf(process._events), null);
+        assert.equal(trySet({e: process._events}, 'e.__p', 1), false);
+        assert.equal(Object.hasOwn(process._events, '__p'), false);
+      });
+
+      it('rejects shared intrinsic methods from host graph (#389)', () => {
+        assert.equal(trySet({a: Array.prototype.push}, 'a.x', 1), false);
+        assert.equal(Object.hasOwn(Array.prototype.push, 'x'), false);
+        assert.equal(trySet({a: Object.prototype.toString}, 'a.x', 1), false);
+        assert.equal(Object.hasOwn(Object.prototype.toString, 'x'), false);
+        if (globalThis.crypto?.subtle?.encrypt) {
+          assert.equal(trySet({a: crypto.subtle.encrypt}, 'a.x', 1), false);
+          assert.equal(Object.hasOwn(crypto.subtle.encrypt, 'x'), false);
         }
       });
 
@@ -236,8 +258,17 @@ describe('[Boundary] utils/set', () => {
       assert.equal(Object.hasOwn(obj, 'a'), false);
     });
 
-    it('trySet returns false for oversized digit indices (query sparse-DoS)', () => {
-      assert.equal(trySet(Object.create(null), 'a.4294967294', 'x'), false);
+    it(`trySet returns false for MAX_ARRAY_INDEX + 1 (${MAX_ARRAY_INDEX + 1})`, () => {
+      const obj = Object.create(null);
+      const over = String(MAX_ARRAY_INDEX + 1);
+      assert.equal(trySet(obj, `a.${over}`, 'x'), false);
+      assert.equal(Object.hasOwn(obj, 'a'), false);
+    });
+
+    it('trySet returns false for huge digit indices (query sparse-DoS)', () => {
+      const obj = Object.create(null);
+      assert.equal(trySet(obj, 'a.4294967294', 'x'), false);
+      assert.equal(Object.hasOwn(obj, 'a'), false);
     });
 
     it(`allows digit indices at MAX_ARRAY_INDEX (${MAX_ARRAY_INDEX})`, () => {
