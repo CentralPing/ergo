@@ -101,7 +101,10 @@ describe('[Boundary] utils/set', () => {
       const obj = {a: null};
       assert.throws(
         () => set(obj, 'a.b', 1),
-        err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes("'a' is null")
       );
       assert.equal(obj.a, null);
     });
