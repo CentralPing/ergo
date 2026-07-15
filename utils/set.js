@@ -26,6 +26,16 @@
 const IS_ARRAY_INDEX = /^\d+$/;
 
 /**
+ * Whether a path segment is a digit-only array index (`/^\d+$/`).
+ * Shared with `lib/query.js` shape first-wins so index detection cannot drift.
+ * @param {string} segment - Single path segment
+ * @returns {boolean} - True when the segment is a non-negative integer string
+ */
+export function isArrayIndexSegment(segment) {
+  return IS_ARRAY_INDEX.test(segment);
+}
+
+/**
  * Path segments that must never be traversed or assigned — they can mutate
  * shared prototypes (`Object.prototype`, function `.prototype`, etc.).
  */
@@ -86,7 +96,7 @@ export default function set(obj, path = '', val) {
       return existing;
     }
 
-    return (o[p] = IS_ARRAY_INDEX.test(subPaths[i + 1]) ? [] : Object.create(null));
+    return (o[p] = isArrayIndexSegment(subPaths[i + 1]) ? [] : Object.create(null));
   }, obj);
 
   leaf[last] = val;
