@@ -27,6 +27,12 @@ All notable changes to this project will be documented in this file.
   those three segments always throw `ERGO_SET_PATH_TRAVERSE` so callers cannot write through
   `.prototype` onto shared builtins.
 
+- **`lib/query.js` accumulates pairs in a `Map` so first-wins follows source order.** (#384)
+  Intermediate accumulation previously used a null-prototype object + `Object.entries`, which
+  reorders integer-like keys (V8 integer-index order). That inverted `1[a]=x&1=y` into a
+  scalar win. Pair iteration now preserves insertion order; the returned accumulator remains
+  `Object.create(null)`.
+
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
   assignment body is split into explicit statements while still returning the assigned value
   (public `@centralping/ergo/utils/set` export — non-breaking).
