@@ -4,7 +4,8 @@
  * Sets a value at a dot-delimited path in an object, creating intermediate objects
  * or arrays as needed. Uses `Object.hasOwn()` to check for existing nodes.
  * Array nodes are created when the next path segment is a non-negative integer
- * string (`/^\d+$/`) not exceeding {@link MAX_ARRAY_INDEX}. Existing intermediates
+ * string (`/^\d+$/`). Digit segments above {@link MAX_ARRAY_INDEX} are rejected
+ * only when they index an Array (not as plain-object keys). Existing intermediates
  * that are `null` or non-object primitives throw a descriptive `TypeError` with
  * `code` {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates for
  * ordinary own properties (e.g. `handler.timeout`), but path segments
@@ -101,6 +102,54 @@ function assertBoundedArrayIndex(segment, path) {
       `Cannot traverse path '${path}': array index '${segment}' exceeds maximum ${MAX_ARRAY_INDEX}`
     );
   }
+}
+
+/**
+ * Reject oversized digit segments **only** where they index an Array (existing or
+ * created by this path). Plain-object / top-level digit keys are unconstrained —
+ * the sparse-array DoS bound does not apply to object property names.
+ * Simulated without mutation so validation stays atomic with forbidden-segment checks.
+ * @param {object} obj - Path root
+ * @param {string[]} subPaths - Split path segments
+ * @param {string} path - Full path (for error message)
+ * @throws {TypeError} When an Array-index segment exceeds {@link MAX_ARRAY_INDEX}
+ */
+function assertArrayIndexBoundsForPath(obj, subPaths, path) {
+  let cur = obj;
+  for (let i = 0; i < subPaths.length; i++) {
+    const segment = subPaths[i];
+    if (Array.isArray(cur) && isArrayIndexSegment(segment)) {
+      assertBoundedArrayIndex(segment, path);
+    }
+    if (i === subPaths.length - 1) {
+      return;
+    }
+    if (
+      cur !== null &&
+      (typeof cur === 'object' || typeof cur === 'function') &&
+      Object.hasOwn(cur, segment)
+    ) {
+      cur = cur[segment];
+      continue;
+    }
+    // Phantom next container: Array when the following segment is a digit index.
+    cur = isArrayIndexSegment(subPaths[i + 1]) ? [] : Object.create(null);
+  }
+}
+
+/**
+ * Define an own data property (avoids inherited setters on missing keys).
+ * @param {object} target - Object or Array to write
+ * @param {string} key - Property key
+ * @param {*} value - Property value
+ */
+function defineOwnDataProperty(target, key, value) {
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    value
+  });
 }
 
 /**
@@ -335,16 +384,16 @@ function isUnsafeIntermediate(value) {
  * @throws {TypeError} When the root or an existing intermediate is unsafe, is
  *   `null` / a non-object primitive (not including ordinary functions), when a
  *   path segment is `__proto__` / `prototype` / `constructor`, when a digit
- *   index exceeds {@link MAX_ARRAY_INDEX}, or when assigning `length` on an
- *   Array (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
+ *   index on an Array exceeds {@link MAX_ARRAY_INDEX}, or when assigning
+ *   `length` on an Array (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
-  // Reject forbidden / oversized index segments before any mutation.
+  // Reject forbidden segments and Array-index bounds before any mutation.
   for (const segment of subPaths) {
     assertSafeSegment(segment, path);
-    assertBoundedArrayIndex(segment, path);
   }
+  assertArrayIndexBoundsForPath(obj, subPaths, path);
   if (isUnsafeIntermediate(obj)) {
     throw pathTraverseError(
       `Cannot traverse path '${path}': root is a shared builtin and cannot be traversed`
@@ -368,7 +417,9 @@ export default function set(obj, path = '', val) {
       return existing;
     }
 
-    return (o[p] = isArrayIndexSegment(subPaths[i + 1]) ? [] : Object.create(null));
+    const created = isArrayIndexSegment(subPaths[i + 1]) ? [] : Object.create(null);
+    defineOwnDataProperty(o, p, created);
+    return created;
   }, obj);
 
   // Array `length` assignment creates large sparse arrays (DoS); block on Array leaves only.
@@ -379,7 +430,7 @@ export default function set(obj, path = '', val) {
     );
   }
 
-  leaf[last] = val;
+  defineOwnDataProperty(leaf, last, val);
   return val;
 }
 

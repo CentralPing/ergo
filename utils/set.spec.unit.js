@@ -309,6 +309,40 @@ describe('[Boundary] utils/set', () => {
       assert.ok(Array.isArray(obj.a));
       assert.equal(obj.a[MAX_ARRAY_INDEX], 'ok');
     });
+
+    it('allows oversized digit keys on plain objects (bound is Array-only)', () => {
+      const over = String(MAX_ARRAY_INDEX + 100);
+      const obj = Object.create(null);
+      assert.equal(set(obj, over, 'top'), 'top');
+      assert.equal(obj[over], 'top');
+      assert.equal(Array.isArray(obj), false);
+
+      const nest = Object.create(null);
+      nest.meta = Object.create(null);
+      assert.equal(set(nest, `meta.${over}`, 'nested'), 'nested');
+      assert.equal(nest.meta[over], 'nested');
+      assert.equal(Array.isArray(nest.meta), false);
+    });
+
+    it('defines missing intermediates as own data properties (ignores inherited setters)', () => {
+      const traps = [];
+      const proto = Object.create(null);
+      Object.defineProperty(proto, 'child', {
+        configurable: true,
+        enumerable: true,
+        set(v) {
+          traps.push(v);
+        },
+        get() {
+          return undefined;
+        }
+      });
+      const obj = Object.create(proto);
+      assert.equal(set(obj, 'child.leaf', 1), 1);
+      assert.equal(traps.length, 0);
+      assert.ok(Object.hasOwn(obj, 'child'));
+      assert.equal(obj.child.leaf, 1);
+    });
   });
 
   describe('strict array-index detection (#353)', () => {

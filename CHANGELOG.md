@@ -48,8 +48,10 @@ All notable changes to this project will be documented in this file.
   (including per-instance bound methods created after module load), non-host null-proto
   objects, Arrays, and user class instances remain valid intermediates.
   Assigning `length` on an Array leaf is forbidden; digit indices above `MAX_ARRAY_INDEX`
-  (1024) are rejected by numeric value (leading zeros allowed when in range; sparse DoS
-  bound; full numeric-bracket design remains #280).
+  (1024) are rejected by numeric value **only when indexing an Array** (leading zeros
+  allowed when in range; plain-object / top-level digit keys unconstrained; sparse DoS
+  bound; full numeric-bracket design remains #280). Missing intermediates are defined as
+  own data properties so inherited setters cannot hijack traversal.
   Plain-object `.length` remains allowed.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
