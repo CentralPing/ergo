@@ -65,10 +65,13 @@ function assertSafeSegment(segment, path) {
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
+  // Reject forbidden segments before any mutation so failed paths leave the target untouched.
+  for (const segment of subPaths) {
+    assertSafeSegment(segment, path);
+  }
   const last = subPaths.at(-1);
 
   const leaf = subPaths.slice(0, -1).reduce((o, p, i) => {
-    assertSafeSegment(p, path);
     if (Object.hasOwn(o, p)) {
       const existing = o[p];
       // Functions are objects in JS and are valid intermediates (e.g. handler.timeout).
@@ -86,7 +89,6 @@ export default function set(obj, path = '', val) {
     return (o[p] = IS_ARRAY_INDEX.test(subPaths[i + 1]) ? [] : Object.create(null));
   }, obj);
 
-  assertSafeSegment(last, path);
   leaf[last] = val;
   return val;
 }
