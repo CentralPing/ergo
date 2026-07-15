@@ -92,7 +92,7 @@ function assertBoundedArrayIndex(segment, path) {
   if (!isArrayIndexSegment(segment)) {
     return;
   }
-  if (segment.length > String(MAX_ARRAY_INDEX).length || Number(segment) > MAX_ARRAY_INDEX) {
+  if (Number(segment) > MAX_ARRAY_INDEX) {
     throw pathTraverseError(
       `Cannot traverse path '${path}': array index '${segment}' exceeds maximum ${MAX_ARRAY_INDEX}`
     );
@@ -118,10 +118,48 @@ function isPrototypeObject(value) {
 
 /**
  * Expansion rounds from `globalThis`: owns → nested hosts → intrinsic methods
- * (`Array.prototype.push`, `crypto.subtle.encrypt`, …). Empirically depth 3
- * covers those; deeper walks add cost without tightening the public `set` API.
+ * (`Array.prototype.push`, `crypto.subtle.encrypt`, …). Prototype-object own
+ * descriptors (data + accessor get/set) are enrolled without extra depth (#390).
  */
 const HOST_GRAPH_DEPTH = 3;
+
+/** Intrinsic methods snapshotted from constructor `.prototype` own descriptors. */
+const HOST_PROTOTYPE_FUNCTIONS = new Set();
+
+/**
+ * Enroll function values from a constructor `.prototype` object's own descriptors
+ * (covers namespaced accessors like `Intl.NumberFormat.prototype.format`).
+ * @param {WeakSet<object>} values - Host graph accumulator
+ * @param {object} proto - Constructor `.prototype` object
+ */
+function enrollPrototypeOwnFunctions(values, proto) {
+  if (!isPrototypeObject(proto)) {
+    return;
+  }
+  let keys;
+  try {
+    keys = Reflect.ownKeys(proto);
+  } catch {
+    return;
+  }
+  for (const key of keys) {
+    let desc;
+    try {
+      desc = Object.getOwnPropertyDescriptor(proto, key);
+    } catch {
+      continue;
+    }
+    if (!desc) {
+      continue;
+    }
+    for (const fn of [desc.value, desc.get, desc.set]) {
+      if (typeof fn === 'function') {
+        values.add(fn);
+        HOST_PROTOTYPE_FUNCTIONS.add(fn);
+      }
+    }
+  }
+}
 
 /**
  * @param {WeakSet<object>} values - Accumulator
@@ -136,16 +174,14 @@ function enrollHostValue(values, candidate, next) {
     return;
   }
   values.add(candidate);
+  if (typeof candidate === 'object') {
+    enrollPrototypeOwnFunctions(values, candidate);
+  } else if (typeof candidate === 'function' && candidate.prototype != null) {
+    enrollPrototypeOwnFunctions(values, candidate.prototype);
+  }
   next.push(candidate);
 }
 
-/**
- * Expand one host seed: own keys plus values resolved through its prototype
- * accessors (e.g. `Crypto.prototype.subtle` against `crypto`).
- * @param {WeakSet<object>} values - Accumulator
- * @param {object|Function} seed - Host object already enrolled
- * @returns {object[]} - Newly enrolled values for the next depth round
- */
 /**
  * @param {object|Function} seed - Host object
  * @param {PropertyKey} key - Property to read
@@ -268,6 +304,9 @@ function isUnsafeIntermediate(value) {
   }
   // Host check before null-proto shortcut: process._events is null-proto (#388).
   if (isGlobalThisHostValue(value)) {
+    return true;
+  }
+  if (typeof value === 'function' && HOST_PROTOTYPE_FUNCTIONS.has(value)) {
     return true;
   }
   if (Array.isArray(value)) {

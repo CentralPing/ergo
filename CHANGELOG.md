@@ -41,12 +41,14 @@ All notable changes to this project will be documented in this file.
 - **`utils/set` rejects unsafe intrinsic intermediates and Array `length` assignment.** (#386–#389)
   Path root and reuse reject constructor `.prototype` objects, host objects reachable from
   `globalThis` at module load (depth-limited graph of own keys / prototype accessors —
-  `Intl`, `Proxy`, `crypto.subtle`, `process._events`, `Array.prototype.push`, …), and
+  `Intl`, `Proxy`, `crypto.subtle`, `process._events`, `Array.prototype.push`,
+  `Intl.NumberFormat.prototype.format`, …), and
   Proxies. Proxy and host checks run before Array/null-proto shortcuts so
   `Proxy(Array.prototype)` and null-proto hosts cannot write through. Ordinary functions,
   non-host null-proto objects, Arrays, and user class instances remain valid intermediates.
   Assigning `length` on an Array leaf is forbidden; digit indices above `MAX_ARRAY_INDEX`
-  (1024) are rejected (sparse DoS bound; full numeric-bracket design remains #280).
+  (1024) are rejected by numeric value (leading zeros allowed when in range; sparse DoS
+  bound; full numeric-bracket design remains #280).
   Plain-object `.length` remains allowed.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized

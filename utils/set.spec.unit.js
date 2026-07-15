@@ -183,11 +183,21 @@ describe('[Boundary] utils/set', () => {
         }
       });
 
-      it('rejects null-proto host objects before null-proto shortcut (process._events)', () => {
-        assert.ok(process._events, 'expected process._events');
-        assert.equal(Object.getPrototypeOf(process._events), null);
-        assert.equal(trySet({e: process._events}, 'e.__p', 1), false);
-        assert.equal(Object.hasOwn(process._events, '__p'), false);
+      const itIfProcessEvents = process._events ? it : it.skip;
+      itIfProcessEvents(
+        'rejects null-proto host objects before null-proto shortcut (process._events)',
+        () => {
+          assert.equal(Object.getPrototypeOf(process._events), null);
+          assert.equal(trySet({e: process._events}, 'e.__p', 1), false);
+          assert.equal(Object.hasOwn(process._events, '__p'), false);
+        }
+      );
+
+      it('rejects namespaced prototype accessor methods (#390)', () => {
+        const formatDesc = Object.getOwnPropertyDescriptor(Intl.NumberFormat.prototype, 'format');
+        assert.ok(formatDesc?.get, 'expected Intl.NumberFormat.prototype.format getter');
+        assert.equal(trySet({a: formatDesc.get}, 'a.x', 1), false);
+        assert.equal(Object.hasOwn(formatDesc.get, 'x'), false);
       });
 
       it('rejects shared intrinsic methods from host graph (#389)', () => {
@@ -265,10 +275,24 @@ describe('[Boundary] utils/set', () => {
       assert.equal(Object.hasOwn(obj, 'a'), false);
     });
 
+    it(`trySet returns false for mid-range digit indices (${MAX_ARRAY_INDEX + 100})`, () => {
+      const obj = Object.create(null);
+      const over = String(MAX_ARRAY_INDEX + 100);
+      assert.equal(trySet(obj, `a.${over}`, 'x'), false);
+      assert.equal(Object.hasOwn(obj, 'a'), false);
+    });
+
     it('trySet returns false for huge digit indices (query sparse-DoS)', () => {
       const obj = Object.create(null);
       assert.equal(trySet(obj, 'a.4294967294', 'x'), false);
       assert.equal(Object.hasOwn(obj, 'a'), false);
+    });
+
+    it(`allows leading-zero digit indices within MAX_ARRAY_INDEX (00001 not rejected)`, () => {
+      const obj = Object.create(null);
+      assert.equal(set(obj, 'a.00001', 'ok'), 'ok');
+      assert.ok(Array.isArray(obj.a));
+      assert.equal(obj.a['00001'], 'ok');
     });
 
     it(`allows digit indices at MAX_ARRAY_INDEX (${MAX_ARRAY_INDEX})`, () => {
