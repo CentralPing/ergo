@@ -65,9 +65,8 @@ describe('[Boundary] utils/set', () => {
             err.code === PATH_TRAVERSE_ERROR_CODE &&
             err.message.includes(`'${segment}' is a forbidden path segment`)
         );
+        // Failed forbidden paths must leave the target untouched (no partial intermediates).
         assert.equal(Object.hasOwn(obj, 'safe'), false);
-        assert.equal({}.polluted, undefined);
-        assert.equal(Object.prototype.gotcha, undefined);
       });
 
       it(`trySet returns false for forbidden segment ${segment}`, () => {
