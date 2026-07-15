@@ -44,8 +44,9 @@ All notable changes to this project will be documented in this file.
   `Intl`, `Proxy`, `crypto.subtle`, `process._events`, `Array.prototype.push`,
   `Intl.NumberFormat.prototype.format`, …), and
   Proxies. Proxy and host checks run before Array/null-proto shortcuts so
-  `Proxy(Array.prototype)` and null-proto hosts cannot write through. Ordinary functions,
-  non-host null-proto objects, Arrays, and user class instances remain valid intermediates.
+  `Proxy(Array.prototype)` and null-proto hosts cannot write through. Ordinary functions
+  (including per-instance bound methods created after module load), non-host null-proto
+  objects, Arrays, and user class instances remain valid intermediates.
   Assigning `length` on an Array leaf is forbidden; digit indices above `MAX_ARRAY_INDEX`
   (1024) are rejected by numeric value (leading zeros allowed when in range; sparse DoS
   bound; full numeric-bracket design remains #280).

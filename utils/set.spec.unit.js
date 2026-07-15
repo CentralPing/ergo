@@ -200,6 +200,14 @@ describe('[Boundary] utils/set', () => {
         assert.equal(Object.hasOwn(formatDesc.get, 'x'), false);
       });
 
+      it('allows per-instance bound intrinsic methods (caller contract; #390 residual)', () => {
+        // Bound methods are fresh function objects created after module load —
+        // not identity-equal to snapshotted `.prototype` descriptor functions.
+        const boundFormat = new Intl.NumberFormat().format;
+        assert.equal(trySet({a: boundFormat}, 'a.x', 1), true);
+        assert.equal(boundFormat.x, 1);
+      });
+
       it('rejects shared intrinsic methods from host graph (#389)', () => {
         assert.equal(trySet({a: Array.prototype.push}, 'a.x', 1), false);
         assert.equal(Object.hasOwn(Array.prototype.push, 'x'), false);

@@ -12,8 +12,12 @@
  * prototype-chain mutations. The root and existing intermediates that are
  * constructor `.prototype` objects, `globalThis` host objects (depth-limited
  * graph from own bindings — `Intl`, `Proxy`, `crypto.subtle`, `process._events`,
- * `Array.prototype.push`, …), or Proxies are rejected — not via a hand-maintained
- * denylist. Assigning `length` on an Array leaf is forbidden (sparse-array DoS).
+ * `Array.prototype.push`, `Intl.NumberFormat.prototype.format`, …), or Proxies
+ * are rejected — not via a hand-maintained denylist. Per-instance bound methods
+ * created after module load (e.g. `new Intl.NumberFormat().format`) are fresh
+ * function objects outside that snapshot and remain valid intermediates — same
+ * as ordinary user functions; they are not query-reachable. Assigning `length`
+ * on an Array leaf is forbidden (sparse-array DoS).
  *
  * @module utils/set
  * @since 0.1.0
@@ -123,7 +127,11 @@ function isPrototypeObject(value) {
  */
 const HOST_GRAPH_DEPTH = 3;
 
-/** Intrinsic methods snapshotted from constructor `.prototype` own descriptors. */
+/**
+ * Intrinsic methods from constructor `.prototype` own descriptors.
+ * Strong `Set` (not only WeakSet): under Bun, some native accessor functions
+ * are not retained as WeakSet keys, so identity rejection would silently fail.
+ */
 const HOST_PROTOTYPE_FUNCTIONS = new Set();
 
 /**
@@ -306,6 +314,7 @@ function isUnsafeIntermediate(value) {
   if (isGlobalThisHostValue(value)) {
     return true;
   }
+  // Strong-Set fallback for prototype descriptor functions (#390; Bun WeakSet gap).
   if (typeof value === 'function' && HOST_PROTOTYPE_FUNCTIONS.has(value)) {
     return true;
   }
