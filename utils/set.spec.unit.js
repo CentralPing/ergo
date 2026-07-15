@@ -85,7 +85,7 @@ describe('[Boundary] utils/set', () => {
       assert.equal(Object.prototype.gotcha, undefined);
     });
 
-    describe('unsafe intermediates (#386)', () => {
+    describe('unsafe intermediates (#386, #387)', () => {
       const cases = [
         ['Object.prototype', Object.prototype, 'isAdmin'],
         ['Array.prototype', Array.prototype, 'pwn'],
@@ -93,7 +93,11 @@ describe('[Boundary] utils/set', () => {
         ['RegExp.prototype', RegExp.prototype, 'pwn'],
         ['Object constructor', Object, 'pwn'],
         ['RegExp constructor', RegExp, 'pwn'],
-        ['Math singleton', Math, 'pwn']
+        ['Math singleton', Math, 'pwn'],
+        ['Intl namespace', Intl, 'pwn'],
+        ['WebAssembly namespace', WebAssembly, 'pwn'],
+        ['console', console, 'pwn'],
+        ['Proxy constructor', Proxy, 'pwn']
       ];
 
       for (const [label, intermediate, leaf] of cases) {
@@ -115,6 +119,41 @@ describe('[Boundary] utils/set', () => {
           assert.equal(Object.hasOwn(intermediate, leaf), false);
         });
       }
+
+      it('throws for Proxy wrapping globalThis (write-through)', () => {
+        const wrapped = new Proxy(globalThis, {});
+        const obj = {a: wrapped};
+        assert.throws(
+          () => set(obj, 'a.pwn', true),
+          err =>
+            err instanceof TypeError &&
+            err.code === PATH_TRAVERSE_ERROR_CODE &&
+            err.message.includes('shared builtin')
+        );
+        assert.equal(Object.hasOwn(globalThis, 'pwn'), false);
+      });
+
+      it('trySet returns false for Proxy wrapping globalThis', () => {
+        const wrapped = new Proxy(globalThis, {});
+        assert.equal(trySet({a: wrapped}, 'a.pwn', true), false);
+        assert.equal(Object.hasOwn(globalThis, 'pwn'), false);
+      });
+
+      it('throws when root is a shared builtin', () => {
+        assert.throws(
+          () => set(Math, 'q', 1),
+          err =>
+            err instanceof TypeError &&
+            err.code === PATH_TRAVERSE_ERROR_CODE &&
+            err.message.includes('root is a shared builtin')
+        );
+        assert.equal(Object.hasOwn(Math, 'q'), false);
+      });
+
+      it('trySet returns false when root is a shared builtin', () => {
+        assert.equal(trySet(Math, 'q', 1), false);
+        assert.equal(Object.hasOwn(Math, 'q'), false);
+      });
 
       it('allows ordinary function intermediates (handler.timeout)', () => {
         const handler = () => {};

@@ -9,10 +9,10 @@
  * {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates for
  * ordinary own properties (e.g. `handler.timeout`), but path segments
  * `__proto__`, `prototype`, and `constructor` are always rejected to prevent
- * prototype-chain mutations. Existing intermediates that are prototype objects,
- * intrinsic global constructors, or singleton intrinsics (`Math`, `JSON`, …)
- * are rejected structurally — not via an incomplete denylist. Assigning
- * `length` on an Array leaf is forbidden (sparse-array DoS).
+ * prototype-chain mutations. The root and existing intermediates that are
+ * constructor `.prototype` objects, `globalThis` own bindings (`Intl`,
+ * `console`, `Proxy`, …), or Proxies are rejected — not via a hand-maintained
+ * denylist. Assigning `length` on an Array leaf is forbidden (sparse-array DoS).
  *
  * @module utils/set
  * @since 0.1.0
@@ -24,6 +24,7 @@
  * set(obj, 'a.b.c', 42);   // obj => {a: {b: {c: 42}}}
  * set(obj, 'tags.0', 'x'); // obj.tags => ['x']
  */
+import {types} from 'node:util';
 
 /** Strict non-negative integer string — used to decide Array vs object intermediates. */
 const IS_ARRAY_INDEX = /^\d+$/;
@@ -43,12 +44,6 @@ export function isArrayIndexSegment(segment) {
  * shared prototypes (`Object.prototype`, function `.prototype`, etc.).
  */
 const FORBIDDEN_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
-
-/**
- * Singleton intrinsics that are not constructor.prototype objects but must never
- * be reused as path intermediates (`Math.x = …` would mutate a shared builtin).
- */
-const INTRINSIC_SINGLETONS = new Set([Math, JSON, Reflect, Atomics, globalThis]);
 
 /**
  * Stable error code for path-conflict TypeErrors thrown by {@link set}.
@@ -87,9 +82,10 @@ function assertSafeSegment(segment, path) {
  * @returns {boolean}
  */
 function isPrototypeObject(value) {
+  if (value === null || (typeof value !== 'object' && typeof value !== 'function')) {
+    return false;
+  }
   return (
-    (typeof value === 'object' || typeof value === 'function') &&
-    value !== null &&
     Object.hasOwn(value, 'constructor') &&
     typeof value.constructor === 'function' &&
     value.constructor.prototype === value
@@ -97,35 +93,48 @@ function isPrototypeObject(value) {
 }
 
 /**
- * True when `fn` is an intrinsic constructor installed on `globalThis`
- * (e.g. `Object`, `Array`, `RegExp`). Ordinary user functions/classes are not.
- * @param {Function} fn - Candidate function
+ * Own object/function bindings of `globalThis` at module load (`Intl`, `console`,
+ * `Proxy`, `process`, `Math`, …), plus `globalThis` itself. Identity match is
+ * durable without a hand-maintained denylist; snapshotted once for the hot path
+ * (`lib/query` pair processing). Dynamically added globals after load are out of
+ * scope — an attacker who can bind new own globals already has stronger primitives.
+ */
+const GLOBAL_THIS_OWN_VALUES = (() => {
+  const values = new WeakSet();
+  values.add(globalThis);
+  for (const key of Reflect.ownKeys(globalThis)) {
+    let bound;
+    try {
+      bound = globalThis[key];
+    } catch {
+      continue;
+    }
+    if (bound !== null && (typeof bound === 'object' || typeof bound === 'function')) {
+      values.add(bound);
+    }
+  }
+  return values;
+})();
+
+/**
+ * True when `value` is `globalThis` or an own property value snapshotted above.
+ * @param {*} value - Candidate value
  * @returns {boolean}
  */
-function isIntrinsicGlobalConstructor(fn) {
-  if (typeof fn !== 'function' || fn.prototype == null) {
+function isGlobalThisOwnValue(value) {
+  if (value === null || (typeof value !== 'object' && typeof value !== 'function')) {
     return false;
   }
-  if (fn.prototype.constructor !== fn) {
-    return false;
-  }
-  const {name} = fn;
-  if (!name) {
-    return false;
-  }
-  try {
-    return globalThis[name] === fn;
-  } catch {
-    return false;
-  }
+  return GLOBAL_THIS_OWN_VALUES.has(value);
 }
 
 /**
- * True when `value` must not be reused as a path intermediate.
- * Structural — not an incomplete denylist of specific builtins (#386).
+ * True when `value` must not be used as a path root or intermediate.
  * Safe: Arrays (except `Array.prototype`), null-proto objects, plain objects,
  * user class instances, and ordinary functions (`handler.timeout`).
- * @param {*} value - Existing path intermediate
+ * Unsafe: constructor `.prototype` objects, `globalThis` own bindings, Proxies
+ * (#386, #387).
+ * @param {*} value - Existing path container
  * @returns {boolean}
  */
 function isUnsafeIntermediate(value) {
@@ -143,10 +152,11 @@ function isUnsafeIntermediate(value) {
   if (typeof value === 'object' && Object.getPrototypeOf(value) === null) {
     return false;
   }
-  if (typeof value === 'function' && isIntrinsicGlobalConstructor(value)) {
+  // Proxies can wrap globalThis / other intrinsics and write through (#387).
+  if (types.isProxy(value)) {
     return true;
   }
-  return INTRINSIC_SINGLETONS.has(value);
+  return isGlobalThisOwnValue(value);
 }
 
 /**
@@ -154,17 +164,21 @@ function isUnsafeIntermediate(value) {
  * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
- * @throws {TypeError} When an existing intermediate at `path` is `null`, a
- *   non-object primitive (not including ordinary functions), an unsafe intrinsic
- *   intermediate, when a path segment is `__proto__` / `prototype` /
- *   `constructor`, or when assigning `length` on an Array
- *   (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
+ * @throws {TypeError} When the root or an existing intermediate is unsafe, is
+ *   `null` / a non-object primitive (not including ordinary functions), when a
+ *   path segment is `__proto__` / `prototype` / `constructor`, or when assigning
+ *   `length` on an Array (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
   // Reject forbidden segments before any mutation so failed paths leave the target untouched.
   for (const segment of subPaths) {
     assertSafeSegment(segment, path);
+  }
+  if (isUnsafeIntermediate(obj)) {
+    throw pathTraverseError(
+      `Cannot traverse path '${path}': root is a shared builtin and cannot be traversed`
+    );
   }
   const last = subPaths.at(-1);
 
