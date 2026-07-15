@@ -4,15 +4,17 @@
  * Sets a value at a dot-delimited path in an object, creating intermediate objects
  * or arrays as needed. Uses `Object.hasOwn()` to check for existing nodes.
  * Array nodes are created when the next path segment is a non-negative integer
- * string (`/^\d+$/`). Existing intermediates that are `null` or non-object
- * primitives throw a descriptive `TypeError` with `code`
- * {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates for
+ * string (`/^\d+$/`) not exceeding {@link MAX_ARRAY_INDEX}. Existing intermediates
+ * that are `null` or non-object primitives throw a descriptive `TypeError` with
+ * `code` {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates for
  * ordinary own properties (e.g. `handler.timeout`), but path segments
  * `__proto__`, `prototype`, and `constructor` are always rejected to prevent
  * prototype-chain mutations. The root and existing intermediates that are
- * constructor `.prototype` objects, `globalThis` own bindings (`Intl`,
- * `console`, `Proxy`, …), or Proxies are rejected — not via a hand-maintained
- * denylist. Assigning `length` on an Array leaf is forbidden (sparse-array DoS).
+ * constructor `.prototype` objects, `globalThis` host objects (own bindings and
+ * nested values resolved from those bindings / their prototypes — `Intl`,
+ * `console`, `Proxy`, `crypto.subtle`, …), or Proxies are rejected — not via a
+ * hand-maintained denylist. Assigning `length` on an Array leaf is forbidden
+ * (sparse-array DoS).
  *
  * @module utils/set
  * @since 0.1.0
@@ -28,6 +30,13 @@ import {types} from 'node:util';
 
 /** Strict non-negative integer string — used to decide Array vs object intermediates. */
 const IS_ARRAY_INDEX = /^\d+$/;
+
+/**
+ * Maximum allowed digit-only array index segment. Larger indices would grow
+ * Array `length` into sparse-DoS territory (query reach via `a[4294967294]=x`).
+ * Full design to stop numeric-bracket → array creation remains #280.
+ */
+export const MAX_ARRAY_INDEX = 1024;
 
 /**
  * Whether a path segment is a digit-only array index (`/^\d+$/`).
@@ -76,6 +85,22 @@ function assertSafeSegment(segment, path) {
 }
 
 /**
+ * @param {string} segment - Path segment
+ * @param {string} path - Full path (for error message)
+ * @throws {TypeError} When `segment` is a digit index above {@link MAX_ARRAY_INDEX}
+ */
+function assertBoundedArrayIndex(segment, path) {
+  if (!isArrayIndexSegment(segment)) {
+    return;
+  }
+  if (segment.length > String(MAX_ARRAY_INDEX).length || Number(segment) > MAX_ARRAY_INDEX) {
+    throw pathTraverseError(
+      `Cannot traverse path '${path}': array index '${segment}' exceeds maximum ${MAX_ARRAY_INDEX}`
+    );
+  }
+}
+
+/**
  * True when `value` is a constructor's `.prototype` object
  * (`value.constructor.prototype === value`).
  * @param {*} value - Candidate intermediate
@@ -93,15 +118,26 @@ function isPrototypeObject(value) {
 }
 
 /**
- * Own object/function bindings of `globalThis` at module load (`Intl`, `console`,
- * `Proxy`, `process`, `Math`, …), plus `globalThis` itself. Identity match is
- * durable without a hand-maintained denylist; snapshotted once for the hot path
- * (`lib/query` pair processing). Dynamically added globals after load are out of
- * scope — an attacker who can bind new own globals already has stronger primitives.
+ * @param {WeakSet<object>} values - Accumulator
+ * @param {*} candidate - Value to record when object/function
  */
-const GLOBAL_THIS_OWN_VALUES = (() => {
+function addHostValue(values, candidate) {
+  if (candidate !== null && (typeof candidate === 'object' || typeof candidate === 'function')) {
+    values.add(candidate);
+  }
+}
+
+/**
+ * Host objects reachable from `globalThis` at module load: own bindings, their
+ * own properties, and values resolved through their prototype accessors
+ * (`crypto.subtle`, `process.stdout`, …). Identity match is durable without a
+ * hand-maintained denylist; snapshotted once for the hot path.
+ */
+const GLOBAL_THIS_HOST_VALUES = (() => {
   const values = new WeakSet();
   values.add(globalThis);
+  const seeds = [];
+
   for (const key of Reflect.ownKeys(globalThis)) {
     let bound;
     try {
@@ -111,29 +147,79 @@ const GLOBAL_THIS_OWN_VALUES = (() => {
     }
     if (bound !== null && (typeof bound === 'object' || typeof bound === 'function')) {
       values.add(bound);
+      seeds.push(bound);
     }
   }
+
+  for (const seed of seeds) {
+    let ownKeys;
+    try {
+      ownKeys = Reflect.ownKeys(seed);
+    } catch {
+      ownKeys = [];
+    }
+    for (const key of ownKeys) {
+      let bound;
+      try {
+        bound = seed[key];
+      } catch {
+        continue;
+      }
+      addHostValue(values, bound);
+    }
+
+    let proto;
+    try {
+      proto = Object.getPrototypeOf(seed);
+    } catch {
+      continue;
+    }
+    while (proto && proto !== Object.prototype) {
+      let protoKeys;
+      try {
+        protoKeys = Reflect.ownKeys(proto);
+      } catch {
+        break;
+      }
+      for (const key of protoKeys) {
+        let bound;
+        try {
+          // Resolve accessors against the seed instance (e.g. Crypto.prototype.subtle).
+          bound = seed[key];
+        } catch {
+          continue;
+        }
+        addHostValue(values, bound);
+      }
+      try {
+        proto = Object.getPrototypeOf(proto);
+      } catch {
+        break;
+      }
+    }
+  }
+
   return values;
 })();
 
 /**
- * True when `value` is `globalThis` or an own property value snapshotted above.
+ * True when `value` is a snapshotted host object from {@link GLOBAL_THIS_HOST_VALUES}.
  * @param {*} value - Candidate value
  * @returns {boolean}
  */
-function isGlobalThisOwnValue(value) {
+function isGlobalThisHostValue(value) {
   if (value === null || (typeof value !== 'object' && typeof value !== 'function')) {
     return false;
   }
-  return GLOBAL_THIS_OWN_VALUES.has(value);
+  return GLOBAL_THIS_HOST_VALUES.has(value);
 }
 
 /**
  * True when `value` must not be used as a path root or intermediate.
  * Safe: Arrays (except `Array.prototype`), null-proto objects, plain objects,
  * user class instances, and ordinary functions (`handler.timeout`).
- * Unsafe: constructor `.prototype` objects, `globalThis` own bindings, Proxies
- * (#386, #387).
+ * Unsafe: Proxies (checked before Array/null-proto shortcuts), constructor
+ * `.prototype` objects, and host objects reachable from `globalThis` (#386–#388).
  * @param {*} value - Existing path container
  * @returns {boolean}
  */
@@ -141,8 +227,11 @@ function isUnsafeIntermediate(value) {
   if (value === null || (typeof value !== 'object' && typeof value !== 'function')) {
     return false;
   }
-  // Before Array / null-proto shortcuts: Array.prototype is an Array, and
-  // Object.prototype has null [[Prototype]].
+  // Proxies before Array / null-proto shortcuts: Proxy(Array.prototype) is an
+  // Array and Proxy(Object.prototype) has null [[Prototype]] (#387 ordering).
+  if (types.isProxy(value)) {
+    return true;
+  }
   if (isPrototypeObject(value)) {
     return true;
   }
@@ -152,11 +241,7 @@ function isUnsafeIntermediate(value) {
   if (typeof value === 'object' && Object.getPrototypeOf(value) === null) {
     return false;
   }
-  // Proxies can wrap globalThis / other intrinsics and write through (#387).
-  if (types.isProxy(value)) {
-    return true;
-  }
-  return isGlobalThisOwnValue(value);
+  return isGlobalThisHostValue(value);
 }
 
 /**
@@ -166,14 +251,16 @@ function isUnsafeIntermediate(value) {
  * @returns {*} - The assigned value
  * @throws {TypeError} When the root or an existing intermediate is unsafe, is
  *   `null` / a non-object primitive (not including ordinary functions), when a
- *   path segment is `__proto__` / `prototype` / `constructor`, or when assigning
- *   `length` on an Array (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
+ *   path segment is `__proto__` / `prototype` / `constructor`, when a digit
+ *   index exceeds {@link MAX_ARRAY_INDEX}, or when assigning `length` on an
+ *   Array (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
-  // Reject forbidden segments before any mutation so failed paths leave the target untouched.
+  // Reject forbidden / oversized index segments before any mutation.
   for (const segment of subPaths) {
     assertSafeSegment(segment, path);
+    assertBoundedArrayIndex(segment, path);
   }
   if (isUnsafeIntermediate(obj)) {
     throw pathTraverseError(

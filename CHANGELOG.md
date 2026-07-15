@@ -38,13 +38,15 @@ All notable changes to this project will be documented in this file.
   `trySet`. Any own value already at the destination path wins (scalars, containers, and
   array slots), so `a[]=1&a[0]=2` also keeps the first slot value.
 
-- **`utils/set` rejects unsafe intrinsic intermediates and Array `length` assignment.** (#386, #387)
-  Path root and reuse reject constructor `.prototype` objects, own object/function bindings
-  of `globalThis` (snapshotted at module load — covering `Intl`, `WebAssembly`, `console`,
-  `Proxy`, `Math`, constructors, …), and Proxies (`util.types.isProxy`) — not a hand-maintained
-  denylist. Ordinary functions, null-proto objects, Arrays, and user class instances remain
-  valid intermediates. Assigning `length` on an Array leaf is forbidden (sparse DoS);
-  plain-object `.length` remains allowed.
+- **`utils/set` rejects unsafe intrinsic intermediates and Array `length` assignment.** (#386, #387, #388)
+  Path root and reuse reject constructor `.prototype` objects, host objects reachable from
+  `globalThis` at module load (own bindings plus nested values via own keys / prototype
+  accessors — `Intl`, `Proxy`, `crypto.subtle`, `process.stdout`, …), and Proxies
+  (`util.types.isProxy` before Array/null-proto shortcuts so `Proxy(Array.prototype)` cannot
+  write through). Ordinary functions, null-proto objects, Arrays, and user class instances
+  remain valid intermediates. Assigning `length` on an Array leaf is forbidden; digit indices
+  above `MAX_ARRAY_INDEX` (1024) are rejected (sparse DoS bound; full numeric-bracket design
+  remains #280). Plain-object `.length` remains allowed.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
   assignment body is split into explicit statements while still returning the assigned value

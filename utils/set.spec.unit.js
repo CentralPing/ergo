@@ -3,7 +3,7 @@
  */
 import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
-import set, {PATH_TRAVERSE_ERROR_CODE, trySet} from './set.js';
+import set, {MAX_ARRAY_INDEX, PATH_TRAVERSE_ERROR_CODE, trySet} from './set.js';
 
 describe('[Boundary] utils/set', () => {
   it('sets a top-level property', () => {
@@ -139,6 +139,19 @@ describe('[Boundary] utils/set', () => {
         assert.equal(Object.hasOwn(globalThis, 'pwn'), false);
       });
 
+      it('rejects Proxy(Array.prototype) before Array shortcut (no write-through)', () => {
+        const wrapped = new Proxy(Array.prototype, {});
+        assert.equal(trySet({a: wrapped}, 'a.0', 'PWN'), false);
+        assert.equal(Object.hasOwn(Array.prototype, '0'), false);
+        assert.equal(Array.prototype[0], undefined);
+      });
+
+      it('rejects Proxy(Object.prototype) before null-proto shortcut (no write-through)', () => {
+        const wrapped = new Proxy(Object.prototype, {});
+        assert.equal(trySet({a: wrapped}, 'a.pollute', 'x'), false);
+        assert.equal(Object.hasOwn(Object.prototype, 'pollute'), false);
+      });
+
       it('throws when root is a shared builtin', () => {
         assert.throws(
           () => set(Math, 'q', 1),
@@ -153,6 +166,17 @@ describe('[Boundary] utils/set', () => {
       it('trySet returns false when root is a shared builtin', () => {
         assert.equal(trySet(Math, 'q', 1), false);
         assert.equal(Object.hasOwn(Math, 'q'), false);
+      });
+
+      it('rejects nested host objects reachable from globalThis (#388)', () => {
+        if (globalThis.crypto?.subtle) {
+          assert.equal(trySet({a: crypto.subtle}, 'a.x', 1), false);
+          assert.equal(Object.hasOwn(crypto.subtle, 'x'), false);
+        }
+        if (globalThis.process?.stdout) {
+          assert.equal(trySet({a: process.stdout}, 'a.x', 1), false);
+          assert.equal(Object.hasOwn(process.stdout, 'x'), false);
+        }
       });
 
       it('allows ordinary function intermediates (handler.timeout)', () => {
@@ -178,7 +202,7 @@ describe('[Boundary] utils/set', () => {
     it('rejects assigning Array length (sparse-array DoS)', () => {
       const obj = {a: []};
       assert.throws(
-        () => set(obj, 'a.length', 50_000_000),
+        () => set(obj, 'a.length', 5),
         err =>
           err instanceof TypeError &&
           err.code === PATH_TRAVERSE_ERROR_CODE &&
@@ -189,7 +213,7 @@ describe('[Boundary] utils/set', () => {
 
     it('trySet returns false for Array length assignment', () => {
       const obj = {a: []};
-      assert.equal(trySet(obj, 'a.length', 50_000_000), false);
+      assert.equal(trySet(obj, 'a.length', 5), false);
       assert.equal(obj.a.length, 0);
     });
 
@@ -197,6 +221,30 @@ describe('[Boundary] utils/set', () => {
       const obj = Object.create(null);
       assert.equal(set(obj, 'meta.length', 3), 3);
       assert.equal(obj.meta.length, 3);
+    });
+
+    it(`rejects digit indices above MAX_ARRAY_INDEX (${MAX_ARRAY_INDEX})`, () => {
+      const obj = Object.create(null);
+      const over = String(MAX_ARRAY_INDEX + 1);
+      assert.throws(
+        () => set(obj, `a.${over}`, 'x'),
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes('exceeds maximum')
+      );
+      assert.equal(Object.hasOwn(obj, 'a'), false);
+    });
+
+    it('trySet returns false for oversized digit indices (query sparse-DoS)', () => {
+      assert.equal(trySet(Object.create(null), 'a.4294967294', 'x'), false);
+    });
+
+    it(`allows digit indices at MAX_ARRAY_INDEX (${MAX_ARRAY_INDEX})`, () => {
+      const obj = Object.create(null);
+      assert.equal(set(obj, `a.${MAX_ARRAY_INDEX}`, 'ok'), 'ok');
+      assert.ok(Array.isArray(obj.a));
+      assert.equal(obj.a[MAX_ARRAY_INDEX], 'ok');
     });
   });
 
