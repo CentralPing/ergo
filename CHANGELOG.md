@@ -17,8 +17,9 @@ All notable changes to this project will be documented in this file.
   New `trySet()` returns `false` for that conflict (rethrows unexpected errors);
   `lib/query.js` uses it for first-wins skip so inputs like `a=42&a[b]=99` no longer 500
   through `url()` middleware. First-wins is bidirectional over path containers
-  (#379, #380): nested-then-scalar (`a[b]=99&a=42`, `a.b[c]=2&a.b=1`) preserves the
-  earlier nest, and nesting under an empty-bracket Array (`a[]=2&a[b]=1`) is skipped.
+  (#379, #380, #381): nested-then-scalar preserves earlier nests; non-index nesting
+  under an empty-bracket Array (`a[]=2&a[b]=1`) is skipped while numeric indices
+  (`role[0]=user&role[1]=admin`) remain allowed; scalar-then-`[]` also first-wins.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
   assignment body is split into explicit statements while still returning the assigned value
