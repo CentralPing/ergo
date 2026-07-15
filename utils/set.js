@@ -153,7 +153,21 @@ function enrollHostValue(values, candidate, next) {
  */
 function tryGetHostProperty(seed, key) {
   try {
-    return Reflect.get(seed, key);
+    const value = Reflect.get(seed, key);
+    // Some host accessors (e.g. WritableStreamDefaultWriter.closed) return a
+    // rejected Promise when read with a mismatched `this`. Absorb so module
+    // load does not emit unhandledRejection while still enrolling the value.
+    if (
+      value != null &&
+      (typeof value === 'object' || typeof value === 'function') &&
+      typeof value.then === 'function'
+    ) {
+      Promise.resolve(value).then(
+        () => {},
+        () => {}
+      );
+    }
+    return value;
   } catch {
     return undefined;
   }
