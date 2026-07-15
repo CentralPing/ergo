@@ -85,16 +85,55 @@ describe('[Boundary] utils/set', () => {
       assert.equal(Object.prototype.gotcha, undefined);
     });
 
-    it('rejects existing Object.prototype intermediate (no write-through)', () => {
-      const obj = {a: Object.prototype};
-      assert.throws(
-        () => set(obj, 'a.isAdmin', true),
-        err =>
-          err instanceof TypeError &&
-          err.code === PATH_TRAVERSE_ERROR_CODE &&
-          err.message.includes('shared builtin')
-      );
-      assert.equal(Object.hasOwn(Object.prototype, 'isAdmin'), false);
+    describe('unsafe intermediates (#386)', () => {
+      const cases = [
+        ['Object.prototype', Object.prototype, 'isAdmin'],
+        ['Array.prototype', Array.prototype, 'pwn'],
+        ['Function.prototype', Function.prototype, 'pwn'],
+        ['RegExp.prototype', RegExp.prototype, 'pwn'],
+        ['Object constructor', Object, 'pwn'],
+        ['RegExp constructor', RegExp, 'pwn'],
+        ['Math singleton', Math, 'pwn']
+      ];
+
+      for (const [label, intermediate, leaf] of cases) {
+        it(`throws for ${label} intermediate`, () => {
+          const obj = {a: intermediate};
+          assert.throws(
+            () => set(obj, `a.${leaf}`, true),
+            err =>
+              err instanceof TypeError &&
+              err.code === PATH_TRAVERSE_ERROR_CODE &&
+              err.message.includes('shared builtin')
+          );
+          assert.equal(Object.hasOwn(intermediate, leaf), false);
+        });
+
+        it(`trySet returns false for ${label} intermediate`, () => {
+          const obj = {a: intermediate};
+          assert.equal(trySet(obj, `a.${leaf}`, true), false);
+          assert.equal(Object.hasOwn(intermediate, leaf), false);
+        });
+      }
+
+      it('allows ordinary function intermediates (handler.timeout)', () => {
+        const handler = () => {};
+        const obj = {handler};
+        assert.equal(set(obj, 'handler.timeout', 500), 500);
+        assert.equal(handler.timeout, 500);
+      });
+
+      it('allows user class instances as intermediates', () => {
+        class Box {
+          constructor() {
+            this.n = 0;
+          }
+        }
+        const box = new Box();
+        const obj = {box};
+        assert.equal(set(obj, 'box.n', 7), 7);
+        assert.equal(box.n, 7);
+      });
     });
 
     it('rejects assigning Array length (sparse-array DoS)', () => {
@@ -106,6 +145,12 @@ describe('[Boundary] utils/set', () => {
           err.code === PATH_TRAVERSE_ERROR_CODE &&
           err.message.includes("Array 'length'")
       );
+      assert.equal(obj.a.length, 0);
+    });
+
+    it('trySet returns false for Array length assignment', () => {
+      const obj = {a: []};
+      assert.equal(trySet(obj, 'a.length', 50_000_000), false);
       assert.equal(obj.a.length, 0);
     });
 

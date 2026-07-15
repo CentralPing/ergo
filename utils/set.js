@@ -9,9 +9,10 @@
  * {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates for
  * ordinary own properties (e.g. `handler.timeout`), but path segments
  * `__proto__`, `prototype`, and `constructor` are always rejected to prevent
- * prototype-chain mutations. Existing intermediates that are shared builtins
- * (`Object.prototype`, `Array`/`Function` constructors, etc.) are also rejected,
- * and assigning `length` on an Array leaf is forbidden (sparse-array DoS).
+ * prototype-chain mutations. Existing intermediates that are prototype objects,
+ * intrinsic global constructors, or singleton intrinsics (`Math`, `JSON`, …)
+ * are rejected structurally — not via an incomplete denylist. Assigning
+ * `length` on an Array leaf is forbidden (sparse-array DoS).
  *
  * @module utils/set
  * @since 0.1.0
@@ -44,18 +45,10 @@ export function isArrayIndexSegment(segment) {
 const FORBIDDEN_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 
 /**
- * Shared builtin objects that must not be reused as path intermediates.
- * Callers who place these in a graph and then apply a user-influenced path
- * would otherwise write onto the shared prototype/constructor.
+ * Singleton intrinsics that are not constructor.prototype objects but must never
+ * be reused as path intermediates (`Math.x = …` would mutate a shared builtin).
  */
-const FORBIDDEN_INTERMEDIATES = new Set([
-  Object.prototype,
-  Array.prototype,
-  Function.prototype,
-  Object,
-  Array,
-  Function
-]);
+const INTRINSIC_SINGLETONS = new Set([Math, JSON, Reflect, Atomics, globalThis]);
 
 /**
  * Stable error code for path-conflict TypeErrors thrown by {@link set}.
@@ -88,14 +81,84 @@ function assertSafeSegment(segment, path) {
 }
 
 /**
+ * True when `value` is a constructor's `.prototype` object
+ * (`value.constructor.prototype === value`).
+ * @param {*} value - Candidate intermediate
+ * @returns {boolean}
+ */
+function isPrototypeObject(value) {
+  return (
+    (typeof value === 'object' || typeof value === 'function') &&
+    value !== null &&
+    Object.hasOwn(value, 'constructor') &&
+    typeof value.constructor === 'function' &&
+    value.constructor.prototype === value
+  );
+}
+
+/**
+ * True when `fn` is an intrinsic constructor installed on `globalThis`
+ * (e.g. `Object`, `Array`, `RegExp`). Ordinary user functions/classes are not.
+ * @param {Function} fn - Candidate function
+ * @returns {boolean}
+ */
+function isIntrinsicGlobalConstructor(fn) {
+  if (typeof fn !== 'function' || fn.prototype == null) {
+    return false;
+  }
+  if (fn.prototype.constructor !== fn) {
+    return false;
+  }
+  const {name} = fn;
+  if (!name) {
+    return false;
+  }
+  try {
+    return globalThis[name] === fn;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * True when `value` must not be reused as a path intermediate.
+ * Structural — not an incomplete denylist of specific builtins (#386).
+ * Safe: Arrays (except `Array.prototype`), null-proto objects, plain objects,
+ * user class instances, and ordinary functions (`handler.timeout`).
+ * @param {*} value - Existing path intermediate
+ * @returns {boolean}
+ */
+function isUnsafeIntermediate(value) {
+  if (value === null || (typeof value !== 'object' && typeof value !== 'function')) {
+    return false;
+  }
+  // Before Array / null-proto shortcuts: Array.prototype is an Array, and
+  // Object.prototype has null [[Prototype]].
+  if (isPrototypeObject(value)) {
+    return true;
+  }
+  if (Array.isArray(value)) {
+    return false;
+  }
+  if (typeof value === 'object' && Object.getPrototypeOf(value) === null) {
+    return false;
+  }
+  if (typeof value === 'function' && isIntrinsicGlobalConstructor(value)) {
+    return true;
+  }
+  return INTRINSIC_SINGLETONS.has(value);
+}
+
+/**
  * @param {object} obj - Target object
  * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
  * @throws {TypeError} When an existing intermediate at `path` is `null`, a
- *   non-object primitive (not including ordinary functions), a shared builtin,
- *   when a path segment is `__proto__` / `prototype` / `constructor`, or when
- *   assigning `length` on an Array (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
+ *   non-object primitive (not including ordinary functions), an unsafe intrinsic
+ *   intermediate, when a path segment is `__proto__` / `prototype` /
+ *   `constructor`, or when assigning `length` on an Array
+ *   (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
@@ -113,7 +176,7 @@ export default function set(obj, path = '', val) {
         const kind = existing === null ? 'null' : typeof existing;
         throw pathTraverseError(`Cannot traverse path '${path}': '${p}' is ${kind}, not an object`);
       }
-      if (FORBIDDEN_INTERMEDIATES.has(existing)) {
+      if (isUnsafeIntermediate(existing)) {
         throw pathTraverseError(
           `Cannot traverse path '${path}': '${p}' is a shared builtin and cannot be traversed`
         );

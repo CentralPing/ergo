@@ -38,10 +38,13 @@ All notable changes to this project will be documented in this file.
   `trySet`. Any own value already at the destination path wins (scalars, containers, and
   array slots), so `a[]=1&a[0]=2` also keeps the first slot value.
 
-- **`utils/set` rejects shared-builtin intermediates and Array `length` assignment.**
-  Reusing `Object.prototype` / `Array` / `Function` (or their `.prototype`) as an intermediate
-  throws `ERGO_SET_PATH_TRAVERSE`. Assigning `length` on an Array leaf is forbidden (sparse
-  DoS); plain-object `.length` remains allowed.
+- **`utils/set` rejects unsafe intrinsic intermediates and Array `length` assignment.** (#386)
+  Path reuse structurally rejects constructor `.prototype` objects, intrinsic global
+  constructors (`Object`, `RegExp`, …), and singleton intrinsics (`Math`, `JSON`,
+  `Reflect`, `Atomics`, `globalThis`) — not an incomplete denylist. Ordinary functions,
+  null-proto objects, Arrays, and user class instances remain valid intermediates.
+  Assigning `length` on an Array leaf is forbidden (sparse DoS); plain-object `.length`
+  remains allowed.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
   assignment body is split into explicit statements while still returning the assigned value
