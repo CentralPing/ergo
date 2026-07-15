@@ -84,6 +84,36 @@ describe('[Boundary] utils/set', () => {
       );
       assert.equal(Object.prototype.gotcha, undefined);
     });
+
+    it('rejects existing Object.prototype intermediate (no write-through)', () => {
+      const obj = {a: Object.prototype};
+      assert.throws(
+        () => set(obj, 'a.isAdmin', true),
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes('shared builtin')
+      );
+      assert.equal(Object.hasOwn(Object.prototype, 'isAdmin'), false);
+    });
+
+    it('rejects assigning Array length (sparse-array DoS)', () => {
+      const obj = {a: []};
+      assert.throws(
+        () => set(obj, 'a.length', 50_000_000),
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes("Array 'length'")
+      );
+      assert.equal(obj.a.length, 0);
+    });
+
+    it('allows ordinary own-property length on plain objects', () => {
+      const obj = Object.create(null);
+      assert.equal(set(obj, 'meta.length', 3), 3);
+      assert.equal(obj.meta.length, 3);
+    });
   });
 
   describe('strict array-index detection (#353)', () => {

@@ -33,6 +33,16 @@ All notable changes to this project will be documented in this file.
   scalar win. Pair iteration now preserves insertion order; the returned accumulator remains
   `Object.create(null)`.
 
+- **`lib/query.js` first-wins covers path aliases and occupied leaves.** (#385) Distinct wire
+  forms that normalize to the same dotted path (`a.b=1&a[b]=2`) no longer last-write via
+  `trySet`. Any own value already at the destination path wins (scalars, containers, and
+  array slots), so `a[]=1&a[0]=2` also keeps the first slot value.
+
+- **`utils/set` rejects shared-builtin intermediates and Array `length` assignment.**
+  Reusing `Object.prototype` / `Array` / `Function` (or their `.prototype`) as an intermediate
+  throws `ERGO_SET_PATH_TRAVERSE`. Assigning `length` on an Array leaf is forbidden (sparse
+  DoS); plain-object `.length` remains allowed.
+
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
   assignment body is split into explicit statements while still returning the assigned value
   (public `@centralping/ergo/utils/set` export — non-breaking).

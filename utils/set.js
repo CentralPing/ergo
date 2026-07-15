@@ -9,7 +9,9 @@
  * {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates for
  * ordinary own properties (e.g. `handler.timeout`), but path segments
  * `__proto__`, `prototype`, and `constructor` are always rejected to prevent
- * prototype-chain mutations.
+ * prototype-chain mutations. Existing intermediates that are shared builtins
+ * (`Object.prototype`, `Array`/`Function` constructors, etc.) are also rejected,
+ * and assigning `length` on an Array leaf is forbidden (sparse-array DoS).
  *
  * @module utils/set
  * @since 0.1.0
@@ -42,11 +44,35 @@ export function isArrayIndexSegment(segment) {
 const FORBIDDEN_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 
 /**
+ * Shared builtin objects that must not be reused as path intermediates.
+ * Callers who place these in a graph and then apply a user-influenced path
+ * would otherwise write onto the shared prototype/constructor.
+ */
+const FORBIDDEN_INTERMEDIATES = new Set([
+  Object.prototype,
+  Array.prototype,
+  Function.prototype,
+  Object,
+  Array,
+  Function
+]);
+
+/**
  * Stable error code for path-conflict TypeErrors thrown by {@link set}.
  * Callers that absorb user-controlled path conflicts (e.g. `lib/query.js`) should
  * match on `err.code` rather than message text — or use {@link trySet}.
  */
 export const PATH_TRAVERSE_ERROR_CODE = 'ERGO_SET_PATH_TRAVERSE';
+
+/**
+ * @param {string} message - Error message body
+ * @returns {TypeError} - Path-conflict error with {@link PATH_TRAVERSE_ERROR_CODE}
+ */
+function pathTraverseError(message) {
+  const err = new TypeError(message);
+  err.code = PATH_TRAVERSE_ERROR_CODE;
+  return err;
+}
 
 /**
  * @param {string} segment - Path segment
@@ -55,11 +81,9 @@ export const PATH_TRAVERSE_ERROR_CODE = 'ERGO_SET_PATH_TRAVERSE';
  */
 function assertSafeSegment(segment, path) {
   if (FORBIDDEN_SEGMENTS.has(segment)) {
-    const err = new TypeError(
+    throw pathTraverseError(
       `Cannot traverse path '${path}': '${segment}' is a forbidden path segment`
     );
-    err.code = PATH_TRAVERSE_ERROR_CODE;
-    throw err;
   }
 }
 
@@ -68,10 +92,10 @@ function assertSafeSegment(segment, path) {
  * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
- * @throws {TypeError} When an existing intermediate at `path` is `null` or a
- *   non-object primitive — not including functions — or when a path segment is
- *   `__proto__`, `prototype`, or `constructor`
- *   (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
+ * @throws {TypeError} When an existing intermediate at `path` is `null`, a
+ *   non-object primitive (not including ordinary functions), a shared builtin,
+ *   when a path segment is `__proto__` / `prototype` / `constructor`, or when
+ *   assigning `length` on an Array (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
@@ -87,17 +111,26 @@ export default function set(obj, path = '', val) {
       // Functions are objects in JS and are valid intermediates (e.g. handler.timeout).
       if (existing === null || (typeof existing !== 'object' && typeof existing !== 'function')) {
         const kind = existing === null ? 'null' : typeof existing;
-        const err = new TypeError(
-          `Cannot traverse path '${path}': '${p}' is ${kind}, not an object`
+        throw pathTraverseError(`Cannot traverse path '${path}': '${p}' is ${kind}, not an object`);
+      }
+      if (FORBIDDEN_INTERMEDIATES.has(existing)) {
+        throw pathTraverseError(
+          `Cannot traverse path '${path}': '${p}' is a shared builtin and cannot be traversed`
         );
-        err.code = PATH_TRAVERSE_ERROR_CODE;
-        throw err;
       }
       return existing;
     }
 
     return (o[p] = isArrayIndexSegment(subPaths[i + 1]) ? [] : Object.create(null));
   }, obj);
+
+  // Array `length` assignment creates large sparse arrays (DoS); block on Array leaves only.
+  // Plain-object `.length` remains a normal own property.
+  if (Array.isArray(leaf) && last === 'length') {
+    throw pathTraverseError(
+      `Cannot traverse path '${path}': assigning Array 'length' is forbidden`
+    );
+  }
 
   leaf[last] = val;
   return val;
