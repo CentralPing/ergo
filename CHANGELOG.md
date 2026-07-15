@@ -17,9 +17,15 @@ All notable changes to this project will be documented in this file.
   New `trySet()` returns `false` for that conflict (rethrows unexpected errors);
   `lib/query.js` uses it for first-wins skip so inputs like `a=42&a[b]=99` no longer 500
   through `url()` middleware. First-wins is bidirectional over path containers
-  (#379, #380, #381): nested-then-scalar preserves earlier nests; non-index nesting
-  under an empty-bracket Array (`a[]=2&a[b]=1`) is skipped while numeric indices
-  (`role[0]=user&role[1]=admin`) remain allowed; scalar-then-`[]` also first-wins.
+  (#379, #380, #381, #382): nested-then-scalar preserves earlier nests; Array↔object
+  shape is locked (non-index under Array and index under plain object both skip) while
+  numeric indices under Arrays (`role[0]=user&role[1]=admin`) and sibling object keys
+  remain allowed; scalar-then-`[]` also first-wins.
+
+- **`utils/set` rejects `__proto__` / `prototype` / `constructor` path segments.** (#383)
+  Function intermediates remain valid for ordinary own properties (`handler.timeout`), but
+  those three segments always throw `ERGO_SET_PATH_TRAVERSE` so callers cannot write through
+  `.prototype` onto shared builtins.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
   assignment body is split into explicit statements while still returning the assigned value

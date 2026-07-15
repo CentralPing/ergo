@@ -48,16 +48,43 @@ describe('[Boundary] utils/set', () => {
     assert.equal(result, 'val');
   });
 
-  it('creates null-prototype intermediate objects (no prototype pollution)', () => {
-    const obj = Object.create(null);
-    set(obj, '__proto__.polluted', 'yes');
-    assert.equal({}.polluted, undefined, 'Object.prototype must not be polluted');
-  });
-
-  it('intermediate nested objects have null prototype', () => {
+  it('creates null-prototype intermediate objects', () => {
     const obj = Object.create(null);
     set(obj, 'a.b', 42);
     assert.equal(Object.getPrototypeOf(obj.a), null);
+  });
+
+  describe('forbidden path segments (#383)', () => {
+    for (const segment of ['__proto__', 'prototype', 'constructor']) {
+      it(`throws PATH_TRAVERSE for forbidden segment ${segment}`, () => {
+        const obj = Object.create(null);
+        assert.throws(
+          () => set(obj, `safe.${segment}.x`, 1),
+          err =>
+            err instanceof TypeError &&
+            err.code === PATH_TRAVERSE_ERROR_CODE &&
+            err.message.includes(`'${segment}' is a forbidden path segment`)
+        );
+        assert.equal(Object.hasOwn(obj, 'safe'), false);
+        assert.equal({}.polluted, undefined);
+        assert.equal(Object.prototype.gotcha, undefined);
+      });
+
+      it(`trySet returns false for forbidden segment ${segment}`, () => {
+        const obj = Object.create(null);
+        assert.equal(trySet(obj, `safe.${segment}`, 1), false);
+        assert.equal(Object.hasOwn(obj, 'safe'), false);
+      });
+    }
+
+    it('blocks writing through function.prototype onto builtins', () => {
+      const obj = {c: Object};
+      assert.throws(
+        () => set(obj, 'c.prototype.gotcha', true),
+        err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
+      );
+      assert.equal(Object.prototype.gotcha, undefined);
+    });
   });
 
   describe('strict array-index detection (#353)', () => {
@@ -80,6 +107,16 @@ describe('[Boundary] utils/set', () => {
       set(obj, 'items.42', 'v');
       assert.ok(Array.isArray(obj.items));
       assert.equal(obj.items[42], 'v');
+    });
+
+    it('creates an Array for leading-zero digit segments (/^\\d+$/ accepts 01)', () => {
+      const obj = Object.create(null);
+      set(obj, 'items.01', 'v');
+      assert.ok(Array.isArray(obj.items), 'leading-zero segments create Arrays');
+      assert.equal(obj.items['01'], 'v');
+      assert.equal(Object.hasOwn(obj.items, '01'), true);
+      // Not an ES ArrayIndexName — index 1 is not set by this write
+      assert.equal(obj.items[1], undefined);
     });
   });
 

@@ -6,8 +6,10 @@
  * Array nodes are created when the next path segment is a non-negative integer
  * string (`/^\d+$/`). Existing intermediates that are `null` or non-object
  * primitives throw a descriptive `TypeError` with `code`
- * {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates (they are
- * objects in JS — e.g. `handler.timeout`).
+ * {@link PATH_TRAVERSE_ERROR_CODE}. Functions are valid intermediates for
+ * ordinary own properties (e.g. `handler.timeout`), but path segments
+ * `__proto__`, `prototype`, and `constructor` are always rejected to prevent
+ * prototype-chain mutations.
  *
  * @module utils/set
  * @since 0.1.0
@@ -24,6 +26,12 @@
 const IS_ARRAY_INDEX = /^\d+$/;
 
 /**
+ * Path segments that must never be traversed or assigned — they can mutate
+ * shared prototypes (`Object.prototype`, function `.prototype`, etc.).
+ */
+const FORBIDDEN_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+/**
  * Stable error code for path-conflict TypeErrors thrown by {@link set}.
  * Callers that absorb user-controlled path conflicts (e.g. `lib/query.js`) should
  * match on `err.code` rather than message text — or use {@link trySet}.
@@ -31,12 +39,28 @@ const IS_ARRAY_INDEX = /^\d+$/;
 export const PATH_TRAVERSE_ERROR_CODE = 'ERGO_SET_PATH_TRAVERSE';
 
 /**
+ * @param {string} segment - Path segment
+ * @param {string} path - Full path (for error message)
+ * @throws {TypeError} When `segment` is a forbidden key
+ */
+function assertSafeSegment(segment, path) {
+  if (FORBIDDEN_SEGMENTS.has(segment)) {
+    const err = new TypeError(
+      `Cannot traverse path '${path}': '${segment}' is a forbidden path segment`
+    );
+    err.code = PATH_TRAVERSE_ERROR_CODE;
+    throw err;
+  }
+}
+
+/**
  * @param {object} obj - Target object
  * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
  * @throws {TypeError} When an existing intermediate at `path` is `null` or a
- *   non-object primitive — not including functions
+ *   non-object primitive — not including functions — or when a path segment is
+ *   `__proto__`, `prototype`, or `constructor`
  *   (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
@@ -44,6 +68,7 @@ export default function set(obj, path = '', val) {
   const last = subPaths.at(-1);
 
   const leaf = subPaths.slice(0, -1).reduce((o, p, i) => {
+    assertSafeSegment(p, path);
     if (Object.hasOwn(o, p)) {
       const existing = o[p];
       // Functions are objects in JS and are valid intermediates (e.g. handler.timeout).
@@ -61,6 +86,7 @@ export default function set(obj, path = '', val) {
     return (o[p] = IS_ARRAY_INDEX.test(subPaths[i + 1]) ? [] : Object.create(null));
   }, obj);
 
+  assertSafeSegment(last, path);
   leaf[last] = val;
   return val;
 }
