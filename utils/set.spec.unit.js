@@ -366,12 +366,14 @@ describe('[Boundary] utils/set', () => {
       const args = (function () {
         return arguments;
       })(1, 2);
+      // `arguments.length` is already an own data property; the guard must still
+      // refuse reassignment that would expand the indexed exotic.
+      assert.equal(Object.hasOwn(args, 'length'), true);
       assert.throws(
         () => set({a: args}, 'a.length', 1e6),
         err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
       );
       assert.equal(args.length, 2);
-      assert.equal(Object.hasOwn(args, 'length'), false);
     });
 
     it('allows ordinary own-property length on plain objects', () => {
