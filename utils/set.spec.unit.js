@@ -492,6 +492,36 @@ describe('[Boundary] utils/set', () => {
       assert.equal(hits, 0);
       assert.equal(weird.k, 1);
     });
+
+    it('rejects own data Proxy constructor without invoking prototype get trap', () => {
+      let trapHits = 0;
+      const proxyCtor = new Proxy(function C() {}, {
+        get(target, prop, receiver) {
+          if (prop === 'prototype') {
+            trapHits += 1;
+            throw new TypeError('prototype trap');
+          }
+          return Reflect.get(target, prop, receiver);
+        }
+      });
+      const weird = Object.create(null);
+      Object.defineProperty(weird, 'constructor', {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: proxyCtor
+      });
+      assert.throws(
+        () => set({a: weird}, 'a.k', 1),
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes('prototype trap') === false
+      );
+      assert.equal(trapHits, 0);
+      assert.equal(trySet({a: weird}, 'a.k', 1), false);
+      assert.equal(trapHits, 0);
+    });
   });
 
   describe('strict array-index detection (#353)', () => {

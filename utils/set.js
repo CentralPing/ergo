@@ -195,10 +195,29 @@ function assignOwnOrDefine(target, key, value) {
 }
 
 /**
+ * Own data `prototype` of a non-Proxy function without invoking `[[Get]]`.
+ * Proxy callables return `undefined` — their `get` traps must not run during
+ * path safety or host-graph enrollment.
+ * @param {Function} fn - Candidate constructor / function
+ * @returns {*|undefined} - Own data `prototype` value, or `undefined`
+ */
+function getOwnFunctionPrototype(fn) {
+  if (types.isProxy(fn)) {
+    return undefined;
+  }
+  try {
+    return Object.getOwnPropertyDescriptor(fn, 'prototype')?.value;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * True when `value` is a constructor's `.prototype` object
- * (`ctor.prototype === value` for an own data `constructor`).
- * Uses the own descriptor's `.value` so accessor `constructor` getters are
- * never invoked during path checks.
+ * (own data `constructor` whose own data `prototype` is `value`), or when the
+ * own data `constructor` is a Proxy (fail-closed — identity cannot be checked
+ * without invoking traps). Uses own descriptors so accessor `constructor`
+ * getters and Proxy `prototype` gets are never invoked during path checks.
  * @param {*} value - Candidate intermediate
  * @returns {boolean}
  */
@@ -213,7 +232,14 @@ function isPrototypeObject(value) {
     return false;
   }
   const ctor = desc?.value;
-  return typeof ctor === 'function' && ctor.prototype === value;
+  if (typeof ctor !== 'function') {
+    return false;
+  }
+  // Fail closed: a Proxy constructor cannot be compared without traps.
+  if (types.isProxy(ctor)) {
+    return true;
+  }
+  return getOwnFunctionPrototype(ctor) === value;
 }
 
 /**
@@ -280,8 +306,11 @@ function enrollHostValue(values, candidate, next) {
   values.add(candidate);
   if (typeof candidate === 'object') {
     enrollPrototypeOwnFunctions(values, candidate);
-  } else if (typeof candidate === 'function' && candidate.prototype != null) {
-    enrollPrototypeOwnFunctions(values, candidate.prototype);
+  } else if (typeof candidate === 'function') {
+    const proto = getOwnFunctionPrototype(candidate);
+    if (proto != null) {
+      enrollPrototypeOwnFunctions(values, proto);
+    }
   }
   next.push(candidate);
 }
