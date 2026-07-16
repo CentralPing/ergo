@@ -179,12 +179,31 @@ describe('[Boundary] utils/set', () => {
       });
 
       it('rejects Proxy(Array.prototype) before Array shortcut (no write-through)', () => {
+        const priorLength = Array.prototype.length;
         withRestoredOwnProperty(Array.prototype, '0', () => {
           const wrapped = new Proxy(Array.prototype, {});
           assert.equal(trySet({a: wrapped}, 'a.0', 'PWN'), false);
           assert.equal(Object.hasOwn(Array.prototype, '0'), false);
           assert.equal(Array.prototype[0], undefined);
+          // Length must not stay bumped if a write-through had occurred.
+          assert.equal(Array.prototype.length, priorLength);
         });
+        assert.equal(Array.prototype.length, priorLength);
+      });
+
+      it('withRestoredOwnProperty restores Array.prototype length after index write-through', () => {
+        const priorLength = Array.prototype.length;
+        withRestoredOwnProperty(Array.prototype, '0', () => {
+          Object.defineProperty(Array.prototype, '0', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: 'PWN'
+          });
+          assert.ok(Array.prototype.length >= 1, 'index write bumps Array length');
+        });
+        assert.equal(Object.hasOwn(Array.prototype, '0'), false);
+        assert.equal(Array.prototype.length, priorLength);
       });
 
       it('rejects Proxy(Object.prototype) before null-proto shortcut (no write-through)', () => {
