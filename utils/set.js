@@ -14,12 +14,16 @@
  * constructor `.prototype` objects, `globalThis` host objects (depth-limited
  * graph from own bindings — `Intl`, `Proxy`, `crypto.subtle`, `process._events`,
  * `Array.prototype.push`, `Intl.NumberFormat.prototype.format`, …), or Proxies
- * are rejected — not via a hand-maintained denylist. Per-instance bound methods
- * created after module load (e.g. `new Intl.NumberFormat().format`) are fresh
- * function objects outside that snapshot and remain valid intermediates — same
- * as ordinary user functions; they are not query-reachable. Assigning `length`
- * on an Array, TypedArray, DataView, Buffer, or `arguments` leaf is forbidden
- * (sparse-array / exotic-length DoS). Plain-object `.length` remains allowed.
+ * are rejected — not via a hand-maintained denylist. The host snapshot is
+ * identity-based and covers only the JavaScript realm in which this module was
+ * initialized; callers must not pass host-owned globals or intrinsics from
+ * another realm (for example, a `node:vm` context) as roots or intermediates.
+ * Per-instance bound methods created after module load (e.g.
+ * `new Intl.NumberFormat().format`) are fresh function objects outside that
+ * snapshot and remain valid intermediates — same as ordinary user functions;
+ * they are not query-reachable. Assigning `length` on an Array, TypedArray,
+ * DataView, Buffer, or `arguments` leaf is forbidden (sparse-array /
+ * exotic-length DoS). Plain-object `.length` remains allowed.
  *
  * @module utils/set
  * @since 0.1.0
@@ -392,8 +396,10 @@ function expandHostSeed(values, seed) {
 }
 
 /**
- * Host objects reachable from `globalThis` at module load (depth-limited graph).
- * Identity match is durable without a hand-maintained denylist (#386–#389).
+ * Host objects reachable from this realm's `globalThis` at module load
+ * (depth-limited graph). Identity matching is durable without a hand-maintained
+ * denylist, but intentionally cannot classify host objects from another realm
+ * without also rejecting legitimate cross-realm user objects (#386–#390, #395).
  */
 const GLOBAL_THIS_HOST_VALUES = (() => {
   const values = new WeakSet([globalThis]);

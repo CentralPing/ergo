@@ -47,7 +47,10 @@ All notable changes to this project will be documented in this file.
   Proxies. Proxy and host checks run before Array/null-proto shortcuts so
   `Proxy(Array.prototype)` and null-proto hosts cannot write through. Ordinary functions
   (including per-instance bound methods created after module load), non-host null-proto
-  objects, Arrays, and user class instances remain valid intermediates.
+  objects, Arrays, and user class instances remain valid intermediates. Host matching is
+  identity-based within the JavaScript realm where the module initializes; callers must not
+  pass host-owned globals or intrinsics from another realm (for example, a `node:vm` context)
+  as roots or intermediates (#395).
   Assigning `length` on an Array, TypedArray, DataView, Buffer, or `arguments` leaf is
   forbidden (#393); digit indices above `MAX_ARRAY_INDEX`
   (1024) are rejected by numeric value **only when indexing an Array** (leading zeros
