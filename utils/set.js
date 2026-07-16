@@ -60,10 +60,14 @@ const FORBIDDEN_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
 
 /**
  * Stable error code for path-conflict TypeErrors thrown by {@link set}.
- * Callers that absorb user-controlled path conflicts (e.g. `lib/query.js`) should
- * match on `err.code` rather than message text — or use {@link trySet}.
+ * Callers that absorb user-controlled path conflicts by catching `set` throws
+ * may match on `err.code`. Prefer {@link trySet}, which suppresses only
+ * library-minted conflict errors (identity-branded), not caller-spoofed codes.
  */
 export const PATH_TRAVERSE_ERROR_CODE = 'ERGO_SET_PATH_TRAVERSE';
+
+/** Library-minted path-conflict errors — identity match for {@link trySet}. */
+const PATH_TRAVERSE_ERRORS = new WeakSet();
 
 /**
  * @param {string} message - Error message body
@@ -72,6 +76,7 @@ export const PATH_TRAVERSE_ERROR_CODE = 'ERGO_SET_PATH_TRAVERSE';
 function pathTraverseError(message) {
   const err = new TypeError(message);
   err.code = PATH_TRAVERSE_ERROR_CODE;
+  PATH_TRAVERSE_ERRORS.add(err);
   return err;
 }
 
@@ -308,6 +313,12 @@ function tryGetHostProperty(seed, key) {
   }
 }
 
+/**
+ * Expand one host seed into newly discovered host values for the next depth round.
+ * @param {WeakSet<object>} values - Host graph accumulator (already-seen identities)
+ * @param {object|Function} seed - Host value whose own / prototype keys to enroll
+ * @returns {object[]} - Newly discovered host values for the next frontier
+ */
 function expandHostSeed(values, seed) {
   const next = [];
   try {
@@ -465,8 +476,9 @@ export default function set(obj, path = '', val) {
 }
 
 /**
- * Like {@link set}, but returns `false` for path-conflict TypeErrors instead of throwing.
- * Unexpected errors still propagate.
+ * Like {@link set}, but returns `false` for library-minted path-conflict TypeErrors
+ * instead of throwing. Unexpected errors (including caller getters/setters that throw
+ * a `TypeError` with a spoofed {@link PATH_TRAVERSE_ERROR_CODE}) still propagate.
  *
  * @param {object} obj - Target object
  * @param {string} path - Dot-delimited property path
@@ -478,7 +490,7 @@ export function trySet(obj, path, val) {
     set(obj, path, val);
     return true;
   } catch (err) {
-    if (err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE) {
+    if (PATH_TRAVERSE_ERRORS.has(err)) {
       return false;
     }
     throw err;

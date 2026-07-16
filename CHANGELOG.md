@@ -14,7 +14,8 @@ All notable changes to this project will be documented in this file.
 - **`utils/set` throws a descriptive path-conflict `TypeError`.** (#354) Reusing a primitive
   or `null` intermediate now throws with message context and stable
   `code: 'ERGO_SET_PATH_TRAVERSE'` instead of an opaque engine assignment error.
-  New `trySet()` returns `false` for that conflict (rethrows unexpected errors);
+  New `trySet()` returns `false` for library-minted path conflicts only (identity-branded
+  errors; rethrows unexpected errors including code-spoofed TypeErrors);
   `lib/query.js` uses it for first-wins skip so inputs like `a=42&a[b]=99` no longer 500
   through `url()` middleware. First-wins is bidirectional over path containers
   (#379, #380, #381, #382): nested-then-scalar preserves earlier nests; Array↔object

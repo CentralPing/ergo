@@ -5,6 +5,28 @@ import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
 import set, {MAX_ARRAY_INDEX, PATH_TRAVERSE_ERROR_CODE, trySet} from './set.js';
 
+/**
+ * Run `fn` then restore `target[key]` to its pre-call own-property state so a
+ * failed mutation probe cannot leak pollution onto shared builtins.
+ * @param {object} target - Object that may receive a probe write
+ * @param {PropertyKey} key - Property key under probe
+ * @param {() => *} fn - Probe body
+ * @returns {*} - Return value of `fn`
+ */
+function withRestoredOwnProperty(target, key, fn) {
+  const hadOwn = Object.hasOwn(target, key);
+  const prior = hadOwn ? Object.getOwnPropertyDescriptor(target, key) : undefined;
+  try {
+    return fn();
+  } finally {
+    if (hadOwn) {
+      Object.defineProperty(target, key, prior);
+    } else {
+      Reflect.deleteProperty(target, key);
+    }
+  }
+}
+
 describe('[Boundary] utils/set', () => {
   it('sets a top-level property', () => {
     const obj = {};
@@ -77,12 +99,14 @@ describe('[Boundary] utils/set', () => {
     }
 
     it('blocks writing through function.prototype onto builtins', () => {
-      const obj = {c: Object};
-      assert.throws(
-        () => set(obj, 'c.prototype.gotcha', true),
-        err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
-      );
-      assert.equal(Object.prototype.gotcha, undefined);
+      withRestoredOwnProperty(Object.prototype, 'gotcha', () => {
+        const obj = {c: Object};
+        assert.throws(
+          () => set(obj, 'c.prototype.gotcha', true),
+          err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
+        );
+        assert.equal(Object.prototype.gotcha, undefined);
+      });
     });
 
     describe('unsafe intermediates (#386, #387)', () => {
@@ -102,70 +126,86 @@ describe('[Boundary] utils/set', () => {
 
       for (const [label, intermediate, leaf] of cases) {
         it(`throws for ${label} intermediate`, () => {
-          const obj = {a: intermediate};
+          withRestoredOwnProperty(intermediate, leaf, () => {
+            const obj = {a: intermediate};
+            assert.throws(
+              () => set(obj, `a.${leaf}`, true),
+              err =>
+                err instanceof TypeError &&
+                err.code === PATH_TRAVERSE_ERROR_CODE &&
+                err.message.includes('shared builtin')
+            );
+            assert.equal(Object.hasOwn(intermediate, leaf), false);
+          });
+        });
+
+        it(`trySet returns false for ${label} intermediate`, () => {
+          withRestoredOwnProperty(intermediate, leaf, () => {
+            const obj = {a: intermediate};
+            assert.equal(trySet(obj, `a.${leaf}`, true), false);
+            assert.equal(Object.hasOwn(intermediate, leaf), false);
+          });
+        });
+      }
+
+      it('throws for Proxy wrapping globalThis (write-through)', () => {
+        withRestoredOwnProperty(globalThis, 'pwn', () => {
+          const wrapped = new Proxy(globalThis, {});
+          const obj = {a: wrapped};
           assert.throws(
-            () => set(obj, `a.${leaf}`, true),
+            () => set(obj, 'a.pwn', true),
             err =>
               err instanceof TypeError &&
               err.code === PATH_TRAVERSE_ERROR_CODE &&
               err.message.includes('shared builtin')
           );
-          assert.equal(Object.hasOwn(intermediate, leaf), false);
+          assert.equal(Object.hasOwn(globalThis, 'pwn'), false);
         });
-
-        it(`trySet returns false for ${label} intermediate`, () => {
-          const obj = {a: intermediate};
-          assert.equal(trySet(obj, `a.${leaf}`, true), false);
-          assert.equal(Object.hasOwn(intermediate, leaf), false);
-        });
-      }
-
-      it('throws for Proxy wrapping globalThis (write-through)', () => {
-        const wrapped = new Proxy(globalThis, {});
-        const obj = {a: wrapped};
-        assert.throws(
-          () => set(obj, 'a.pwn', true),
-          err =>
-            err instanceof TypeError &&
-            err.code === PATH_TRAVERSE_ERROR_CODE &&
-            err.message.includes('shared builtin')
-        );
-        assert.equal(Object.hasOwn(globalThis, 'pwn'), false);
       });
 
       it('trySet returns false for Proxy wrapping globalThis', () => {
-        const wrapped = new Proxy(globalThis, {});
-        assert.equal(trySet({a: wrapped}, 'a.pwn', true), false);
-        assert.equal(Object.hasOwn(globalThis, 'pwn'), false);
+        withRestoredOwnProperty(globalThis, 'pwn', () => {
+          const wrapped = new Proxy(globalThis, {});
+          assert.equal(trySet({a: wrapped}, 'a.pwn', true), false);
+          assert.equal(Object.hasOwn(globalThis, 'pwn'), false);
+        });
       });
 
       it('rejects Proxy(Array.prototype) before Array shortcut (no write-through)', () => {
-        const wrapped = new Proxy(Array.prototype, {});
-        assert.equal(trySet({a: wrapped}, 'a.0', 'PWN'), false);
-        assert.equal(Object.hasOwn(Array.prototype, '0'), false);
-        assert.equal(Array.prototype[0], undefined);
+        withRestoredOwnProperty(Array.prototype, '0', () => {
+          const wrapped = new Proxy(Array.prototype, {});
+          assert.equal(trySet({a: wrapped}, 'a.0', 'PWN'), false);
+          assert.equal(Object.hasOwn(Array.prototype, '0'), false);
+          assert.equal(Array.prototype[0], undefined);
+        });
       });
 
       it('rejects Proxy(Object.prototype) before null-proto shortcut (no write-through)', () => {
-        const wrapped = new Proxy(Object.prototype, {});
-        assert.equal(trySet({a: wrapped}, 'a.pollute', 'x'), false);
-        assert.equal(Object.hasOwn(Object.prototype, 'pollute'), false);
+        withRestoredOwnProperty(Object.prototype, 'pollute', () => {
+          const wrapped = new Proxy(Object.prototype, {});
+          assert.equal(trySet({a: wrapped}, 'a.pollute', 'x'), false);
+          assert.equal(Object.hasOwn(Object.prototype, 'pollute'), false);
+        });
       });
 
       it('throws when root is a shared builtin', () => {
-        assert.throws(
-          () => set(Math, 'q', 1),
-          err =>
-            err instanceof TypeError &&
-            err.code === PATH_TRAVERSE_ERROR_CODE &&
-            err.message.includes('root is a shared builtin')
-        );
-        assert.equal(Object.hasOwn(Math, 'q'), false);
+        withRestoredOwnProperty(Math, 'q', () => {
+          assert.throws(
+            () => set(Math, 'q', 1),
+            err =>
+              err instanceof TypeError &&
+              err.code === PATH_TRAVERSE_ERROR_CODE &&
+              err.message.includes('root is a shared builtin')
+          );
+          assert.equal(Object.hasOwn(Math, 'q'), false);
+        });
       });
 
       it('trySet returns false when root is a shared builtin', () => {
-        assert.equal(trySet(Math, 'q', 1), false);
-        assert.equal(Object.hasOwn(Math, 'q'), false);
+        withRestoredOwnProperty(Math, 'q', () => {
+          assert.equal(trySet(Math, 'q', 1), false);
+          assert.equal(Object.hasOwn(Math, 'q'), false);
+        });
       });
 
       it('rejects nested host objects reachable from globalThis (#388)', () => {
@@ -174,12 +214,16 @@ describe('[Boundary] utils/set', () => {
           'expected process.stdout or crypto.subtle for nested-host oracle'
         );
         if (globalThis.crypto?.subtle) {
-          assert.equal(trySet({a: crypto.subtle}, 'a.x', 1), false);
-          assert.equal(Object.hasOwn(crypto.subtle, 'x'), false);
+          withRestoredOwnProperty(crypto.subtle, 'x', () => {
+            assert.equal(trySet({a: crypto.subtle}, 'a.x', 1), false);
+            assert.equal(Object.hasOwn(crypto.subtle, 'x'), false);
+          });
         }
         if (globalThis.process?.stdout) {
-          assert.equal(trySet({a: process.stdout}, 'a.x', 1), false);
-          assert.equal(Object.hasOwn(process.stdout, 'x'), false);
+          withRestoredOwnProperty(process.stdout, 'x', () => {
+            assert.equal(trySet({a: process.stdout}, 'a.x', 1), false);
+            assert.equal(Object.hasOwn(process.stdout, 'x'), false);
+          });
         }
       });
 
@@ -187,35 +231,47 @@ describe('[Boundary] utils/set', () => {
       itIfProcessEvents(
         'rejects null-proto host objects before null-proto shortcut (process._events)',
         () => {
-          assert.equal(Object.getPrototypeOf(process._events), null);
-          assert.equal(trySet({e: process._events}, 'e.__p', 1), false);
-          assert.equal(Object.hasOwn(process._events, '__p'), false);
+          withRestoredOwnProperty(process._events, '__p', () => {
+            assert.equal(Object.getPrototypeOf(process._events), null);
+            assert.equal(trySet({e: process._events}, 'e.__p', 1), false);
+            assert.equal(Object.hasOwn(process._events, '__p'), false);
+          });
         }
       );
 
       it('rejects namespaced prototype accessor methods (#390)', () => {
         const formatDesc = Object.getOwnPropertyDescriptor(Intl.NumberFormat.prototype, 'format');
         assert.ok(formatDesc?.get, 'expected Intl.NumberFormat.prototype.format getter');
-        assert.equal(trySet({a: formatDesc.get}, 'a.x', 1), false);
-        assert.equal(Object.hasOwn(formatDesc.get, 'x'), false);
+        withRestoredOwnProperty(formatDesc.get, 'x', () => {
+          assert.equal(trySet({a: formatDesc.get}, 'a.x', 1), false);
+          assert.equal(Object.hasOwn(formatDesc.get, 'x'), false);
+        });
       });
 
       it('allows per-instance bound intrinsic methods (caller contract; #390 residual)', () => {
         // Bound methods are fresh function objects created after module load —
         // not identity-equal to snapshotted `.prototype` descriptor functions.
         const boundFormat = new Intl.NumberFormat().format;
-        assert.equal(trySet({a: boundFormat}, 'a.x', 1), true);
-        assert.equal(boundFormat.x, 1);
+        withRestoredOwnProperty(boundFormat, 'x', () => {
+          assert.equal(trySet({a: boundFormat}, 'a.x', 1), true);
+          assert.equal(boundFormat.x, 1);
+        });
       });
 
       it('rejects shared intrinsic methods from host graph (#389)', () => {
-        assert.equal(trySet({a: Array.prototype.push}, 'a.x', 1), false);
-        assert.equal(Object.hasOwn(Array.prototype.push, 'x'), false);
-        assert.equal(trySet({a: Object.prototype.toString}, 'a.x', 1), false);
-        assert.equal(Object.hasOwn(Object.prototype.toString, 'x'), false);
+        withRestoredOwnProperty(Array.prototype.push, 'x', () => {
+          assert.equal(trySet({a: Array.prototype.push}, 'a.x', 1), false);
+          assert.equal(Object.hasOwn(Array.prototype.push, 'x'), false);
+        });
+        withRestoredOwnProperty(Object.prototype.toString, 'x', () => {
+          assert.equal(trySet({a: Object.prototype.toString}, 'a.x', 1), false);
+          assert.equal(Object.hasOwn(Object.prototype.toString, 'x'), false);
+        });
         if (globalThis.crypto?.subtle?.encrypt) {
-          assert.equal(trySet({a: crypto.subtle.encrypt}, 'a.x', 1), false);
-          assert.equal(Object.hasOwn(crypto.subtle.encrypt, 'x'), false);
+          withRestoredOwnProperty(crypto.subtle.encrypt, 'x', () => {
+            assert.equal(trySet({a: crypto.subtle.encrypt}, 'a.x', 1), false);
+            assert.equal(Object.hasOwn(crypto.subtle.encrypt, 'x'), false);
+          });
         }
       });
 
@@ -504,6 +560,26 @@ describe('[Boundary] utils/set', () => {
     it('rethrows unexpected TypeErrors (not path-conflict)', () => {
       const obj = Object.preventExtensions(Object.create(null));
       assert.throws(() => trySet(obj, 'a.b', 1), TypeError);
+    });
+
+    it('rethrows TypeErrors that spoof PATH_TRAVERSE_ERROR_CODE (identity brand)', () => {
+      const obj = Object.create(null);
+      Object.defineProperty(obj, 'a', {
+        enumerable: true,
+        configurable: true,
+        get() {
+          const err = new TypeError('spoofed path conflict');
+          err.code = PATH_TRAVERSE_ERROR_CODE;
+          throw err;
+        }
+      });
+      assert.throws(
+        () => trySet(obj, 'a.b', 1),
+        err =>
+          err instanceof TypeError &&
+          err.message === 'spoofed path conflict' &&
+          err.code === PATH_TRAVERSE_ERROR_CODE
+      );
     });
   });
 });
