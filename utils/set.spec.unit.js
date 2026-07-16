@@ -8,6 +8,9 @@ import set, {MAX_ARRAY_INDEX, PATH_TRAVERSE_ERROR_CODE, trySet} from './set.js';
 /**
  * Run `fn` then restore `target[key]` to its pre-call own-property state so a
  * failed mutation probe cannot leak pollution onto shared builtins.
+ * For Arrays (including `Array.prototype`), also restore `length` — deleting an
+ * index does not shrink length, so a write-through would otherwise leave a
+ * bumped length that bleeds into later tests.
  * @param {object} target - Object that may receive a probe write
  * @param {PropertyKey} key - Property key under probe
  * @param {() => *} fn - Probe body
@@ -16,6 +19,7 @@ import set, {MAX_ARRAY_INDEX, PATH_TRAVERSE_ERROR_CODE, trySet} from './set.js';
 function withRestoredOwnProperty(target, key, fn) {
   const hadOwn = Object.hasOwn(target, key);
   const prior = hadOwn ? Object.getOwnPropertyDescriptor(target, key) : undefined;
+  const priorLength = Array.isArray(target) ? target.length : undefined;
   try {
     return fn();
   } finally {
@@ -23,6 +27,9 @@ function withRestoredOwnProperty(target, key, fn) {
       Object.defineProperty(target, key, prior);
     } else {
       Reflect.deleteProperty(target, key);
+    }
+    if (priorLength !== undefined && target.length !== priorLength) {
+      target.length = priorLength;
     }
   }
 }
