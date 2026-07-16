@@ -234,6 +234,36 @@ describe('[Boundary] utils/set', () => {
         });
       });
 
+      it('throws branded error when root is null or a primitive', () => {
+        for (const [root, kind] of [
+          [null, 'null'],
+          [undefined, 'undefined'],
+          [1, 'number'],
+          ['x', 'string'],
+          [true, 'boolean']
+        ]) {
+          assert.throws(
+            () => set(root, 'a', 1),
+            err =>
+              err instanceof TypeError &&
+              err.code === PATH_TRAVERSE_ERROR_CODE &&
+              err.message.includes(`root is ${kind}, not an object`)
+          );
+          assert.equal(trySet(root, 'a', 1), false);
+        }
+      });
+
+      it('throws branded error when path is not a string', () => {
+        assert.throws(
+          () => set({}, 1, 1),
+          err =>
+            err instanceof TypeError &&
+            err.code === PATH_TRAVERSE_ERROR_CODE &&
+            err.message.includes('path must be a string')
+        );
+        assert.equal(trySet({}, 1, 1), false);
+      });
+
       it('rejects nested host objects reachable from globalThis (#388)', () => {
         assert.ok(
           globalThis.process?.stdout || globalThis.crypto?.subtle,
@@ -362,7 +392,9 @@ describe('[Boundary] utils/set', () => {
           err.code === PATH_TRAVERSE_ERROR_CODE &&
           err.message.includes("assigning 'length'")
       );
-      assert.equal(view.byteLength, 8);
+      // DataView has no exotic `length`; a wrongful own write leaves byteLength
+      // unchanged — assert length absence, not byteLength.
+      assert.equal(view.length, undefined);
       assert.equal(Object.hasOwn(view, 'length'), false);
     });
 

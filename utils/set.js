@@ -464,17 +464,27 @@ function isUnsafeIntermediate(value) {
  * @param {string} path - Dot-delimited property path
  * @param {*} val - Value to assign
  * @returns {*} - The assigned value
- * @throws {TypeError} When the root or an existing intermediate is unsafe, is
- *   `null` / a non-object primitive (not including ordinary functions), when a
- *   path segment is `__proto__` / `prototype` / `constructor`, when a digit
- *   index on an Array exceeds {@link MAX_ARRAY_INDEX}, or when assigning
- *   `length` on an Array / TypedArray / DataView / Buffer / `arguments`
+ * @throws {TypeError} When `path` is not a string, when the root is `null` / a
+ *   non-object primitive (not including ordinary functions), when the root or an
+ *   existing intermediate is unsafe, when a path segment is `__proto__` /
+ *   `prototype` / `constructor`, when a digit index on an Array exceeds
+ *   {@link MAX_ARRAY_INDEX}, or when assigning `length` on an Array /
+ *   TypedArray / DataView / Buffer / `arguments`
  *   (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
+  if (typeof path !== 'string') {
+    throw pathTraverseError('Cannot traverse path: path must be a string');
+  }
   const subPaths = path.split('.');
   for (const segment of subPaths) {
     assertSafeSegment(segment, path);
+  }
+  // Brand null / primitive roots before planPath (engine TypeErrors are unbranded;
+  // trySet must return false for these call-boundary conflicts).
+  if (obj === null || (typeof obj !== 'object' && typeof obj !== 'function')) {
+    const kind = obj === null ? 'null' : typeof obj;
+    throw pathTraverseError(`Cannot traverse path '${path}': root is ${kind}, not an object`);
   }
   if (isUnsafeIntermediate(obj)) {
     throw pathTraverseError(
