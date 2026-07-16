@@ -520,7 +520,8 @@ function forbidsLengthAssignment(leaf) {
   if (ArrayBuffer.isView(leaf)) {
     return true;
   }
-  return Object.prototype.toString.call(leaf) === '[object Arguments]';
+  // Brand check — do not use toString (@@toStringTag is spoofable).
+  return types.isArgumentsObject(leaf);
 }
 
 /**

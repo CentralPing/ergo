@@ -357,9 +357,13 @@ describe('[Boundary] utils/set', () => {
       const view = new DataView(new ArrayBuffer(8));
       assert.throws(
         () => set({a: view}, 'a.length', 1e6),
-        err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes("assigning 'length'")
       );
       assert.equal(view.byteLength, 8);
+      assert.equal(Object.hasOwn(view, 'length'), false);
     });
 
     it('rejects assigning arguments length', () => {
@@ -371,7 +375,26 @@ describe('[Boundary] utils/set', () => {
       assert.equal(Object.hasOwn(args, 'length'), true);
       assert.throws(
         () => set({a: args}, 'a.length', 1e6),
-        err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes("assigning 'length'")
+      );
+      assert.equal(args.length, 2);
+    });
+
+    it('rejects arguments length even when @@toStringTag is spoofed', () => {
+      const args = (function () {
+        return arguments;
+      })(1, 2);
+      Object.defineProperty(args, Symbol.toStringTag, {value: 'Object'});
+      assert.equal(Object.prototype.toString.call(args), '[object Object]');
+      assert.throws(
+        () => set({a: args}, 'a.length', 1e6),
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes("assigning 'length'")
       );
       assert.equal(args.length, 2);
     });
