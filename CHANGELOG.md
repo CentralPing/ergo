@@ -48,7 +48,8 @@ All notable changes to this project will be documented in this file.
   `Proxy(Array.prototype)` and null-proto hosts cannot write through. Ordinary functions
   (including per-instance bound methods created after module load), non-host null-proto
   objects, Arrays, and user class instances remain valid intermediates.
-  Assigning `length` on an Array leaf is forbidden; digit indices above `MAX_ARRAY_INDEX`
+  Assigning `length` on an Array, TypedArray, DataView, Buffer, or `arguments` leaf is
+  forbidden (#393); digit indices above `MAX_ARRAY_INDEX`
   (1024) are rejected by numeric value **only when indexing an Array** (leading zeros
   allowed when in range; plain-object / top-level digit keys unconstrained; sparse DoS
   bound; full numeric-bracket design remains #280). Missing intermediates are defined as
@@ -56,6 +57,10 @@ All notable changes to this project will be documented in this file.
   keep ordinary assignment semantics. Path planning snapshots accessor results once so
   stateful getters cannot flip container type between Array-index bounds checks and writes.
   Plain-object `.length` remains allowed.
+
+- **`lib/query.js` options use own properties only.** (#392) Parser options are copied into a
+  null-prototype via `Object.assign` so polluted `Object.prototype.maxPairs` /
+  `maxLength` / `split` cannot disable DoS caps or alter comma-split defaults.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
   assignment body is split into explicit statements while still returning the assigned value

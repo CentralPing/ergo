@@ -328,7 +328,7 @@ describe('[Boundary] utils/set', () => {
         err =>
           err instanceof TypeError &&
           err.code === PATH_TRAVERSE_ERROR_CODE &&
-          err.message.includes("Array 'length'")
+          err.message.includes("assigning 'length'")
       );
       assert.equal(obj.a.length, 0);
     });
@@ -337,6 +337,41 @@ describe('[Boundary] utils/set', () => {
       const obj = {a: []};
       assert.equal(trySet(obj, 'a.length', 5), false);
       assert.equal(obj.a.length, 0);
+    });
+
+    it('rejects assigning TypedArray length (exotic-length shadowing)', () => {
+      const u8 = new Uint8Array(4);
+      const obj = {a: u8};
+      assert.throws(
+        () => set(obj, 'a.length', 1e6),
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes("assigning 'length'")
+      );
+      assert.equal(u8.length, 4);
+      assert.equal(Object.hasOwn(u8, 'length'), false);
+    });
+
+    it('rejects assigning DataView length', () => {
+      const view = new DataView(new ArrayBuffer(8));
+      assert.throws(
+        () => set({a: view}, 'a.length', 1e6),
+        err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
+      );
+      assert.equal(view.byteLength, 8);
+    });
+
+    it('rejects assigning arguments length', () => {
+      const args = (function () {
+        return arguments;
+      })(1, 2);
+      assert.throws(
+        () => set({a: args}, 'a.length', 1e6),
+        err => err instanceof TypeError && err.code === PATH_TRAVERSE_ERROR_CODE
+      );
+      assert.equal(args.length, 2);
+      assert.equal(Object.hasOwn(args, 'length'), false);
     });
 
     it('allows ordinary own-property length on plain objects', () => {
@@ -519,8 +554,10 @@ describe('[Boundary] utils/set', () => {
           err.message.includes('prototype trap') === false
       );
       assert.equal(trapHits, 0);
+      assert.equal(Object.hasOwn(weird, 'k'), false);
       assert.equal(trySet({a: weird}, 'a.k', 1), false);
       assert.equal(trapHits, 0);
+      assert.equal(Object.hasOwn(weird, 'k'), false);
     });
   });
 

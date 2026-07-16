@@ -18,7 +18,8 @@
  * created after module load (e.g. `new Intl.NumberFormat().format`) are fresh
  * function objects outside that snapshot and remain valid intermediates — same
  * as ordinary user functions; they are not query-reachable. Assigning `length`
- * on an Array leaf is forbidden (sparse-array DoS).
+ * on an Array, TypedArray, DataView, Buffer, or `arguments` leaf is forbidden
+ * (sparse-array / exotic-length DoS). Plain-object `.length` remains allowed.
  *
  * @module utils/set
  * @since 0.1.0
@@ -467,7 +468,8 @@ function isUnsafeIntermediate(value) {
  *   `null` / a non-object primitive (not including ordinary functions), when a
  *   path segment is `__proto__` / `prototype` / `constructor`, when a digit
  *   index on an Array exceeds {@link MAX_ARRAY_INDEX}, or when assigning
- *   `length` on an Array (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
+ *   `length` on an Array / TypedArray / DataView / Buffer / `arguments`
+ *   (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
@@ -492,16 +494,33 @@ export default function set(obj, path = '', val) {
     leaf = created;
   }
 
-  // Array `length` assignment creates large sparse arrays (DoS); block on Array leaves only.
-  // Plain-object `.length` remains a normal own property.
-  if (Array.isArray(leaf) && leafKey === 'length') {
+  // Exotic `length` assignment: Array sparse DoS; TypedArray/DataView/Buffer/
+  // arguments length shadowing. Plain-object `.length` remains a normal own property.
+  if (leafKey === 'length' && forbidsLengthAssignment(leaf)) {
     throw pathTraverseError(
-      `Cannot traverse path '${path}': assigning Array 'length' is forbidden`
+      `Cannot traverse path '${path}': assigning 'length' on this object is forbidden`
     );
   }
 
   assignOwnOrDefine(leaf, leafKey, val);
   return val;
+}
+
+/**
+ * True when assigning `length` would mutate an exotic length (Array, TypedArray,
+ * DataView, Buffer, or `arguments`). Plain objects are not covered.
+ * @param {*} leaf - Path leaf container
+ * @returns {boolean}
+ */
+function forbidsLengthAssignment(leaf) {
+  if (Array.isArray(leaf)) {
+    return true;
+  }
+  // TypedArray, DataView, and Node Buffer (Uint8Array subclass).
+  if (ArrayBuffer.isView(leaf)) {
+    return true;
+  }
+  return Object.prototype.toString.call(leaf) === '[object Arguments]';
 }
 
 /**
