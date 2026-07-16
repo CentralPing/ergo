@@ -21,9 +21,10 @@
  * Per-instance bound methods created after module load (e.g.
  * `new Intl.NumberFormat().format`) are fresh function objects outside that
  * snapshot and remain valid intermediates — same as ordinary user functions;
- * they are not query-reachable. Assigning `length` on an Array, TypedArray,
- * DataView, Buffer, or `arguments` leaf is forbidden (sparse-array /
- * exotic-length DoS). Plain-object `.length` remains allowed.
+ * they are not query-reachable. Assigning or creating `length` on an Array,
+ * TypedArray, DataView, Buffer, or `arguments` (leaf or intermediate) is
+ * forbidden (sparse-array / exotic-length DoS and length shadowing).
+ * Plain-object `.length` remains allowed.
  *
  * @module utils/set
  * @since 0.1.0
@@ -158,6 +159,13 @@ function planPath(obj, subPaths, path) {
       steps.push({kind: 'reuse', key: segment, child});
       cur = child;
       continue;
+    }
+    // TypedArray/Buffer/DataView expose non-own `length`; creating an own
+    // `length` object would shadow the exotic and bypass the leaf guard.
+    if (segment === 'length' && forbidsLengthAssignment(cur)) {
+      throw pathTraverseError(
+        `Cannot traverse path '${path}': assigning 'length' on this object is forbidden`
+      );
     }
     const createArray = isArrayIndexSegment(subPaths[i + 1]);
     steps.push({kind: 'create', key: segment, createArray});
@@ -474,8 +482,8 @@ function isUnsafeIntermediate(value) {
  *   non-object primitive (not including ordinary functions), when the root or an
  *   existing intermediate is unsafe, when a path segment is `__proto__` /
  *   `prototype` / `constructor`, when a digit index on an Array exceeds
- *   {@link MAX_ARRAY_INDEX}, or when assigning `length` on an Array /
- *   TypedArray / DataView / Buffer / `arguments`
+ *   {@link MAX_ARRAY_INDEX}, or when assigning or creating `length` on an
+ *   Array / TypedArray / DataView / Buffer / `arguments`
  *   (`err.code === 'ERGO_SET_PATH_TRAVERSE'`)
  */
 export default function set(obj, path = '', val) {
@@ -510,8 +518,8 @@ export default function set(obj, path = '', val) {
     leaf = created;
   }
 
-  // Exotic `length` assignment: Array sparse DoS; TypedArray/DataView/Buffer/
-  // arguments length shadowing. Plain-object `.length` remains a normal own property.
+  // Exotic `length` leaf assignment (intermediate create is rejected in planPath).
+  // Plain-object `.length` remains a normal own property.
   if (leafKey === 'length' && forbidsLengthAssignment(leaf)) {
     throw pathTraverseError(
       `Cannot traverse path '${path}': assigning 'length' on this object is forbidden`

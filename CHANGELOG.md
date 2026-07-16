@@ -51,8 +51,10 @@ All notable changes to this project will be documented in this file.
   identity-based within the JavaScript realm where the module initializes; callers must not
   pass host-owned globals or intrinsics from another realm (for example, a `node:vm` context)
   as roots or intermediates (#395).
-  Assigning `length` on an Array, TypedArray, DataView, Buffer, or `arguments` leaf is
-  forbidden (#393); digit indices above `MAX_ARRAY_INDEX`
+  Assigning or creating `length` on an Array, TypedArray, DataView, Buffer, or
+  `arguments` (leaf or intermediate — TypedArray/Buffer/DataView expose non-own
+  `length`, so intermediate create must reject before shadowing) is forbidden (#393);
+  digit indices above `MAX_ARRAY_INDEX`
   (1024) are rejected by numeric value **only when indexing an Array** (leading zeros
   allowed when in range; plain-object / top-level digit keys unconstrained; sparse DoS
   bound; full numeric-bracket design remains #280). Missing intermediates are defined as

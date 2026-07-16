@@ -78,9 +78,16 @@ describe('[Boundary] utils/set', () => {
   });
 
   it('creates null-prototype intermediate objects', () => {
-    const obj = Object.create(null);
-    set(obj, 'a.b', 42);
-    assert.equal(Object.getPrototypeOf(obj.a), null);
+    const nullRoot = Object.create(null);
+    set(nullRoot, 'a.b', 42);
+    assert.equal(Object.getPrototypeOf(nullRoot.a), null);
+
+    // Ordinary `{}` root is the common public path — intermediates must still
+    // be null-proto (not Object.create(Object.getPrototypeOf(root))).
+    const ordinary = {};
+    set(ordinary, 'a.b', 42);
+    assert.equal(Object.getPrototypeOf(ordinary.a), null);
+    assert.equal(ordinary.a.b, 42);
   });
 
   describe('forbidden path segments (#383)', () => {
@@ -383,6 +390,21 @@ describe('[Boundary] utils/set', () => {
       assert.equal(Object.hasOwn(u8, 'length'), false);
     });
 
+    it('rejects creating TypedArray length as an intermediate (non-own length)', () => {
+      const u8 = new Uint8Array(4);
+      const obj = {a: u8};
+      assert.equal(trySet(obj, 'a.length.x', 1), false);
+      assert.throws(
+        () => set(obj, 'a.length.x', 1),
+        err =>
+          err instanceof TypeError &&
+          err.code === PATH_TRAVERSE_ERROR_CODE &&
+          err.message.includes("assigning 'length'")
+      );
+      assert.equal(u8.length, 4);
+      assert.equal(Object.hasOwn(u8, 'length'), false);
+    });
+
     it('rejects assigning DataView length', () => {
       const view = new DataView(new ArrayBuffer(8));
       assert.throws(
@@ -396,6 +418,19 @@ describe('[Boundary] utils/set', () => {
       // unchanged — assert length absence, not byteLength.
       assert.equal(view.length, undefined);
       assert.equal(Object.hasOwn(view, 'length'), false);
+    });
+
+    it('rejects creating DataView length as an intermediate', () => {
+      const view = new DataView(new ArrayBuffer(8));
+      assert.equal(trySet({a: view}, 'a.length.x', 1), false);
+      assert.equal(Object.hasOwn(view, 'length'), false);
+    });
+
+    it('rejects creating Buffer length as an intermediate', () => {
+      const buf = Buffer.alloc(4);
+      assert.equal(trySet({a: buf}, 'a.length.x', 1), false);
+      assert.equal(buf.length, 4);
+      assert.equal(Object.hasOwn(buf, 'length'), false);
     });
 
     it('rejects assigning arguments length', () => {
