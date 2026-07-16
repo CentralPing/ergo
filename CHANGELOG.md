@@ -51,7 +51,9 @@ All notable changes to this project will be documented in this file.
   (1024) are rejected by numeric value **only when indexing an Array** (leading zeros
   allowed when in range; plain-object / top-level digit keys unconstrained; sparse DoS
   bound; full numeric-bracket design remains #280). Missing intermediates are defined as
-  own data properties so inherited setters cannot hijack traversal.
+  own data properties so inherited setters cannot hijack traversal; existing own leaves
+  keep ordinary assignment semantics. Path planning snapshots accessor results once so
+  stateful getters cannot flip container type between Array-index bounds checks and writes.
   Plain-object `.length` remains allowed.
 
 - **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized

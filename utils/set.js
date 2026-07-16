@@ -105,36 +105,57 @@ function assertBoundedArrayIndex(segment, path) {
 }
 
 /**
- * Reject oversized digit segments **only** where they index an Array (existing or
- * created by this path). Plain-object / top-level digit keys are unconstrained —
- * the sparse-array DoS bound does not apply to object property names.
- * Simulated without mutation so validation stays atomic with forbidden-segment checks.
- * @param {object} obj - Path root
+ * @typedef {{kind: 'reuse', key: string, child: object|Function} | {kind: 'create', key: string, createArray: boolean}} PathStep
+ */
+
+/**
+ * Plan path traversal once: snapshot existing children so Array-index bounds and
+ * mutation share the same accessor results (stateful getters cannot flip a
+ * plain object to an Array between preflight and write).
+ * Oversized digit segments reject **only** when indexing an Array.
+ * @param {object} obj - Path root (already checked unsafe)
  * @param {string[]} subPaths - Split path segments
  * @param {string} path - Full path (for error message)
- * @throws {TypeError} When an Array-index segment exceeds {@link MAX_ARRAY_INDEX}
+ * @returns {{steps: PathStep[], leafKey: string}}
+ * @throws {TypeError} On path conflict / oversized Array index
  */
-function assertArrayIndexBoundsForPath(obj, subPaths, path) {
+function planPath(obj, subPaths, path) {
+  /** @type {PathStep[]} */
+  const steps = [];
   let cur = obj;
+  let underCreate = false;
   for (let i = 0; i < subPaths.length; i++) {
     const segment = subPaths[i];
     if (Array.isArray(cur) && isArrayIndexSegment(segment)) {
       assertBoundedArrayIndex(segment, path);
     }
     if (i === subPaths.length - 1) {
-      return;
+      return {steps, leafKey: segment};
     }
-    if (
-      cur !== null &&
-      (typeof cur === 'object' || typeof cur === 'function') &&
-      Object.hasOwn(cur, segment)
-    ) {
-      cur = cur[segment];
+    if (!underCreate && Object.hasOwn(cur, segment)) {
+      const child = cur[segment];
+      if (child === null || (typeof child !== 'object' && typeof child !== 'function')) {
+        const kind = child === null ? 'null' : typeof child;
+        throw pathTraverseError(
+          `Cannot traverse path '${path}': '${segment}' is ${kind}, not an object`
+        );
+      }
+      if (isUnsafeIntermediate(child)) {
+        throw pathTraverseError(
+          `Cannot traverse path '${path}': '${segment}' is a shared builtin and cannot be traversed`
+        );
+      }
+      steps.push({kind: 'reuse', key: segment, child});
+      cur = child;
       continue;
     }
-    // Phantom next container: Array when the following segment is a digit index.
-    cur = isArrayIndexSegment(subPaths[i + 1]) ? [] : Object.create(null);
+    const createArray = isArrayIndexSegment(subPaths[i + 1]);
+    steps.push({kind: 'create', key: segment, createArray});
+    // Phantom next container for continued Array-index bound checks only.
+    cur = createArray ? [] : Object.create(null);
+    underCreate = true;
   }
+  return {steps, leafKey: ''};
 }
 
 /**
@@ -153,8 +174,26 @@ function defineOwnDataProperty(target, key, value) {
 }
 
 /**
+ * Assign `value` at `key`: own existing leaves keep ordinary [[Set]] semantics
+ * (own accessors / non-configurable writable data); missing keys become own
+ * data properties so inherited setters cannot hijack the write.
+ * @param {object} target - Object or Array to write
+ * @param {string} key - Property key
+ * @param {*} value - Property value
+ */
+function assignOwnOrDefine(target, key, value) {
+  if (Object.hasOwn(target, key)) {
+    target[key] = value;
+    return;
+  }
+  defineOwnDataProperty(target, key, value);
+}
+
+/**
  * True when `value` is a constructor's `.prototype` object
- * (`value.constructor.prototype === value`).
+ * (`ctor.prototype === value` for an own data `constructor`).
+ * Uses the own descriptor's `.value` so accessor `constructor` getters are
+ * never invoked during path checks.
  * @param {*} value - Candidate intermediate
  * @returns {boolean}
  */
@@ -162,11 +201,14 @@ function isPrototypeObject(value) {
   if (value === null || (typeof value !== 'object' && typeof value !== 'function')) {
     return false;
   }
-  return (
-    Object.hasOwn(value, 'constructor') &&
-    typeof value.constructor === 'function' &&
-    value.constructor.prototype === value
-  );
+  let desc;
+  try {
+    desc = Object.getOwnPropertyDescriptor(value, 'constructor');
+  } catch {
+    return false;
+  }
+  const ctor = desc?.value;
+  return typeof ctor === 'function' && ctor.prototype === value;
 }
 
 /**
@@ -389,48 +431,36 @@ function isUnsafeIntermediate(value) {
  */
 export default function set(obj, path = '', val) {
   const subPaths = path.split('.');
-  // Reject forbidden segments and Array-index bounds before any mutation.
   for (const segment of subPaths) {
     assertSafeSegment(segment, path);
   }
-  assertArrayIndexBoundsForPath(obj, subPaths, path);
   if (isUnsafeIntermediate(obj)) {
     throw pathTraverseError(
       `Cannot traverse path '${path}': root is a shared builtin and cannot be traversed`
     );
   }
-  const last = subPaths.at(-1);
+  const {steps, leafKey} = planPath(obj, subPaths, path);
 
-  const leaf = subPaths.slice(0, -1).reduce((o, p, i) => {
-    if (Object.hasOwn(o, p)) {
-      const existing = o[p];
-      // Functions are objects in JS and are valid intermediates (e.g. handler.timeout).
-      if (existing === null || (typeof existing !== 'object' && typeof existing !== 'function')) {
-        const kind = existing === null ? 'null' : typeof existing;
-        throw pathTraverseError(`Cannot traverse path '${path}': '${p}' is ${kind}, not an object`);
-      }
-      if (isUnsafeIntermediate(existing)) {
-        throw pathTraverseError(
-          `Cannot traverse path '${path}': '${p}' is a shared builtin and cannot be traversed`
-        );
-      }
-      return existing;
+  let leaf = obj;
+  for (const step of steps) {
+    if (step.kind === 'reuse') {
+      leaf = step.child;
+      continue;
     }
-
-    const created = isArrayIndexSegment(subPaths[i + 1]) ? [] : Object.create(null);
-    defineOwnDataProperty(o, p, created);
-    return created;
-  }, obj);
+    const created = step.createArray ? [] : Object.create(null);
+    defineOwnDataProperty(leaf, step.key, created);
+    leaf = created;
+  }
 
   // Array `length` assignment creates large sparse arrays (DoS); block on Array leaves only.
   // Plain-object `.length` remains a normal own property.
-  if (Array.isArray(leaf) && last === 'length') {
+  if (Array.isArray(leaf) && leafKey === 'length') {
     throw pathTraverseError(
       `Cannot traverse path '${path}': assigning Array 'length' is forbidden`
     );
   }
 
-  defineOwnDataProperty(leaf, last, val);
+  assignOwnOrDefine(leaf, leafKey, val);
   return val;
 }
 

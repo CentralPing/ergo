@@ -343,6 +343,73 @@ describe('[Boundary] utils/set', () => {
       assert.ok(Object.hasOwn(obj, 'child'));
       assert.equal(obj.child.leaf, 1);
     });
+
+    it('snapshots accessor results so stateful getters cannot bypass Array index bounds', () => {
+      const over = String(MAX_ARRAY_INDEX + 100);
+
+      let plainReads = 0;
+      const held = Object.create(null);
+      const root = Object.create(null);
+      Object.defineProperty(root, 'a', {
+        configurable: true,
+        enumerable: true,
+        get() {
+          plainReads += 1;
+          return plainReads === 1 ? held : [];
+        }
+      });
+      assert.equal(set(root, `a.${over}`, 'ok'), 'ok');
+      assert.equal(plainReads, 1);
+      assert.equal(held[over], 'ok');
+
+      let arrReads = 0;
+      const arrRoot = Object.create(null);
+      Object.defineProperty(arrRoot, 'c', {
+        configurable: true,
+        enumerable: true,
+        get() {
+          arrReads += 1;
+          return [];
+        }
+      });
+      assert.equal(trySet(arrRoot, `c.${over}`, 'x'), false);
+      assert.equal(arrReads, 1);
+    });
+
+    it('invokes own leaf setters instead of overwriting with defineProperty', () => {
+      const seen = [];
+      const obj = Object.create(null);
+      Object.defineProperty(obj, 'x', {
+        configurable: true,
+        enumerable: true,
+        get() {
+          return seen.at(-1);
+        },
+        set(v) {
+          seen.push(v);
+        }
+      });
+      assert.equal(set(obj, 'x', 7), 7);
+      assert.deepEqual(seen, [7]);
+      const desc = Object.getOwnPropertyDescriptor(obj, 'x');
+      assert.equal(typeof desc.set, 'function');
+    });
+
+    it('does not invoke own constructor getters during prototype checks', () => {
+      let hits = 0;
+      const weird = Object.create(null);
+      Object.defineProperty(weird, 'constructor', {
+        configurable: true,
+        enumerable: true,
+        get() {
+          hits += 1;
+          return function C() {};
+        }
+      });
+      assert.equal(set({a: weird}, 'a.k', 1), 1);
+      assert.equal(hits, 0);
+      assert.equal(weird.k, 1);
+    });
   });
 
   describe('strict array-index detection (#353)', () => {
