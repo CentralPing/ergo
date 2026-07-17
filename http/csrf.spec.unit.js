@@ -114,6 +114,26 @@ describe('[Module] http/csrf', () => {
     assert.ok(!tokenHeader.includes('HttpOnly'), 'token cookie must be JS-readable');
   });
 
+  it('cookieOptions cannot override httpOnly on UUID cookie', () => {
+    const csrf = createCsrf({secret, cookieOptions: {httpOnly: false}});
+    const cookies = createCookieMw()({headers: {}});
+    csrf.issue({headers: {}}, {}, {cookies});
+    const headers = cookies.toHeader();
+    const uuidHeader = headers.find(h => h.startsWith('CSRF-UUID='));
+    assert.ok(uuidHeader.includes('HttpOnly'), 'UUID cookie must remain HttpOnly');
+  });
+
+  it('cookieOptions cannot override sameSite on either CSRF cookie', () => {
+    const csrf = createCsrf({secret, cookieOptions: {sameSite: 'Lax'}});
+    const cookies = createCookieMw()({headers: {}});
+    csrf.issue({headers: {}}, {}, {cookies});
+    const headers = cookies.toHeader();
+    const tokenHeader = headers.find(h => h.startsWith('CSRF-TOKEN='));
+    const uuidHeader = headers.find(h => h.startsWith('CSRF-UUID='));
+    assert.ok(tokenHeader.includes('SameSite=Strict'), 'token cookie sameSite must be Strict');
+    assert.ok(uuidHeader.includes('SameSite=Strict'), 'UUID cookie sameSite must be Strict');
+  });
+
   it('throws TypeError when secret is missing', () => {
     assert.throws(() => createCsrf({}), {
       name: 'TypeError',

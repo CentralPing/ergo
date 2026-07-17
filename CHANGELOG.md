@@ -27,6 +27,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **CSRF UUID cookie locks `httpOnly: true` after `cookieOptions` spread.** (#318) The token
+  cookie already forced `httpOnly: false` and `sameSite: 'Strict'` after the spread; the UUID
+  cookie only forced `sameSite`. Callers passing `cookieOptions: {httpOnly: false}` could make
+  the UUID cookie JavaScript-readable. Both cookies now lock their httpOnly/sameSite attributes
+  symmetrically. Regression tests cover UUID `httpOnly` and both cookies' `sameSite` locks.
+
 - **`utils/set` uses strict digit-only array-index detection.** (#353) Intermediate nodes
   are Arrays only when the next path segment matches `/^\d+$/`. Previously, permissive
   `Number()` coercion treated `''`, `-1`, `Infinity`, `0x1`, and `1e2` as numeric and created
