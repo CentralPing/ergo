@@ -4,6 +4,73 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`utils/set` uses strict digit-only array-index detection.** (#353) Intermediate nodes
+  are Arrays only when the next path segment matches `/^\d+$/`. Previously, permissive
+  `Number()` coercion treated `''`, `-1`, `Infinity`, `0x1`, and `1e2` as numeric and created
+  Arrays with non-index properties (reachable via query paths like `fields[a..b]=x`).
+
+- **`utils/set` throws a descriptive path-conflict `TypeError`.** (#354) Reusing a primitive
+  or `null` intermediate now throws with message context and stable
+  `code: 'ERGO_SET_PATH_TRAVERSE'` instead of an opaque engine assignment error.
+  New `trySet()` returns `false` for library-minted path conflicts only (identity-branded
+  errors; rethrows unexpected errors including code-spoofed TypeErrors);
+  `lib/query.js` uses it for first-wins skip so inputs like `a=42&a[b]=99` no longer 500
+  through `url()` middleware. First-wins is bidirectional over path containers
+  (#379, #380, #381, #382): nested-then-scalar preserves earlier nests; Array↔object
+  shape is locked (non-index under Array and index under plain object both skip) while
+  numeric indices under Arrays (`role[0]=user&role[1]=admin`) and sibling object keys
+  remain allowed; scalar-then-`[]` also first-wins.
+
+- **`utils/set` rejects `__proto__` / `prototype` / `constructor` path segments.** (#383)
+  Function intermediates remain valid for ordinary own properties (`handler.timeout`), but
+  those three segments always throw `ERGO_SET_PATH_TRAVERSE` so callers cannot write through
+  `.prototype` onto shared builtins.
+
+- **`lib/query.js` accumulates pairs in a `Map` so first-wins follows source order.** (#384)
+  Intermediate accumulation previously used a null-prototype object + `Object.entries`, which
+  reorders integer-like keys (V8 integer-index order). That inverted `1[a]=x&1=y` into a
+  scalar win. Pair iteration now preserves insertion order; the returned accumulator remains
+  `Object.create(null)`.
+
+- **`lib/query.js` first-wins covers path aliases and occupied leaves.** (#385) Distinct wire
+  forms that normalize to the same dotted path (`a.b=1&a[b]=2`) no longer last-write via
+  `trySet`. Any own value already at the destination path wins (scalars, containers, and
+  array slots), so `a[]=1&a[0]=2` also keeps the first slot value.
+
+- **`utils/set` rejects unsafe intrinsic intermediates and Array `length` assignment.** (#386–#389)
+  Path root and reuse reject constructor `.prototype` objects, host objects reachable from
+  `globalThis` at module load (depth-limited graph of own keys / prototype accessors —
+  `Intl`, `Proxy`, `crypto.subtle`, `process._events`, `Array.prototype.push`,
+  `Intl.NumberFormat.prototype.format`, …), and
+  Proxies. Proxy and host checks run before Array/null-proto shortcuts so
+  `Proxy(Array.prototype)` and null-proto hosts cannot write through. Ordinary functions
+  (including per-instance bound methods created after module load), non-host null-proto
+  objects, Arrays, and user class instances remain valid intermediates. Host matching is
+  identity-based within the JavaScript realm where the module initializes; callers must not
+  pass host-owned globals or intrinsics from another realm (for example, a `node:vm` context)
+  as roots or intermediates (#395).
+  Assigning or creating `length` on an Array, TypedArray, DataView, Buffer, or
+  `arguments` (leaf or intermediate — TypedArray/Buffer/DataView expose non-own
+  `length`, so intermediate create must reject before shadowing) is forbidden (#393);
+  digit indices above `MAX_ARRAY_INDEX`
+  (1024) are rejected by numeric value **only when indexing an Array** (leading zeros
+  allowed when in range; plain-object / top-level digit keys unconstrained; sparse DoS
+  bound; full numeric-bracket design remains #280). Missing intermediates are defined as
+  own data properties so inherited setters cannot hijack traversal; existing own leaves
+  keep ordinary assignment semantics. Path planning snapshots accessor results once so
+  stateful getters cannot flip container type between Array-index bounds checks and writes.
+  Plain-object `.length` remains allowed.
+
+- **`lib/query.js` options use own properties only.** (#392) Parser options are copied into a
+  null-prototype via `Object.assign` so polluted `Object.prototype.maxPairs` /
+  `maxLength` / `split` cannot disable DoS caps or alter comma-split defaults.
+
+- **`utils/set` clarity refactor preserves return value.** (#355) The dense parenthesized
+  assignment body is split into explicit statements while still returning the assigned value
+  (public `@centralping/ergo/utils/set` export — non-breaking).
+
 ## [0.8.0] - 2026-07-13
 
 ### Added
