@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784304277051,
+  "lastUpdate": 1784308464904,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -18239,6 +18239,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2cc7b26cefbabf931658392dce0edd687253cd82",
+          "message": "fix: remove drifted default export and duplicate @module (#297) (#397)\n\n* fix: remove drifted default export and duplicate @module (#297)\n\nDrop the manually synced default export object from http/main.js (already\nunreachable via the package entry) and assign @module http/main so only\nhttp/index.js claims @centralping/ergo. Sync types-override and lock the\nnamed-only surface in tests.\n\nCloses #297\nCloses #299\n\n* test: assert exact 27-name barrel export surface (#297)\n\nStrengthen the package entry and http/main namespace contract with a sorted\nkey set (including fromConnect and tracing) so named-export drift is caught.",
+          "timestamp": "2026-07-17T13:13:53-04:00",
+          "tree_id": "a50469d28d9f8e6fcbcf6dd102f28b1bd6b94afa",
+          "url": "https://github.com/CentralPing/ergo/commit/2cc7b26cefbabf931658392dce0edd687253cd82"
+        },
+        "date": 1784308463462,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
