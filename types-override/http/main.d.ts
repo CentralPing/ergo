@@ -65,35 +65,3 @@ export interface PaginateOptions {
 export type PaginateResult =
   | {strategy: 'offset'; page: number; perPage: number; offset: number; limit: number}
   | {strategy: 'cursor'; cursor: string | undefined; limit: number};
-
-declare const _default: {
-  compose: typeof import('../utils/compose-with.js').default;
-  handler: typeof import('./handler.js').default;
-  accepts: typeof import('./accepts.js').default;
-  authorization: typeof import('./authorization.js').default;
-  body: typeof import('./body.js').default;
-  cacheControl: typeof import('./cache-control.js').default;
-  compress: typeof import('./compress.js').default;
-  cookie: typeof import('./cookie.js').default;
-  cors: typeof import('./cors.js').default;
-  csrf: typeof import('./csrf.js').default;
-  fromConnect: typeof fromConnect;
-  httpErrors: typeof httpErrors;
-  idempotency: typeof import('./idempotency.js').default;
-  paginate: typeof paginate;
-  jsonApiQuery: typeof import('./json-api-query.js').default;
-  logger: typeof import('./logger.js').default;
-  prefer: typeof import('./prefer.js').default;
-  precondition: typeof import('./precondition.js').default;
-  rateLimit: typeof import('./rate-limit.js').default;
-  securityHeaders: typeof import('./security-headers.js').default;
-  tracing: typeof import('./tracing.js').default;
-  url: typeof import('./url.js').default;
-  send: typeof import('./send.js').default;
-  timeout: typeof import('./timeout.js').default;
-  validate: typeof import('./validate.js').default;
-  createResponseAcc: typeof import('../utils/compose-with.js').createResponseAcc;
-  mergeResponse: typeof import('../utils/compose-with.js').mergeResponse;
-};
-
-export default _default;

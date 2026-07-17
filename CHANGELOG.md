@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Removed
+
+- **`http/main.js` no longer provides a default export object.** (#297) The manually
+  mirrored `export default { ... }` had drifted from named exports (`createResponseAcc`,
+  `mergeResponse` were named-only) and was already unreachable from the package entry
+  (`export *` does not re-export `default`). Named exports are unchanged. Affects only
+  the `./http/main` subpath for any consumer of `import x from '@centralping/ergo/http/main'`.
+
+- **`http/main.js` no longer declares `@module @centralping/ergo`.** (#299) Canonical
+  package module identity remains on `http/index.js` only; `main.js` now uses
+  `@module http/main` like other internal `http/` modules.
+
 ### Fixed
 
 - **`utils/set` uses strict digit-only array-index detection.** (#353) Intermediate nodes

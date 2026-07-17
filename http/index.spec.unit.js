@@ -8,8 +8,12 @@ import assert from 'node:assert/strict';
 
 // Importing the package entry point covers http/index.js and http/main.js
 import * as ergo from './index.js';
+import * as main from './main.js';
 
 describe('[Module] http/index - package entry point', () => {
+  it('has no default export (named exports only)', () => {
+    assert.equal('default' in ergo, false);
+  });
   it('exports compose', () => assert.equal(typeof ergo.compose, 'function'));
   it('exports handler', () => assert.equal(typeof ergo.handler, 'function'));
   it('exports send', () => assert.equal(typeof ergo.send, 'function'));
@@ -35,4 +39,10 @@ describe('[Module] http/index - package entry point', () => {
   it('exports createResponseAcc', () => assert.equal(typeof ergo.createResponseAcc, 'function'));
   it('exports mergeResponse', () => assert.equal(typeof ergo.mergeResponse, 'function'));
   it('exports paginate', () => assert.equal(typeof ergo.paginate, 'function'));
+});
+
+describe('[Module] http/main - aggregation barrel', () => {
+  it('has no default export (named exports only)', () => {
+    assert.equal('default' in main, false);
+  });
 });
