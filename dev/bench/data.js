@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784310618437,
+  "lastUpdate": 1784320084673,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -18313,6 +18313,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "315ff6f98be87bbc3c48046cc7ee4e6a137afbf8",
+          "message": "fix: replace CSRF TypeError default-parameter sentinels with typeof validation (#269) (#398)",
+          "timestamp": "2026-07-17T16:27:47-04:00",
+          "tree_id": "15179b4864c3e14702a9a11cc57599baca179f89",
+          "url": "https://github.com/CentralPing/ergo/commit/315ff6f98be87bbc3c48046cc7ee4e6a137afbf8"
+        },
+        "date": 1784320083600,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.028,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.008,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.014,
             "unit": "us/op"
           }
         ]
