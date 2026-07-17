@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784239110629,
+  "lastUpdate": 1784258043972,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -18130,6 +18130,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.014,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d90088071b39e77a7e02a64a101627b422352919",
+          "message": "fix: harden utils/set path semantics and query conflict skip (#353) (#378)\n\n* fix: harden utils/set path semantics and query conflict skip (#353)\n\nStrict digit-only array-index detection, descriptive path-conflict TypeErrors\nwith ERGO_SET_PATH_TRAVERSE, trySet for first-wins query skips, clarity refactor\npreserving return value.\n\nCloses #353\nCloses #354\nCloses #355\n\n* fix: allow function intermediates in utils/set path traversal\n\nFunctions are objects in JS; reject only null and non-object primitives so\nassignments like handler.timeout remain valid. Addresses CodeRabbit review.\n\n* docs: clarify set path-conflict throw covers null and primitives\n\n* fix: address review findings for set/query first-wins (#353)\n\nMake query path-conflict first-wins bidirectional (#379), strengthen\nconflict/test oracles, and document function intermediates in set JSDoc.\n\n* fix: complete path-prefix query first-wins (#380)\n\nSkip container overwrite at any dotted path and nesting under empty-bracket\narrays; strengthen conflict test oracles.\n\n* fix: allow numeric indices under query Arrays (#381)\n\nSkip only non-index nests under Arrays; keep scalar↔[] first-wins and\nstrengthen conflict test oracles.\n\n* fix: harden set forbidden segments and query shape lock (#383)\n\nReject __proto__/prototype/constructor path segments in utils/set while\nkeeping function own-props (handler.timeout). Extend query first-wins with\nsymmetric object→index skip (#382) and document /^\\\\d+$/ leading-zero Arrays.\n\n* fix: reject forbidden set path segments before mutation (#383)\n\nValidate __proto__/prototype/constructor on the full path before creating\nintermediates so trySet/query skips leave the target untouched.\n\n* refactor: share isArrayIndexSegment between set and query\n\nExport a single helper from utils/set so query shape first-wins cannot drift\nfrom array-intermediate creation (CodeRabbit).\n\n* test: drop vacuous pollution asserts from forbidden-segment cases\n\nThose asserts cannot fail when the denylist is removed on a null-prototype\nroot; builtin mutation remains covered by the Object.prototype.gotcha case.\n\n* fix: preserve query pair source order for first-wins (#384)\n\nAccumulate decoded pairs in a Map so integer-like keys are not reordered\nby Object.entries before the first-wins second pass.\n\n* fix: complete path-alias first-wins and set builtin guards (#385)\n\nSkip any occupied destination path so a.b/a[b] aliases keep the first wire\nform. Reject shared-builtin intermediates and Array length assignment in set.\n\n* fix: structurally reject unsafe set path intermediates (#386)\n\nReplace the incomplete FORBIDDEN_INTERMEDIATES denylist with prototype-\nobject, intrinsic-constructor, and singleton checks so RegExp.prototype\nand peers cannot be mutated via path reuse.\n\n* fix: reject host-namespace and Proxy path containers (#387)\n\nReplace the incomplete INTRINSIC_SINGLETONS denylist with globalThis own-\nbinding identity (module-load snapshot) plus util.types.isProxy, and guard\nthe path root the same way as intermediates.\n\n* fix: Proxy-first unsafe check, nested hosts, index bound\n\nReject Proxies before Array/null-proto shortcuts so prototype\nwrite-through is impossible; expand globalThis host snapshot for\nnested values (#388); reject digit indices above MAX_ARRAY_INDEX\nas sparse-DoS bound pending #280.\n\n* fix: host check before null-proto; deepen host graph (#389)\n\nConsult GLOBAL_THIS_HOST_VALUES before the null-proto shortcut so\nprocess._events cannot write through, expand the module-load host\ngraph to depth 3 for intrinsic methods, and pin MAX_ARRAY_INDEX+1\noracles in set/query tests.\n\n* fix: absorb rejected promises from host graph getters\n\nHost accessors can return rejected Promises when read off-target during\nthe module-load walk; settle them so import does not emit unhandledRejection.\n\n* fix(set): bound check, #390 prototype accessors, portable oracles\n\nCompare array-index bounds by numeric value so leading-zero in-range\nsegments are accepted; enroll constructor prototype descriptor functions\nfor namespaced intrinsics; skip process._events oracle on Bun; add\nmid-range sparse-DoS test oracles.\n\n* docs(set): document bound-instance caller contract (#390 residual)\n\nClarify that per-instance bound intrinsic methods remain valid\nintermediates; add regression oracle; note Bun WeakSet gap requiring\nHOST_PROTOTYPE_FUNCTIONS strong Set.\n\n* fix(set): Array-only index bound; own-property intermediates\n\nApply MAX_ARRAY_INDEX only when digit segments index Arrays so\nplain-object/top-level digit keys remain valid; define created\nintermediates and leaves as own data properties.\n\n* fix(set): snapshot path plan; preserve own-leaf assignment\n\nPlan path once so Array-index bounds and mutation share accessor\nsnapshots; assign existing own leaves via [[Set]]; read constructor\nvia own descriptor to avoid getter side effects.\n\n* fix(set): brand path-traverse errors for trySet (#353)\n\ntrySet absorbs only library-minted conflicts via WeakSet identity; add\nexpandHostSeed JSDoc; restore shared builtins after mutation probes.\n\n* test(set): restore Array length after mutation probes (#353)\n\nwithRestoredOwnProperty now reverts Array.length so a write-through on\nArray.prototype cannot leave a bumped length for later tests.\n\n* test(set): assert Array length restore after mutation probes (#353)\n\nStrengthen the Proxy(Array.prototype) oracle and add a deliberate\nwrite-through case so length restore cannot regress silently.\n\n* fix(set): avoid Proxy traps when reading .prototype (#353)\n\nInspect own data prototype descriptors (and treat Proxy constructors as\nunsafe) so path checks and host enrollment never invoke get traps.\n\n* fix: address non-blocking review findings (#392, #393)\n\nOwn-property query options via null-proto assign; forbid exotic length\nassignment on TypedArray/DataView/arguments; strengthen Proxy ctor oracle.\n\n* test(set): fix arguments length oracle (own property)\n\narguments.length is already own; assert length unchanged after reject.\n\n* fix(set): brand-check Arguments for exotic length forbid (#353)\n\nUse types.isArgumentsObject instead of spoofable toString; strengthen\nDataView/arguments oracles and pollution tests with provided {}.\n\n* fix(set): brand null/primitive roots and harden DataView length oracle (#353)\n\nAlign call-boundary errors with the trySet contract and drop the vacuous\nDataView byteLength post-check.\n\n* docs(set): define same-realm host-graph contract (#395)\n\nDocument the identity-based security boundary so callers do not treat foreign-realm host objects as protected containers.\n\n* fix(set): reject exotic length as intermediate path segment (#353)\n\nTypedArray/Buffer/DataView expose non-own length, so planPath must forbid\ncreating a length container before the leaf guard. Also strengthen\nnull-proto and reverse empty-bracket first-wins regressions.",
+          "timestamp": "2026-07-16T23:13:48-04:00",
+          "tree_id": "8bfd4d4ca37713ac829e15a6721d059862ec5378",
+          "url": "https://github.com/CentralPing/ergo/commit/d90088071b39e77a7e02a64a101627b422352919"
+        },
+        "date": 1784258042844,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
