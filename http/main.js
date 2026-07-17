@@ -14,7 +14,7 @@
  * accumulated under named keys in `domainAcc`; response properties merge
  * into `responseAcc`. `send()` is called post-pipeline by `handler()`.
  *
- * @module @centralping/ergo
+ * @module http/main
  * @since 0.1.0
  * @requires ./handler.js
  * @requires ./accepts.js
@@ -93,36 +93,6 @@ export {
   compose,
   createResponseAcc,
   mergeResponse,
-  handler,
-  accepts,
-  authorization,
-  body,
-  cacheControl,
-  compress,
-  cookie,
-  cors,
-  csrf,
-  fromConnect,
-  httpErrors,
-  idempotency,
-  paginate,
-  jsonApiQuery,
-  logger,
-  prefer,
-  precondition,
-  rateLimit,
-  securityHeaders,
-  tracing,
-  url,
-  send,
-  timeout,
-  validate
-};
-
-// Default export mirrors the named exports above — keep both in sync.
-/** @type {object} */
-export default {
-  compose,
   handler,
   accepts,
   authorization,

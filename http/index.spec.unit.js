@@ -8,31 +8,64 @@ import assert from 'node:assert/strict';
 
 // Importing the package entry point covers http/index.js and http/main.js
 import * as ergo from './index.js';
+import * as main from './main.js';
+
+/** Canonical named export surface for `@centralping/ergo` / `http/main.js`. */
+const EXPECTED_EXPORTS = Object.freeze([
+  'accepts',
+  'authorization',
+  'body',
+  'cacheControl',
+  'compose',
+  'compress',
+  'cookie',
+  'cors',
+  'createResponseAcc',
+  'csrf',
+  'fromConnect',
+  'handler',
+  'httpErrors',
+  'idempotency',
+  'jsonApiQuery',
+  'logger',
+  'mergeResponse',
+  'paginate',
+  'precondition',
+  'prefer',
+  'rateLimit',
+  'securityHeaders',
+  'send',
+  'timeout',
+  'tracing',
+  'url',
+  'validate'
+]);
+
+/**
+ * @param {object} ns - ESM namespace object
+ * @param {string} label - Assertion label prefix
+ * @returns {undefined}
+ */
+function assertNamedExportSurface(ns, label) {
+  assert.equal('default' in ns, false, `${label}: must not export default`);
+  assert.deepEqual(
+    Object.keys(ns).sort(),
+    [...EXPECTED_EXPORTS],
+    `${label}: exact named export set`
+  );
+  for (const name of EXPECTED_EXPORTS) {
+    assert.equal(typeof ns[name], 'function', `${label}: ${name} must be a function`);
+  }
+}
 
 describe('[Module] http/index - package entry point', () => {
-  it('exports compose', () => assert.equal(typeof ergo.compose, 'function'));
-  it('exports handler', () => assert.equal(typeof ergo.handler, 'function'));
-  it('exports send', () => assert.equal(typeof ergo.send, 'function'));
-  it('exports accepts', () => assert.equal(typeof ergo.accepts, 'function'));
-  it('exports authorization', () => assert.equal(typeof ergo.authorization, 'function'));
-  it('exports body', () => assert.equal(typeof ergo.body, 'function'));
-  it('exports cacheControl', () => assert.equal(typeof ergo.cacheControl, 'function'));
-  it('exports compress', () => assert.equal(typeof ergo.compress, 'function'));
-  it('exports cookie', () => assert.equal(typeof ergo.cookie, 'function'));
-  it('exports cors', () => assert.equal(typeof ergo.cors, 'function'));
-  it('exports csrf', () => assert.equal(typeof ergo.csrf, 'function'));
-  it('exports jsonApiQuery', () => assert.equal(typeof ergo.jsonApiQuery, 'function'));
-  it('exports logger', () => assert.equal(typeof ergo.logger, 'function'));
-  it('exports prefer', () => assert.equal(typeof ergo.prefer, 'function'));
-  it('exports precondition', () => assert.equal(typeof ergo.precondition, 'function'));
-  it('exports rateLimit', () => assert.equal(typeof ergo.rateLimit, 'function'));
-  it('exports securityHeaders', () => assert.equal(typeof ergo.securityHeaders, 'function'));
-  it('exports url', () => assert.equal(typeof ergo.url, 'function'));
-  it('exports timeout', () => assert.equal(typeof ergo.timeout, 'function'));
-  it('exports validate', () => assert.equal(typeof ergo.validate, 'function'));
-  it('exports httpErrors', () => assert.equal(typeof ergo.httpErrors, 'function'));
-  it('exports idempotency', () => assert.equal(typeof ergo.idempotency, 'function'));
-  it('exports createResponseAcc', () => assert.equal(typeof ergo.createResponseAcc, 'function'));
-  it('exports mergeResponse', () => assert.equal(typeof ergo.mergeResponse, 'function'));
-  it('exports paginate', () => assert.equal(typeof ergo.paginate, 'function'));
+  it('exports the canonical named surface only (no default)', () => {
+    assertNamedExportSurface(ergo, 'http/index');
+  });
+});
+
+describe('[Module] http/main - aggregation barrel', () => {
+  it('exports the canonical named surface only (no default)', () => {
+    assertNamedExportSurface(main, 'http/main');
+  });
 });
