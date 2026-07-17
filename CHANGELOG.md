@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **`lib/csrf` validates `secret`/`uuid` with direct `typeof` checks.** (#269) Replaces
+  TypeError-as-default-parameter sentinels and the `utils/type.js` import with the same
+  `typeof x !== 'string'` → `throw new TypeError(...)` pattern used by `http/csrf` and other
+  `lib/` constructors. Error messages for missing parameters are unchanged. Non-string values
+  that previously reached `createHmac` now fail with the same TypeError. Empty-string secrets
+  remain allowed at the lib primitive (the HTTP factory still rejects them at construction).
+
 ### Removed
 
 - **`http/main.js` no longer provides a default export object.** (#297) The manually
