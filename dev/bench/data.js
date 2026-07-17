@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784308464904,
+  "lastUpdate": 1784310618437,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -18273,6 +18273,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "db1cdc50a448b1da7421d516680fe0b93a2eb44f",
+          "message": "fix: replace CSRF TypeError default-parameter sentinels with typeof validation (#269)",
+          "timestamp": "2026-07-17T17:14:04Z",
+          "url": "https://github.com/CentralPing/ergo/pull/398/commits/db1cdc50a448b1da7421d516680fe0b93a2eb44f"
+        },
+        "date": 1784310616821,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
             "unit": "us/op"
           },
           {
