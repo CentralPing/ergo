@@ -117,10 +117,13 @@ export default (options = {}) => {
       });
       compressor.on('error', err => {
         const cb = takeEndCallback();
-        if (cb) {
-          cb(err);
+        try {
+          if (cb) {
+            cb(err);
+          }
+        } finally {
+          origEnd();
         }
-        origEnd();
       });
     }
 

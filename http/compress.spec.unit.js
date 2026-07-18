@@ -447,6 +447,45 @@ describe('[Module] http/compress', () => {
       assert.ok(res.writableEnded, 'response should have ended via error handler');
     });
 
+    it('ends response even when error-path end callback throws', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = 200;
+
+      const finished = onFinish(res);
+      let callbackCalled = false;
+      const boom = new Error('end callback boom');
+      /** @type {Error|undefined} */
+      let escaped;
+
+      process.setUncaughtExceptionCaptureCallback(err => {
+        escaped = err;
+      });
+
+      try {
+        res.write(JSON.stringify({data: 'x'.repeat(100)}));
+        res.end(() => {
+          callbackCalled = true;
+          throw boom;
+        });
+        try {
+          res.write('after-end');
+        } catch (err) {
+          escaped = err;
+        }
+        await finished;
+      } finally {
+        process.setUncaughtExceptionCaptureCallback(null);
+      }
+
+      assert.equal(callbackCalled, true, 'throwing end callback still ran');
+      assert.equal(escaped, boom, 'callback throw must surface after origEnd');
+      assert.ok(res.writableEnded, 'origEnd must run in finally despite throwing callback');
+    });
+
     it('invokes callback on below-threshold bypass without Content-Encoding', () => {
       const res = createMockRes();
       const compress = createCompress({threshold: 1024});
