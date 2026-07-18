@@ -44,6 +44,9 @@ const COMPRESSIBLE_RE =
 /** @type {Set<string>} */
 const VALID_OPTIONS = new Set(['threshold', 'encodings']);
 
+const DEFAULT_THRESHOLD = 1024; // 1 KiB
+const DEFAULT_ENCODINGS = Object.freeze(['br', 'gzip', 'deflate']);
+
 /**
  * Creates a response compression middleware.
  *
@@ -51,9 +54,6 @@ const VALID_OPTIONS = new Set(['threshold', 'encodings']);
  * @param {number} [options.threshold=DEFAULT_THRESHOLD] - Minimum byte size before compression is applied
  * @param {string[]} [options.encodings=DEFAULT_ENCODINGS] - Supported encodings in priority order
  */
-const DEFAULT_THRESHOLD = 1024; // 1 KiB
-const DEFAULT_ENCODINGS = Object.freeze(['br', 'gzip', 'deflate']);
-
 export default (options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'compress');
   const {threshold = DEFAULT_THRESHOLD, encodings = DEFAULT_ENCODINGS} = options;

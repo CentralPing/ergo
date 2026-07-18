@@ -423,7 +423,8 @@ describe('[Module] http/compress', () => {
     });
 
     it('invokes callback with Error on compressor error', async () => {
-      const res = createMockRes();
+      // asyncFinish makes origEnd(); cb(err) fail the sync-before-finish assert below.
+      const res = createMockRes({asyncFinish: true});
       const compress = createCompress({threshold: 1});
       compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
@@ -433,22 +434,30 @@ describe('[Module] http/compress', () => {
       const finished = onFinish(res);
       let callbackErr;
       let callbackCalled = false;
+      let endedWhenCallbackRan = false;
 
       res.write(JSON.stringify({data: 'x'.repeat(100)}));
       res.end(err => {
         callbackCalled = true;
         callbackErr = err;
+        endedWhenCallbackRan = res.writableEnded;
       });
       res.write('after-end');
 
+      assert.equal(
+        callbackCalled,
+        false,
+        'end callback must not fire synchronously before response finish'
+      );
       await finished;
       assert.equal(callbackCalled, true, 'end callback should fire on error path');
+      assert.equal(endedWhenCallbackRan, true, 'callback must run after response has ended');
       assert.ok(callbackErr instanceof Error, 'callback should receive an Error');
       assert.ok(res.writableEnded, 'response should have ended via error handler');
     });
 
     it('ends response even when error-path end callback throws', async () => {
-      const res = createMockRes();
+      const res = createMockRes({asyncFinish: true});
       const compress = createCompress({threshold: 1});
       compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
@@ -465,6 +474,7 @@ describe('[Module] http/compress', () => {
       });
       res.write('after-end');
 
+      assert.equal(callbackCalled, false, 'throwing callback must not run before response finish');
       await finished;
       assert.equal(callbackCalled, true, 'throwing end callback still ran');
       assert.ok(res.writableEnded, 'origEnd must run despite throwing callback');

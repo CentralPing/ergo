@@ -44,9 +44,12 @@ export function createMockReq(overrides = {}) {
  * Tracks headers and captures the body passed to end().
  *
  * @param {object} [overrides] - Optional overrides for the mock response
+ * @param {boolean} [overrides.asyncFinish=false] - When true, emit `finish` and invoke
+ *   the `end` callback on a microtask (closer to real `ServerResponse` ordering)
  * @returns {object} - Mock HTTP response-like object
  */
 export function createMockRes(overrides = {}) {
+  const {asyncFinish = false, ...rest} = overrides;
   const headers = {};
   const res = Object.assign(new EventEmitter(), {
     statusCode: 200,
@@ -73,9 +76,12 @@ export function createMockRes(overrides = {}) {
     write() {
       return true;
     },
-    writeHead(statusCode, ...rest) {
+    writeHead(statusCode, ...restArgs) {
       this.statusCode = statusCode;
-      const hdrs = typeof rest[rest.length - 1] === 'object' ? rest[rest.length - 1] : undefined;
+      const hdrs =
+        typeof restArgs[restArgs.length - 1] === 'object'
+          ? restArgs[restArgs.length - 1]
+          : undefined;
       if (hdrs) {
         for (const [k, v] of Object.entries(hdrs)) this.setHeader(k, v);
       }
@@ -98,16 +104,24 @@ export function createMockRes(overrides = {}) {
       if (endChunk != null) {
         this._body = typeof endChunk === 'string' ? endChunk : Buffer.from(endChunk).toString();
       }
+      // Match ServerResponse: writableEnded is true once end() is called; finish may be async.
       this.writableEnded = true;
-      this.emit('finish');
-      if (typeof endCb === 'function') {
-        endCb();
+      const complete = () => {
+        this.emit('finish');
+        if (typeof endCb === 'function') {
+          endCb();
+        }
+      };
+      if (asyncFinish) {
+        queueMicrotask(complete);
+      } else {
+        complete();
       }
       return this;
     }
   });
 
-  return Object.assign(res, overrides);
+  return Object.assign(res, rest);
 }
 
 /**
