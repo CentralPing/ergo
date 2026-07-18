@@ -117,6 +117,7 @@ describe('[Module] http/compress', () => {
       res.end(small);
 
       assert.ok(res.writableEnded, 'response should have ended');
+      assert.equal(res._body, small, 'bypass must forward the chunk to origEnd');
       assert.ok(
         !res.getHeader('content-encoding'),
         'should not set Content-Encoding for small body'
@@ -418,6 +419,7 @@ describe('[Module] http/compress', () => {
 
       const largePayload = JSON.stringify({data: 'x'.repeat(100)});
       const finished = onFinish(res);
+      let callbackErr;
       let callbackCalled = false;
       let finishBeforeCallback = false;
       let deliveredViaEndCallback = false;
@@ -425,8 +427,9 @@ describe('[Module] http/compress', () => {
         if (!callbackCalled) finishBeforeCallback = true;
       });
 
-      res.end(largePayload, () => {
+      res.end(largePayload, err => {
         callbackCalled = true;
+        callbackErr = err;
         deliveredViaEndCallback = res.deliveringEndCallback;
       });
       assert.equal(
@@ -443,6 +446,7 @@ describe('[Module] http/compress', () => {
         true,
         'user callback must run inside origEnd(cb), not via decoy/side-channel'
       );
+      assert.equal(callbackErr, undefined);
       assert.equal(res.getHeader('content-encoding'), 'gzip');
     });
 
