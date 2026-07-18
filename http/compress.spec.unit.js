@@ -567,6 +567,10 @@ describe('[Module] http/compress', () => {
       res.end(str, 'latin1');
 
       assert.ok(res.writableEnded);
+      assert.ok(
+        res.endInvocations.some(c => c.encoding === 'latin1'),
+        'bypass must forward encodingArg to origEnd (not drop it)'
+      );
       assert.equal(
         res.getHeader('content-encoding'),
         undefined,

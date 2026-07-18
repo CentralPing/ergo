@@ -53,6 +53,7 @@ const DEFAULT_ENCODINGS = Object.freeze(['br', 'gzip', 'deflate']);
  * @param {object} [options] - Compression configuration
  * @param {number} [options.threshold=DEFAULT_THRESHOLD] - Minimum byte size before compression is applied
  * @param {string[]} [options.encodings=DEFAULT_ENCODINGS] - Supported encodings in priority order
+ * @returns {function(import('node:http').IncomingMessage, import('node:http').ServerResponse): void} - Response compression middleware
  */
 export default (options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'compress');

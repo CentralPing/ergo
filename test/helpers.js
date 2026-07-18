@@ -51,7 +51,7 @@ export function createMockReq(overrides = {}) {
 export function createMockRes(overrides = {}) {
   const {asyncFinish = false, ...rest} = overrides;
   const headers = {};
-  /** @type {{hasCallback: boolean}[]} */
+  /** @type {{hasCallback: boolean, encoding: string|undefined}[]} */
   const endInvocations = [];
   const res = Object.assign(new EventEmitter(), {
     statusCode: 200,
@@ -61,7 +61,7 @@ export function createMockRes(overrides = {}) {
     deliveringEndCallback: false,
     _headers: headers,
     _body: null,
-    /** Record of underlying `end` calls (for asserting `origEnd(cb)` delivery). */
+    /** Record of underlying `end` calls (for asserting `origEnd` args / callback delivery). */
     endInvocations,
     setHeader(name, value) {
       headers[name.toLowerCase()] = value;
@@ -96,14 +96,20 @@ export function createMockRes(overrides = {}) {
     end(chunk, encoding, cb) {
       // Node Writable.end overloads: end(cb) | end(chunk, cb) | end(chunk, encoding, cb)
       let endChunk = chunk;
+      let endEncoding = encoding;
       let endCb = cb;
       if (typeof endChunk === 'function') {
         endCb = endChunk;
         endChunk = undefined;
-      } else if (typeof encoding === 'function') {
-        endCb = encoding;
+        endEncoding = undefined;
+      } else if (typeof endEncoding === 'function') {
+        endCb = endEncoding;
+        endEncoding = undefined;
       }
-      endInvocations.push({hasCallback: typeof endCb === 'function'});
+      endInvocations.push({
+        hasCallback: typeof endCb === 'function',
+        encoding: typeof endEncoding === 'string' ? endEncoding : undefined
+      });
       if (!this.headersSent) {
         this.writeHead(this.statusCode);
       }
