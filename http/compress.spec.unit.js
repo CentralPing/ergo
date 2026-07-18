@@ -368,7 +368,7 @@ describe('[Module] http/compress', () => {
 
   describe('Writable.end callback contract', () => {
     it('invokes callback after compress finish (chunk, encoding, cb)', async () => {
-      const res = createMockRes();
+      const res = createMockRes({asyncFinish: true});
       const compress = createCompress({threshold: 1});
       compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
@@ -379,6 +379,10 @@ describe('[Module] http/compress', () => {
       const finished = onFinish(res);
       let callbackErr;
       let callbackCalled = false;
+      let finishBeforeCallback = false;
+      res.on('finish', () => {
+        if (!callbackCalled) finishBeforeCallback = true;
+      });
 
       res.end(largePayload, 'utf8', err => {
         callbackCalled = true;
@@ -392,12 +396,17 @@ describe('[Module] http/compress', () => {
       await finished;
 
       assert.equal(callbackCalled, true, 'end callback should fire');
+      assert.equal(finishBeforeCallback, true, 'finish must emit before end callback');
+      assert.ok(
+        res.endInvocations.some(c => c.hasCallback),
+        'user callback must be delivered via origEnd(cb), not a side-channel call'
+      );
       assert.equal(callbackErr, undefined);
       assert.equal(res.getHeader('content-encoding'), 'gzip');
     });
 
     it('invokes callback after compress finish (chunk, cb)', async () => {
-      const res = createMockRes();
+      const res = createMockRes({asyncFinish: true});
       const compress = createCompress({threshold: 1});
       compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
@@ -407,6 +416,10 @@ describe('[Module] http/compress', () => {
       const largePayload = JSON.stringify({data: 'x'.repeat(100)});
       const finished = onFinish(res);
       let callbackCalled = false;
+      let finishBeforeCallback = false;
+      res.on('finish', () => {
+        if (!callbackCalled) finishBeforeCallback = true;
+      });
 
       res.end(largePayload, () => {
         callbackCalled = true;
@@ -419,11 +432,17 @@ describe('[Module] http/compress', () => {
       await finished;
 
       assert.equal(callbackCalled, true, 'end callback should fire for two-arg form');
+      assert.equal(finishBeforeCallback, true, 'finish must emit before end callback');
+      assert.ok(
+        res.endInvocations.some(c => c.hasCallback),
+        'user callback must be delivered via origEnd(cb), not a side-channel call'
+      );
       assert.equal(res.getHeader('content-encoding'), 'gzip');
     });
 
     it('invokes callback with Error on compressor error', async () => {
-      // asyncFinish makes origEnd(); cb(err) fail the sync-before-finish assert below.
+      // asyncFinish + endInvocations prove delivery via origEnd(cb), not
+      // origEnd(); queueMicrotask(() => cb(err)).
       const res = createMockRes({asyncFinish: true});
       const compress = createCompress({threshold: 1});
       compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
@@ -435,6 +454,10 @@ describe('[Module] http/compress', () => {
       let callbackErr;
       let callbackCalled = false;
       let endedWhenCallbackRan = false;
+      let finishBeforeCallback = false;
+      res.on('finish', () => {
+        if (!callbackCalled) finishBeforeCallback = true;
+      });
 
       res.write(JSON.stringify({data: 'x'.repeat(100)}));
       res.end(err => {
@@ -451,7 +474,12 @@ describe('[Module] http/compress', () => {
       );
       await finished;
       assert.equal(callbackCalled, true, 'end callback should fire on error path');
+      assert.equal(finishBeforeCallback, true, 'finish must emit before end callback');
       assert.equal(endedWhenCallbackRan, true, 'callback must run after response has ended');
+      assert.ok(
+        res.endInvocations.some(c => c.hasCallback),
+        'error callback must be delivered via origEnd(cb), not a side-channel call'
+      );
       assert.ok(callbackErr instanceof Error, 'callback should receive an Error');
       assert.ok(res.writableEnded, 'response should have ended via error handler');
     });
@@ -477,6 +505,10 @@ describe('[Module] http/compress', () => {
       assert.equal(callbackCalled, false, 'throwing callback must not run before response finish');
       await finished;
       assert.equal(callbackCalled, true, 'throwing end callback still ran');
+      assert.ok(
+        res.endInvocations.some(c => c.hasCallback),
+        'throwing callback still delivered via origEnd(cb)'
+      );
       assert.ok(res.writableEnded, 'origEnd must run despite throwing callback');
     });
 

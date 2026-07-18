@@ -51,6 +51,8 @@ export function createMockReq(overrides = {}) {
 export function createMockRes(overrides = {}) {
   const {asyncFinish = false, ...rest} = overrides;
   const headers = {};
+  /** @type {{hasCallback: boolean}[]} */
+  const endInvocations = [];
   const res = Object.assign(new EventEmitter(), {
     statusCode: 200,
     headersSent: false,
@@ -58,6 +60,10 @@ export function createMockRes(overrides = {}) {
     writable: true,
     _headers: headers,
     _body: null,
+    /** Record of underlying `end` calls (for asserting `origEnd(cb)` delivery). */
+    get endInvocations() {
+      return endInvocations;
+    },
     setHeader(name, value) {
       headers[name.toLowerCase()] = value;
     },
@@ -98,6 +104,7 @@ export function createMockRes(overrides = {}) {
       } else if (typeof encoding === 'function') {
         endCb = encoding;
       }
+      endInvocations.push({hasCallback: typeof endCb === 'function'});
       if (!this.headersSent) {
         this.writeHead(this.statusCode);
       }
