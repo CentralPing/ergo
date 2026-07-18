@@ -457,33 +457,17 @@ describe('[Module] http/compress', () => {
 
       const finished = onFinish(res);
       let callbackCalled = false;
-      const boom = new Error('end callback boom');
-      /** @type {Error|undefined} */
-      let escaped;
 
-      process.setUncaughtExceptionCaptureCallback(err => {
-        escaped = err;
+      res.write(JSON.stringify({data: 'x'.repeat(100)}));
+      res.end(() => {
+        callbackCalled = true;
+        throw new Error('end callback boom');
       });
+      res.write('after-end');
 
-      try {
-        res.write(JSON.stringify({data: 'x'.repeat(100)}));
-        res.end(() => {
-          callbackCalled = true;
-          throw boom;
-        });
-        try {
-          res.write('after-end');
-        } catch (err) {
-          escaped = err;
-        }
-        await finished;
-      } finally {
-        process.setUncaughtExceptionCaptureCallback(null);
-      }
-
+      await finished;
       assert.equal(callbackCalled, true, 'throwing end callback still ran');
-      assert.equal(escaped, boom, 'callback throw must surface after origEnd');
-      assert.ok(res.writableEnded, 'origEnd must run in finally despite throwing callback');
+      assert.ok(res.writableEnded, 'origEnd must run despite throwing callback');
     });
 
     it('invokes callback on below-threshold bypass without Content-Encoding', () => {

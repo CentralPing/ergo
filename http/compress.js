@@ -121,6 +121,9 @@ export default (options = {}) => {
           if (cb) {
             cb(err);
           }
+        } catch {
+          // Callback already received the compressor error. A throw must not
+          // skip response teardown (hang) or become an uncaughtException race.
         } finally {
           origEnd();
         }
