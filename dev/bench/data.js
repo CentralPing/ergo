@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784381216562,
+  "lastUpdate": 1784381754405,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -18562,6 +18562,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3f859aeb03b72cd9583db72e1355ffbd7c62a118",
+          "message": "fix: lock CSRF UUID cookie httpOnly against cookieOptions (#318) (#400)\n\n* fix: lock CSRF UUID cookie httpOnly against cookieOptions (#318)\n\nForce httpOnly: true after the cookieOptions spread on the UUID cookie,\nsymmetric with the token cookie's locked attributes, and add regression\ntests for UUID httpOnly and both cookies' sameSite locks.\n\n* test: strengthen CSRF cookieOptions lock matrix (#318)\n\nCover combined httpOnly+sameSite overrides and sameSite=None so bake\ndefaults cannot mask a missing UUID httpOnly lock.\n\n* test: drop vacuous token httpOnly assert in CSRF matrix (#318)\n\nThe combined case injects httpOnly:false (hostile for UUID); asserting\ntoken !HttpOnly there cannot detect a missing token lock.",
+          "timestamp": "2026-07-18T09:35:39-04:00",
+          "tree_id": "308d4c194d22193d7c729c070ee301782a6c4779",
+          "url": "https://github.com/CentralPing/ergo/commit/3f859aeb03b72cd9583db72e1355ffbd7c62a118"
+        },
+        "date": 1784381753612,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
