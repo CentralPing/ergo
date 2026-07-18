@@ -117,15 +117,15 @@ export default (options = {}) => {
       });
       compressor.on('error', err => {
         const cb = takeEndCallback();
-        try {
-          if (cb) {
+        // Teardown first (matches success-path "callback after finish" ordering),
+        // then deliver the error. Swallow throws so they cannot race as uncaughtException.
+        origEnd();
+        if (cb) {
+          try {
             cb(err);
+          } catch {
+            // Callback already received the compressor error after teardown.
           }
-        } catch {
-          // Callback already received the compressor error. A throw must not
-          // skip response teardown (hang) or become an uncaughtException race.
-        } finally {
-          origEnd();
         }
       });
     }
