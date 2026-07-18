@@ -56,7 +56,10 @@ const VALID_OPTIONS = new Set([
  * @param {string} [options.cookieUuidName='CSRF-UUID'] - Cookie name for the CSRF UUID
  * @param {string} options.secret - HMAC secret for token signing
  * @param {string} [options.encoding] - Token encoding (default: base64)
- * @param {object} [options.cookieOptions={}] - Cookie directives passed to the cookie factory
+ * @param {object} [options.cookieOptions={}] - Cookie directives passed to the cookie factory.
+ *   `httpOnly` and `sameSite` are locked after this object is spread: token cookie forces
+ *   `httpOnly: false` and `sameSite: 'Strict'`; UUID cookie forces `httpOnly: true` and
+ *   `sameSite: 'Strict'`.
  * @throws {TypeError} If `secret` is not a non-empty string
  */
 export default (options = {}) => {
@@ -81,7 +84,7 @@ export default (options = {}) => {
       const {token, uuid} = issue(secret, undefined, encoding);
 
       cookies.set(cookieTokenName, token, {...cookieOptions, httpOnly: false, sameSite: 'Strict'});
-      cookies.set(cookieUuidName, uuid, {...cookieOptions, sameSite: 'Strict'});
+      cookies.set(cookieUuidName, uuid, {...cookieOptions, httpOnly: true, sameSite: 'Strict'});
     },
     verify({headers: {[headerTokenName.toLowerCase()]: headerToken} = {}} = {}, res, acc) {
       const {cookies: {[cookieUuidName]: uuid} = {}} = acc;
