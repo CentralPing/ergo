@@ -529,12 +529,19 @@ describe('[Module] http/compress', () => {
       res.setHeader('Content-Type', 'application/json');
       const small = '{"hi":"there"}';
       let callbackCalled = false;
+      let deliveredViaEndCallback = false;
 
       res.end(small, () => {
         callbackCalled = true;
+        deliveredViaEndCallback = res.deliveringEndCallback;
       });
 
       assert.equal(callbackCalled, true, 'bypass path should invoke callback');
+      assert.equal(
+        deliveredViaEndCallback,
+        true,
+        'bypass callback must run inside origEnd(cb), not via decoy/side-channel'
+      );
       assert.ok(res.writableEnded);
       assert.equal(res.getHeader('content-encoding'), undefined);
     });
