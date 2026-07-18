@@ -114,17 +114,24 @@ describe('[Module] http/csrf', () => {
     assert.ok(!tokenHeader.includes('HttpOnly'), 'token cookie must be JS-readable');
   });
 
-  it('cookieOptions cannot override httpOnly on UUID cookie', () => {
-    const csrf = createCsrf({secret, cookieOptions: {httpOnly: false}});
+  it('cookieOptions cannot override httpOnly+sameSite together on CSRF cookies', () => {
+    const csrf = createCsrf({
+      secret,
+      cookieOptions: {httpOnly: false, sameSite: 'Lax'}
+    });
     const cookies = createCookieMw()({headers: {}});
     csrf.issue({headers: {}}, {}, {cookies});
     const headers = cookies.toHeader();
+    const tokenHeader = headers.find(h => h.startsWith('CSRF-TOKEN='));
     const uuidHeader = headers.find(h => h.startsWith('CSRF-UUID='));
+    assert.ok(!tokenHeader.includes('HttpOnly'), 'token cookie must remain JS-readable');
     assert.ok(uuidHeader.includes('HttpOnly'), 'UUID cookie must remain HttpOnly');
+    assert.ok(tokenHeader.includes('SameSite=Strict'), 'token cookie sameSite must be Strict');
+    assert.ok(uuidHeader.includes('SameSite=Strict'), 'UUID cookie sameSite must be Strict');
   });
 
-  it('cookieOptions cannot override sameSite on either CSRF cookie', () => {
-    const csrf = createCsrf({secret, cookieOptions: {sameSite: 'Lax'}});
+  it('cookieOptions cannot override sameSite to None on either CSRF cookie', () => {
+    const csrf = createCsrf({secret, cookieOptions: {sameSite: 'None'}});
     const cookies = createCookieMw()({headers: {}});
     csrf.issue({headers: {}}, {}, {cookies});
     const headers = cookies.toHeader();
@@ -132,6 +139,8 @@ describe('[Module] http/csrf', () => {
     const uuidHeader = headers.find(h => h.startsWith('CSRF-UUID='));
     assert.ok(tokenHeader.includes('SameSite=Strict'), 'token cookie sameSite must be Strict');
     assert.ok(uuidHeader.includes('SameSite=Strict'), 'UUID cookie sameSite must be Strict');
+    assert.ok(!tokenHeader.includes('SameSite=None'), 'token cookie must not emit SameSite=None');
+    assert.ok(!uuidHeader.includes('SameSite=None'), 'UUID cookie must not emit SameSite=None');
   });
 
   it('throws TypeError when secret is missing', () => {
