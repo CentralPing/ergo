@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784393774600,
+  "lastUpdate": 1784394460020,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -19138,6 +19138,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "a2a1982f6cfba929fb69f7db8686a50a0c61a0a7",
+          "message": "fix: restore compress Writable.end contract and named defaults (#311)",
+          "timestamp": "2026-07-18T13:52:55Z",
+          "url": "https://github.com/CentralPing/ergo/pull/405/commits/a2a1982f6cfba929fb69f7db8686a50a0c61a0a7"
+        },
+        "date": 1784394458942,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.017,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.004,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
