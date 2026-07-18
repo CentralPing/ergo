@@ -25,7 +25,7 @@
  * import {compose, compress} from '@centralping/ergo';
  *
  * const pipeline = compose(
- *   compress({threshold: 1024, encodings: ['br', 'gzip', 'deflate']}),
+ *   compress(),
  *   (req, res, acc) => ({response: {body: largePayload}})
  * );
  *
@@ -48,12 +48,15 @@ const VALID_OPTIONS = new Set(['threshold', 'encodings']);
  * Creates a response compression middleware.
  *
  * @param {object} [options] - Compression configuration
- * @param {number} [options.threshold=1024] - Minimum byte size before compression is applied
- * @param {string[]} [options.encodings=['br','gzip','deflate']] - Supported encodings in priority order
+ * @param {number} [options.threshold=DEFAULT_THRESHOLD] - Minimum byte size before compression is applied
+ * @param {string[]} [options.encodings=DEFAULT_ENCODINGS] - Supported encodings in priority order
  */
+const DEFAULT_THRESHOLD = 1024; // 1 KiB
+const DEFAULT_ENCODINGS = Object.freeze(['br', 'gzip', 'deflate']);
+
 export default (options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'compress');
-  const {threshold = 1024, encodings = ['br', 'gzip', 'deflate']} = options;
+  const {threshold = DEFAULT_THRESHOLD, encodings = DEFAULT_ENCODINGS} = options;
   return function compressMiddleware(req, res) {
     const acceptEncoding = req.headers['accept-encoding'] ?? '';
     const encoding = negotiate(acceptEncoding, encodings);
@@ -68,6 +71,14 @@ export default (options = {}) => {
 
     let headersSent = false;
     let compressor;
+    /** @type {((err?: Error) => void)|undefined} */
+    let endCallback;
+
+    function takeEndCallback() {
+      const cb = endCallback;
+      endCallback = undefined;
+      return cb;
+    }
 
     function setupCompressor() {
       if (headersSent) {
@@ -96,8 +107,21 @@ export default (options = {}) => {
       headersSent = true;
 
       compressor.on('data', chunk => origWrite(chunk));
-      compressor.on('end', () => origEnd());
-      compressor.on('error', () => origEnd());
+      compressor.on('end', () => {
+        const cb = takeEndCallback();
+        if (cb) {
+          origEnd(cb);
+        } else {
+          origEnd();
+        }
+      });
+      compressor.on('error', err => {
+        const cb = takeEndCallback();
+        if (cb) {
+          cb(err);
+        }
+        origEnd();
+      });
     }
 
     res.write = function compressedWrite(chunk, encodingArg, cb) {
@@ -111,21 +135,36 @@ export default (options = {}) => {
     };
 
     res.end = function compressedEnd(chunk, encodingArg, cb) {
-      if (!compressor && chunk) {
-        const size = typeof chunk === 'string' ? Buffer.byteLength(chunk) : chunk.length;
+      // Node Writable.end overloads: end(cb) | end(chunk, cb) | end(chunk, encoding, cb)
+      let endChunk = chunk;
+      let endEncoding = encodingArg;
+      let endCb = cb;
+      if (typeof endChunk === 'function') {
+        endCb = endChunk;
+        endChunk = undefined;
+        endEncoding = undefined;
+      } else if (typeof endEncoding === 'function') {
+        endCb = endEncoding;
+        endEncoding = undefined;
+      }
+
+      if (!compressor && endChunk) {
+        const size =
+          typeof endChunk === 'string' ? Buffer.byteLength(endChunk, endEncoding) : endChunk.length;
         if (size < threshold) {
-          return origEnd(chunk, encodingArg, cb);
+          return origEnd(endChunk, endEncoding, endCb);
         }
         setupCompressor();
       }
       if (compressor) {
-        if (chunk) {
-          compressor.end(chunk, encodingArg);
+        endCallback = endCb;
+        if (endChunk) {
+          compressor.end(endChunk, endEncoding);
         } else {
           compressor.end();
         }
       } else {
-        origEnd(chunk, encodingArg, cb);
+        origEnd(endChunk, endEncoding, endCb);
       }
     };
   };

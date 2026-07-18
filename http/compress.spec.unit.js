@@ -366,6 +366,135 @@ describe('[Module] http/compress', () => {
     });
   });
 
+  describe('Writable.end callback contract', () => {
+    it('invokes callback after compress finish (chunk, encoding, cb)', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = 200;
+
+      const largePayload = JSON.stringify({data: 'x'.repeat(100)});
+      const finished = onFinish(res);
+      let callbackErr;
+      let callbackCalled = false;
+
+      res.end(largePayload, 'utf8', err => {
+        callbackCalled = true;
+        callbackErr = err;
+      });
+      await finished;
+
+      assert.equal(callbackCalled, true, 'end callback should fire');
+      assert.equal(callbackErr, undefined);
+      assert.equal(res.getHeader('content-encoding'), 'gzip');
+    });
+
+    it('invokes callback after compress finish (chunk, cb)', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = 200;
+
+      const largePayload = JSON.stringify({data: 'x'.repeat(100)});
+      const finished = onFinish(res);
+      let callbackCalled = false;
+
+      res.end(largePayload, () => {
+        callbackCalled = true;
+      });
+      await finished;
+
+      assert.equal(callbackCalled, true, 'end callback should fire for two-arg form');
+      assert.equal(res.getHeader('content-encoding'), 'gzip');
+    });
+
+    it('invokes callback with Error on compressor error', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = 200;
+
+      const finished = onFinish(res);
+      let callbackErr;
+      let callbackCalled = false;
+
+      res.write(JSON.stringify({data: 'x'.repeat(100)}));
+      res.end(err => {
+        callbackCalled = true;
+        callbackErr = err;
+      });
+      res.write('after-end');
+
+      await finished;
+      assert.equal(callbackCalled, true, 'end callback should fire on error path');
+      assert.ok(callbackErr instanceof Error, 'callback should receive an Error');
+      assert.ok(res.writableEnded, 'response should have ended via error handler');
+    });
+
+    it('invokes callback on below-threshold bypass without Content-Encoding', () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'application/json');
+      const small = '{"hi":"there"}';
+      let callbackCalled = false;
+
+      res.end(small, () => {
+        callbackCalled = true;
+      });
+
+      assert.equal(callbackCalled, true, 'bypass path should invoke callback');
+      assert.ok(res.writableEnded);
+      assert.equal(res.getHeader('content-encoding'), undefined);
+    });
+  });
+
+  describe('encoding-aware threshold', () => {
+    it('skips compression for latin1 byte length below threshold', () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'text/plain');
+      // 600 chars in 0x80–0xFF: latin1 = 600 bytes, utf8 = 1200 bytes
+      const str = String.fromCharCode(...Array.from({length: 600}, (_, i) => 0x80 + (i % 0x80)));
+      assert.equal(Buffer.byteLength(str, 'latin1'), 600);
+      assert.equal(Buffer.byteLength(str), 1200);
+
+      res.end(str, 'latin1');
+
+      assert.ok(res.writableEnded);
+      assert.equal(
+        res.getHeader('content-encoding'),
+        undefined,
+        'latin1 size 600 is below threshold 1024'
+      );
+    });
+
+    it('compresses the same string when measured as utf8', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 200;
+      const str = String.fromCharCode(...Array.from({length: 600}, (_, i) => 0x80 + (i % 0x80)));
+
+      const finished = onFinish(res);
+      res.end(str);
+      await finished;
+
+      assert.equal(res.getHeader('content-encoding'), 'gzip');
+    });
+  });
+
   describe('quality value negotiation', () => {
     it('excludes encoding with q=0 (RFC 7231 §5.3.4)', () => {
       const res = createMockRes();

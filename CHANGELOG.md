@@ -27,6 +27,17 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`http/compress` forwards the `Writable.end` callback on the compression path.** (#314)
+  Previously `compressedEnd` dropped `cb` when piping through zlib and the compressor
+  `'end'`/`'error'` handlers called `origEnd()` with no callback. The patched `res.end`
+  now normalizes Node overloads, captures the callback, invokes it on compressor finish,
+  and passes the error to the callback on compressor failure.
+
+- **`http/compress` threshold uses the string encoding argument for byte length.** (#317)
+  `Buffer.byteLength(chunk)` always measured UTF-8; `res.end(str, 'latin1')` (and other
+  non-UTF-8 encodings) could compress or skip incorrectly. Size is now
+  `Buffer.byteLength(chunk, encodingArg)`.
+
 - **CSRF UUID cookie locks `httpOnly: true` after `cookieOptions` spread.** (#318) The token
   cookie already forced `httpOnly: false` and `sameSite: 'Strict'` after the spread; the UUID
   cookie only forced `sameSite`. Callers passing `cookieOptions: {httpOnly: false}` could make

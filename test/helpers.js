@@ -82,15 +82,27 @@ export function createMockRes(overrides = {}) {
       this.headersSent = true;
       return this;
     },
-    end(chunk) {
+    end(chunk, encoding, cb) {
+      // Node Writable.end overloads: end(cb) | end(chunk, cb) | end(chunk, encoding, cb)
+      let endChunk = chunk;
+      let endCb = cb;
+      if (typeof endChunk === 'function') {
+        endCb = endChunk;
+        endChunk = undefined;
+      } else if (typeof encoding === 'function') {
+        endCb = encoding;
+      }
       if (!this.headersSent) {
         this.writeHead(this.statusCode);
       }
-      if (chunk != null) {
-        this._body = typeof chunk === 'string' ? chunk : Buffer.from(chunk).toString();
+      if (endChunk != null) {
+        this._body = typeof endChunk === 'string' ? endChunk : Buffer.from(endChunk).toString();
       }
       this.writableEnded = true;
       this.emit('finish');
+      if (typeof endCb === 'function') {
+        endCb();
+      }
       return this;
     }
   });
