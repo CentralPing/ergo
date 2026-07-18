@@ -53,6 +53,7 @@ export function createMockRes(overrides = {}) {
   const headers = {};
   /** @type {{hasCallback: boolean}[]} */
   const endInvocations = [];
+  let deliveringEndCallback = false;
   const res = Object.assign(new EventEmitter(), {
     statusCode: 200,
     headersSent: false,
@@ -63,6 +64,14 @@ export function createMockRes(overrides = {}) {
     /** Record of underlying `end` calls (for asserting `origEnd(cb)` delivery). */
     get endInvocations() {
       return endInvocations;
+    },
+    /**
+     * True while the mock is invoking the callback passed to `end` (after `finish`).
+     * User callbacks that fire via a side-channel see `false` — catches decoy
+     * `origEnd(noop)` + later `cb(...)` attacks.
+     */
+    get isDeliveringEndCallback() {
+      return deliveringEndCallback;
     },
     setHeader(name, value) {
       headers[name.toLowerCase()] = value;
@@ -116,7 +125,12 @@ export function createMockRes(overrides = {}) {
       const complete = () => {
         this.emit('finish');
         if (typeof endCb === 'function') {
-          endCb();
+          deliveringEndCallback = true;
+          try {
+            endCb();
+          } finally {
+            deliveringEndCallback = false;
+          }
         }
       };
       if (asyncFinish) {
