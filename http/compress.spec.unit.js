@@ -10,6 +10,7 @@
  */
 import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
+import zlib from 'node:zlib';
 import {createMockRes} from '../test/helpers.js';
 import createCompress from './compress.js';
 
@@ -709,6 +710,7 @@ describe('[Module] http/compress', () => {
       // 1100 chars in 0x80–0xFF: latin1 = 1100 bytes (≥ threshold 1024)
       const str = String.fromCharCode(...Array.from({length: 1100}, (_, i) => 0x80 + (i % 0x80)));
       assert.equal(Buffer.byteLength(str, 'latin1'), 1100);
+      const expected = Buffer.from(str, 'latin1');
 
       const finished = onFinish(res);
       res.end(str, 'latin1');
@@ -718,6 +720,64 @@ describe('[Module] http/compress', () => {
         res.getHeader('content-encoding'),
         'gzip',
         'latin1 size 1100 is above threshold 1024 — must not always-bypass latin1'
+      );
+      // Round-trip proves encodingArg reached compressor.end: dropping it would
+      // utf8-encode 0x80–0xFF chars and gunzip to a different byte sequence.
+      assert.ok(res._writeChunks.length > 0, 'compress path must write compressed chunks');
+      assert.deepEqual(
+        zlib.gunzipSync(Buffer.concat(res._writeChunks)),
+        expected,
+        'latin1 encodingArg must reach compressor.end (not dropped)'
+      );
+    });
+
+    it('compresses when byte length equals threshold exactly', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      assert.equal(res.end.name, 'compressedEnd');
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 200;
+      // Exact boundary: production uses `size < threshold`, so 1024 must compress.
+      const str = String.fromCharCode(...Array.from({length: 1024}, (_, i) => 0x80 + (i % 0x80)));
+      assert.equal(Buffer.byteLength(str, 'latin1'), 1024);
+
+      const finished = onFinish(res);
+      res.end(str, 'latin1');
+      await finished;
+
+      assert.equal(
+        res.getHeader('content-encoding'),
+        'gzip',
+        'size === threshold must compress (not size <= threshold skip)'
+      );
+    });
+
+    it('skips compression for binary (latin1 alias) byte length below threshold', () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      assert.equal(res.end.name, 'compressedEnd');
+      res.setHeader('Content-Type', 'text/plain');
+      // Same 600-char payload: binary === latin1 in Node Buffer.byteLength.
+      const str = String.fromCharCode(...Array.from({length: 600}, (_, i) => 0x80 + (i % 0x80)));
+      assert.equal(Buffer.byteLength(str, 'binary'), 600);
+      assert.equal(Buffer.byteLength(str), 1200);
+
+      res.end(str, 'binary');
+
+      assert.ok(res.writableEnded);
+      assert.equal(res._body, str, 'binary bypass must forward the chunk to origEnd');
+      assert.ok(
+        res.endInvocations.some(c => c.encoding === 'binary'),
+        'bypass must forward binary encodingArg to origEnd'
+      );
+      assert.equal(
+        res.getHeader('content-encoding'),
+        undefined,
+        'binary size 600 is below threshold 1024 — must not special-case only latin1'
       );
     });
   });

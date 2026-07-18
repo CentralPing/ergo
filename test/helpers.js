@@ -61,6 +61,8 @@ export function createMockRes(overrides = {}) {
     deliveringEndCallback: false,
     _headers: headers,
     _body: null,
+    /** Chunks passed to underlying `write` (for compress-path body round-trips). */
+    _writeChunks: [],
     /** Record of underlying `end` calls (for asserting `origEnd` args / callback delivery). */
     endInvocations,
     setHeader(name, value) {
@@ -78,7 +80,23 @@ export function createMockRes(overrides = {}) {
     getHeaders() {
       return {...headers};
     },
-    write() {
+    write(chunk, encoding, cb) {
+      // Node Writable.write overloads: write(chunk[, encoding][, cb])
+      let writeChunk = chunk;
+      let writeEncoding = encoding;
+      let writeCb = cb;
+      if (typeof writeEncoding === 'function') {
+        writeCb = writeEncoding;
+        writeEncoding = undefined;
+      }
+      if (writeChunk != null) {
+        this._writeChunks.push(
+          Buffer.isBuffer(writeChunk)
+            ? writeChunk
+            : Buffer.from(writeChunk, typeof writeEncoding === 'string' ? writeEncoding : undefined)
+        );
+      }
+      if (typeof writeCb === 'function') writeCb();
       return true;
     },
     writeHead(statusCode, ...restArgs) {
