@@ -133,7 +133,8 @@ describe('[Module] http/compress', () => {
       res.statusCode = 200;
 
       const finished = onFinish(res);
-      res.end(JSON.stringify({data: 'x'.repeat(100)}));
+      const returnValue = res.end(JSON.stringify({data: 'x'.repeat(100)}));
+      assert.equal(returnValue, res, 'compressor path must return res for chaining');
       await finished;
 
       assert.equal(res.getHeader('content-encoding'), 'gzip');
@@ -466,14 +467,17 @@ describe('[Module] http/compress', () => {
       let endedWhenCallbackRan = false;
       let finishBeforeCallback = false;
       let deliveredViaEndCallback = false;
+      let callbackThis;
       res.on('finish', () => {
         if (!callbackCalled) finishBeforeCallback = true;
       });
 
       res.write(JSON.stringify({data: 'x'.repeat(100)}));
-      res.end(err => {
+      // Non-arrow so `this` binding is observable (matches Writable.end receiver contract).
+      res.end(function (err) {
         callbackCalled = true;
         callbackErr = err;
+        callbackThis = this;
         endedWhenCallbackRan = res.writableEnded;
         deliveredViaEndCallback = res.deliveringEndCallback;
       });
@@ -493,6 +497,7 @@ describe('[Module] http/compress', () => {
         true,
         'error callback must run inside origEnd(cb), not via decoy/side-channel'
       );
+      assert.equal(callbackThis, res, 'error-path end callback this must be the ServerResponse');
       assert.ok(callbackErr instanceof Error, 'callback should receive an Error');
       assert.ok(res.writableEnded, 'response should have ended via error handler');
     });
@@ -550,6 +555,37 @@ describe('[Module] http/compress', () => {
       assert.equal(res._body, small, 'bypass must forward the chunk to origEnd');
       assert.equal(res.getHeader('content-encoding'), undefined);
     });
+
+    it('invokes three-arg below-threshold bypass end(chunk, encoding, cb)', () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      assert.equal(res.end.name, 'compressedEnd', 'bypass path must exercise the compress patch');
+      res.setHeader('Content-Type', 'text/plain');
+      const small = 'hi';
+      let callbackCalled = false;
+      let deliveredViaEndCallback = false;
+
+      const returnValue = res.end(small, 'latin1', () => {
+        callbackCalled = true;
+        deliveredViaEndCallback = res.deliveringEndCallback;
+      });
+
+      assert.equal(returnValue, res, 'compressedEnd must return res for chaining');
+      assert.equal(callbackCalled, true, 'three-arg bypass must invoke callback');
+      assert.equal(
+        deliveredViaEndCallback,
+        true,
+        'three-arg bypass callback must run inside origEnd(cb)'
+      );
+      assert.ok(
+        res.endInvocations.some(c => c.hasCallback && c.encoding === 'latin1'),
+        'three-arg bypass must forward encoding and callback to origEnd'
+      );
+      assert.equal(res._body, small, 'three-arg bypass must forward the chunk to origEnd');
+      assert.equal(res.getHeader('content-encoding'), undefined);
+    });
   });
 
   describe('encoding-aware threshold', () => {
@@ -569,9 +605,11 @@ describe('[Module] http/compress', () => {
       assert.equal(Buffer.byteLength(str, 'latin1'), 600);
       assert.equal(Buffer.byteLength(str), 1200);
 
-      res.end(str, 'latin1');
+      const returnValue = res.end(str, 'latin1');
 
+      assert.equal(returnValue, res, 'compressedEnd must return res for chaining');
       assert.ok(res.writableEnded);
+      assert.equal(res._body, str, 'latin1 bypass must forward the chunk to origEnd');
       assert.ok(
         res.endInvocations.some(c => c.encoding === 'latin1'),
         'bypass must forward encodingArg to origEnd (not drop it)'

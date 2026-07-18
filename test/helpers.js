@@ -125,7 +125,8 @@ export function createMockRes(overrides = {}) {
           // getter would freeze as `false` at construction. Toggle on `this` instead.
           this.deliveringEndCallback = true;
           try {
-            endCb();
+            // Match ServerResponse: end callback is invoked with `this` bound to the stream.
+            endCb.call(this);
           } finally {
             this.deliveringEndCallback = false;
           }

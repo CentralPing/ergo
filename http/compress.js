@@ -127,7 +127,8 @@ export default (options = {}) => {
         }
         origEnd(() => {
           try {
-            cb(err);
+            // Match success-path `origEnd(cb)` receiver: this === res for non-arrow cbs.
+            cb.call(res, err);
           } catch {
             // Swallow throws from the user callback after teardown.
           }
@@ -177,6 +178,8 @@ export default (options = {}) => {
       } else {
         origEnd(endChunk, endEncoding, endCb);
       }
+      // Match ServerResponse.end / OutgoingMessage.end: return this for chaining.
+      return res;
     };
   };
 };
