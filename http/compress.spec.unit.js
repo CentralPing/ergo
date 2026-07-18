@@ -433,15 +433,19 @@ describe('[Module] http/compress', () => {
       let callbackCalled = false;
       let finishBeforeCallback = false;
       let deliveredViaEndCallback = false;
+      let callbackThis;
       res.on('finish', () => {
         if (!callbackCalled) finishBeforeCallback = true;
       });
 
-      res.end(largePayload, err => {
+      // Non-arrow + identity: mirror three-arg success (catches decoy origEnd(() => cb())).
+      function onEnd(err) {
         callbackCalled = true;
         callbackErr = err;
+        callbackThis = this;
         deliveredViaEndCallback = res.deliveringEndCallback;
-      });
+      }
+      res.end(largePayload, onEnd);
       assert.equal(
         callbackCalled,
         false,
@@ -455,6 +459,11 @@ describe('[Module] http/compress', () => {
         deliveredViaEndCallback,
         true,
         'user callback must run inside origEnd(cb), not via decoy/side-channel'
+      );
+      assert.equal(callbackThis, res, 'two-arg success this must be the ServerResponse');
+      assert.ok(
+        res.endInvocations.some(c => c.callback === onEnd),
+        'two-arg success must pass the user callback to origEnd (not a decoy wrapper)'
       );
       assert.equal(callbackErr, undefined);
       assert.equal(res.getHeader('content-encoding'), 'gzip');
@@ -686,6 +695,29 @@ describe('[Module] http/compress', () => {
         res.getHeader('content-encoding'),
         'gzip',
         'utf8 size 1200 is above threshold 1024 even with an explicit encoding arg'
+      );
+    });
+
+    it('compresses latin1 when byte length meets threshold', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      assert.equal(res.end.name, 'compressedEnd');
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 200;
+      // 1100 chars in 0x80–0xFF: latin1 = 1100 bytes (≥ threshold 1024)
+      const str = String.fromCharCode(...Array.from({length: 1100}, (_, i) => 0x80 + (i % 0x80)));
+      assert.equal(Buffer.byteLength(str, 'latin1'), 1100);
+
+      const finished = onFinish(res);
+      res.end(str, 'latin1');
+      await finished;
+
+      assert.equal(
+        res.getHeader('content-encoding'),
+        'gzip',
+        'latin1 size 1100 is above threshold 1024 — must not always-bypass latin1'
       );
     });
   });
