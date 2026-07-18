@@ -543,6 +543,7 @@ describe('[Module] http/compress', () => {
         'bypass callback must run inside origEnd(cb), not via decoy/side-channel'
       );
       assert.ok(res.writableEnded);
+      assert.equal(res._body, small, 'bypass must forward the chunk to origEnd');
       assert.equal(res.getHeader('content-encoding'), undefined);
     });
   });

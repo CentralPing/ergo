@@ -129,7 +129,7 @@ export default (options = {}) => {
           try {
             cb(err);
           } catch {
-            // Callback already received the compressor error after finish.
+            // Swallow throws from the user callback after teardown.
           }
         });
       });
