@@ -383,15 +383,19 @@ describe('[Module] http/compress', () => {
       let callbackCalled = false;
       let finishBeforeCallback = false;
       let deliveredViaEndCallback = false;
+      let callbackThis;
       res.on('finish', () => {
         if (!callbackCalled) finishBeforeCallback = true;
       });
 
-      res.end(largePayload, 'utf8', err => {
+      // Non-arrow so `this` binding is observable; identity catches decoy wrappers.
+      function onEnd(err) {
         callbackCalled = true;
         callbackErr = err;
+        callbackThis = this;
         deliveredViaEndCallback = res.deliveringEndCallback;
-      });
+      }
+      res.end(largePayload, 'utf8', onEnd);
       assert.equal(
         callbackCalled,
         false,
@@ -405,6 +409,11 @@ describe('[Module] http/compress', () => {
         deliveredViaEndCallback,
         true,
         'user callback must run inside origEnd(cb), not via decoy/side-channel'
+      );
+      assert.equal(callbackThis, res, 'success-path end callback this must be the ServerResponse');
+      assert.ok(
+        res.endInvocations.some(c => c.callback === onEnd),
+        'success path must pass the user callback to origEnd (not a decoy wrapper)'
       );
       assert.equal(callbackErr, undefined);
       assert.equal(res.getHeader('content-encoding'), 'gzip');
@@ -499,6 +508,12 @@ describe('[Module] http/compress', () => {
       );
       assert.equal(callbackThis, res, 'error-path end callback this must be the ServerResponse');
       assert.ok(callbackErr instanceof Error, 'callback should receive an Error');
+      assert.equal(
+        callbackErr.code,
+        'ERR_STREAM_WRITE_AFTER_END',
+        'callback must receive the compressor-emitted error (not a substituted Error)'
+      );
+      assert.equal(callbackErr.message, 'write after end');
       assert.ok(res.writableEnded, 'response should have ended via error handler');
     });
 
@@ -539,17 +554,26 @@ describe('[Module] http/compress', () => {
       const small = '{"hi":"there"}';
       let callbackCalled = false;
       let deliveredViaEndCallback = false;
+      let callbackThis;
 
-      res.end(small, () => {
+      // Non-arrow: bypass calls origEnd(userCb) directly — oracles mock endCb.call(this).
+      function onBypassEnd() {
         callbackCalled = true;
+        callbackThis = this;
         deliveredViaEndCallback = res.deliveringEndCallback;
-      });
+      }
+      res.end(small, onBypassEnd);
 
       assert.equal(callbackCalled, true, 'bypass path should invoke callback');
       assert.equal(
         deliveredViaEndCallback,
         true,
         'bypass callback must run inside origEnd(cb), not via decoy/side-channel'
+      );
+      assert.equal(callbackThis, res, 'bypass end callback this must be the ServerResponse (mock)');
+      assert.ok(
+        res.endInvocations.some(c => c.callback === onBypassEnd),
+        'bypass must pass the user callback to origEnd (not a decoy wrapper)'
       );
       assert.ok(res.writableEnded);
       assert.equal(res._body, small, 'bypass must forward the chunk to origEnd');
@@ -566,11 +590,14 @@ describe('[Module] http/compress', () => {
       const small = 'hi';
       let callbackCalled = false;
       let deliveredViaEndCallback = false;
+      let callbackThis;
 
-      const returnValue = res.end(small, 'latin1', () => {
+      function onThreeArgEnd() {
         callbackCalled = true;
+        callbackThis = this;
         deliveredViaEndCallback = res.deliveringEndCallback;
-      });
+      }
+      const returnValue = res.end(small, 'latin1', onThreeArgEnd);
 
       assert.equal(returnValue, res, 'compressedEnd must return res for chaining');
       assert.equal(callbackCalled, true, 'three-arg bypass must invoke callback');
@@ -579,9 +606,12 @@ describe('[Module] http/compress', () => {
         true,
         'three-arg bypass callback must run inside origEnd(cb)'
       );
+      assert.equal(callbackThis, res, 'three-arg bypass this must be the ServerResponse');
       assert.ok(
-        res.endInvocations.some(c => c.hasCallback && c.encoding === 'latin1'),
-        'three-arg bypass must forward encoding and callback to origEnd'
+        res.endInvocations.some(
+          c => c.hasCallback && c.encoding === 'latin1' && c.callback === onThreeArgEnd
+        ),
+        'three-arg bypass must forward encoding and the user callback to origEnd'
       );
       assert.equal(res._body, small, 'three-arg bypass must forward the chunk to origEnd');
       assert.equal(res.getHeader('content-encoding'), undefined);

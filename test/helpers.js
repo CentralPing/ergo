@@ -51,7 +51,7 @@ export function createMockReq(overrides = {}) {
 export function createMockRes(overrides = {}) {
   const {asyncFinish = false, ...rest} = overrides;
   const headers = {};
-  /** @type {{hasCallback: boolean, encoding: string|undefined}[]} */
+  /** @type {{hasCallback: boolean, encoding: string|undefined, callback: Function|undefined}[]} */
   const endInvocations = [];
   const res = Object.assign(new EventEmitter(), {
     statusCode: 200,
@@ -108,7 +108,9 @@ export function createMockRes(overrides = {}) {
       }
       endInvocations.push({
         hasCallback: typeof endCb === 'function',
-        encoding: typeof endEncoding === 'string' ? endEncoding : undefined
+        encoding: typeof endEncoding === 'string' ? endEncoding : undefined,
+        // Identity oracle: decoy `origEnd(() => endCb())` records a different function.
+        callback: typeof endCb === 'function' ? endCb : undefined
       });
       if (!this.headersSent) {
         this.writeHead(this.statusCode);
