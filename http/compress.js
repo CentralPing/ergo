@@ -117,16 +117,20 @@ export default (options = {}) => {
       });
       compressor.on('error', err => {
         const cb = takeEndCallback();
-        // Teardown first (matches success-path "callback after finish" ordering),
-        // then deliver the error. Swallow throws so they cannot race as uncaughtException.
-        origEnd();
-        if (cb) {
+        // Deliver via origEnd's completion callback so cb(err) runs after finish —
+        // same contract as the success path (`origEnd(cb)`). Swallow throws after
+        // teardown so they cannot race as uncaughtException.
+        if (!cb) {
+          origEnd();
+          return;
+        }
+        origEnd(() => {
           try {
             cb(err);
           } catch {
-            // Callback already received the compressor error after teardown.
+            // Callback already received the compressor error after finish.
           }
-        }
+        });
       });
     }
 
