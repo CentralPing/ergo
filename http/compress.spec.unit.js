@@ -388,7 +388,7 @@ describe('[Module] http/compress', () => {
       res.end(largePayload, 'utf8', err => {
         callbackCalled = true;
         callbackErr = err;
-        deliveredViaEndCallback = res.isDeliveringEndCallback;
+        deliveredViaEndCallback = res.deliveringEndCallback;
       });
       assert.equal(
         callbackCalled,
@@ -427,7 +427,7 @@ describe('[Module] http/compress', () => {
 
       res.end(largePayload, () => {
         callbackCalled = true;
-        deliveredViaEndCallback = res.isDeliveringEndCallback;
+        deliveredViaEndCallback = res.deliveringEndCallback;
       });
       assert.equal(
         callbackCalled,
@@ -447,7 +447,7 @@ describe('[Module] http/compress', () => {
     });
 
     it('invokes callback with Error on compressor error', async () => {
-      // isDeliveringEndCallback proves the user cb ran inside origEnd's callback —
+      // deliveringEndCallback proves the user cb ran inside origEnd's callback —
       // catches decoy origEnd(noop) + queueMicrotask(() => cb(err)).
       const res = createMockRes({asyncFinish: true});
       const compress = createCompress({threshold: 1});
@@ -471,7 +471,7 @@ describe('[Module] http/compress', () => {
         callbackCalled = true;
         callbackErr = err;
         endedWhenCallbackRan = res.writableEnded;
-        deliveredViaEndCallback = res.isDeliveringEndCallback;
+        deliveredViaEndCallback = res.deliveringEndCallback;
       });
       res.write('after-end');
 
@@ -508,7 +508,7 @@ describe('[Module] http/compress', () => {
       res.write(JSON.stringify({data: 'x'.repeat(100)}));
       res.end(() => {
         callbackCalled = true;
-        deliveredViaEndCallback = res.isDeliveringEndCallback;
+        deliveredViaEndCallback = res.deliveringEndCallback;
         throw new Error('end callback boom');
       });
       res.write('after-end');

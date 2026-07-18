@@ -53,26 +53,16 @@ export function createMockRes(overrides = {}) {
   const headers = {};
   /** @type {{hasCallback: boolean}[]} */
   const endInvocations = [];
-  let deliveringEndCallback = false;
   const res = Object.assign(new EventEmitter(), {
     statusCode: 200,
     headersSent: false,
     writableEnded: false,
     writable: true,
+    deliveringEndCallback: false,
     _headers: headers,
     _body: null,
     /** Record of underlying `end` calls (for asserting `origEnd(cb)` delivery). */
-    get endInvocations() {
-      return endInvocations;
-    },
-    /**
-     * True while the mock is invoking the callback passed to `end` (after `finish`).
-     * User callbacks that fire via a side-channel see `false` — catches decoy
-     * `origEnd(noop)` + later `cb(...)` attacks.
-     */
-    get isDeliveringEndCallback() {
-      return deliveringEndCallback;
-    },
+    endInvocations,
     setHeader(name, value) {
       headers[name.toLowerCase()] = value;
     },
@@ -125,11 +115,13 @@ export function createMockRes(overrides = {}) {
       const complete = () => {
         this.emit('finish');
         if (typeof endCb === 'function') {
-          deliveringEndCallback = true;
+          // Data property (not a getter): Object.assign copies getter *values*, so a
+          // getter would freeze as `false` at construction. Toggle on `this` instead.
+          this.deliveringEndCallback = true;
           try {
             endCb();
           } finally {
-            deliveringEndCallback = false;
+            this.deliveringEndCallback = false;
           }
         }
       };
