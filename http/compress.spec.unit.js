@@ -384,6 +384,11 @@ describe('[Module] http/compress', () => {
         callbackCalled = true;
         callbackErr = err;
       });
+      assert.equal(
+        callbackCalled,
+        false,
+        'end callback must not fire synchronously before compress finish'
+      );
       await finished;
 
       assert.equal(callbackCalled, true, 'end callback should fire');
@@ -406,6 +411,11 @@ describe('[Module] http/compress', () => {
       res.end(largePayload, () => {
         callbackCalled = true;
       });
+      assert.equal(
+        callbackCalled,
+        false,
+        'end callback must not fire synchronously before compress finish'
+      );
       await finished;
 
       assert.equal(callbackCalled, true, 'end callback should fire for two-arg form');
@@ -442,6 +452,7 @@ describe('[Module] http/compress', () => {
       const compress = createCompress({threshold: 1024});
       compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
+      assert.equal(res.end.name, 'compressedEnd', 'bypass path must exercise the compress patch');
       res.setHeader('Content-Type', 'application/json');
       const small = '{"hi":"there"}';
       let callbackCalled = false;
@@ -462,6 +473,11 @@ describe('[Module] http/compress', () => {
       const compress = createCompress({threshold: 1024});
       compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
+      assert.equal(
+        res.end.name,
+        'compressedEnd',
+        'threshold path must exercise the compress patch'
+      );
       res.setHeader('Content-Type', 'text/plain');
       // 600 chars in 0x80–0xFF: latin1 = 600 bytes, utf8 = 1200 bytes
       const str = String.fromCharCode(...Array.from({length: 600}, (_, i) => 0x80 + (i % 0x80)));
@@ -492,6 +508,28 @@ describe('[Module] http/compress', () => {
       await finished;
 
       assert.equal(res.getHeader('content-encoding'), 'gzip');
+    });
+
+    it('compresses when the same string is ended with utf8 encoding', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      assert.equal(res.end.name, 'compressedEnd');
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 200;
+      const str = String.fromCharCode(...Array.from({length: 600}, (_, i) => 0x80 + (i % 0x80)));
+      assert.equal(Buffer.byteLength(str, 'utf8'), 1200);
+
+      const finished = onFinish(res);
+      res.end(str, 'utf8');
+      await finished;
+
+      assert.equal(
+        res.getHeader('content-encoding'),
+        'gzip',
+        'utf8 size 1200 is above threshold 1024 even with an explicit encoding arg'
+      );
     });
   });
 
