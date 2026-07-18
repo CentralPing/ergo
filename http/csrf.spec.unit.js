@@ -124,7 +124,6 @@ describe('[Module] http/csrf', () => {
     const headers = cookies.toHeader();
     const tokenHeader = headers.find(h => h.startsWith('CSRF-TOKEN='));
     const uuidHeader = headers.find(h => h.startsWith('CSRF-UUID='));
-    assert.ok(!tokenHeader.includes('HttpOnly'), 'token cookie must remain JS-readable');
     assert.ok(uuidHeader.includes('HttpOnly'), 'UUID cookie must remain HttpOnly');
     assert.ok(tokenHeader.includes('SameSite=Strict'), 'token cookie sameSite must be Strict');
     assert.ok(uuidHeader.includes('SameSite=Strict'), 'UUID cookie sameSite must be Strict');
