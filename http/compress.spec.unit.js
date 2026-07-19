@@ -46,6 +46,38 @@ describe('[Module] http/compress', () => {
       const compress = createCompress();
       assert.equal(compress.name, 'compressMiddleware');
     });
+
+    it('uses DEFAULT_THRESHOLD (1024) when threshold option is omitted', async () => {
+      // Behavioral oracle for #311 named default — explicit threshold tests cannot catch a wrong default.
+      const below = 'x'.repeat(1023);
+      const at = 'x'.repeat(1024);
+      assert.equal(Buffer.byteLength(below), 1023);
+      assert.equal(Buffer.byteLength(at), 1024);
+
+      const resSkip = createMockRes();
+      createCompress()({headers: makeHeaders({'accept-encoding': 'gzip'})}, resSkip);
+      assert.equal(resSkip.end.name, 'compressedEnd');
+      resSkip.setHeader('Content-Type', 'text/plain');
+      resSkip.end(below);
+      assert.equal(
+        resSkip.getHeader('content-encoding'),
+        undefined,
+        'default threshold 1024 must skip 1023-byte body'
+      );
+
+      const resCompress = createMockRes();
+      createCompress()({headers: makeHeaders({'accept-encoding': 'gzip'})}, resCompress);
+      resCompress.setHeader('Content-Type', 'text/plain');
+      resCompress.statusCode = 200;
+      const finished = onFinish(resCompress);
+      resCompress.end(at);
+      await finished;
+      assert.equal(
+        resCompress.getHeader('content-encoding'),
+        'gzip',
+        'default threshold 1024 must compress 1024-byte body (size < threshold)'
+      );
+    });
   });
 
   describe('encoding negotiation', () => {
@@ -778,6 +810,35 @@ describe('[Module] http/compress', () => {
         res.getHeader('content-encoding'),
         undefined,
         'binary size 600 is below threshold 1024 — must not special-case only latin1'
+      );
+    });
+
+    it('compresses binary when byte length meets threshold', async () => {
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      assert.equal(res.end.name, 'compressedEnd');
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 200;
+      const str = String.fromCharCode(...Array.from({length: 1100}, (_, i) => 0x80 + (i % 0x80)));
+      assert.equal(Buffer.byteLength(str, 'binary'), 1100);
+      const expected = Buffer.from(str, 'binary');
+
+      const finished = onFinish(res);
+      res.end(str, 'binary');
+      await finished;
+
+      assert.equal(
+        res.getHeader('content-encoding'),
+        'gzip',
+        'binary size 1100 is above threshold — must not always-bypass binary'
+      );
+      assert.ok(res._writeChunks.length > 0, 'compress path must write compressed chunks');
+      assert.deepEqual(
+        zlib.gunzipSync(Buffer.concat(res._writeChunks)),
+        expected,
+        'binary encodingArg must reach compressor.end (not dropped)'
       );
     });
   });
