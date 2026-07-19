@@ -515,16 +515,22 @@ describe('[Module] http/compress', () => {
       // deliveringEndCallback proves the user cb ran inside origEnd's callback —
       // catches decoy origEnd(noop) + queueMicrotask(() => cb(err)).
       // Spy createGzip so we can assert callbackErr === compressor-emitted err (identity).
+      // node:zlib default export marks createGzip non-writable — use defineProperty.
       const origCreateGzip = zlib.createGzip;
       /** @type {Error|undefined} */
       let compressorEmittedErr;
-      zlib.createGzip = (...args) => {
-        const stream = origCreateGzip(...args);
-        stream.once('error', err => {
-          compressorEmittedErr = err;
-        });
-        return stream;
-      };
+      Object.defineProperty(zlib, 'createGzip', {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value(...args) {
+          const stream = origCreateGzip.apply(this, args);
+          stream.once('error', err => {
+            compressorEmittedErr = err;
+          });
+          return stream;
+        }
+      });
 
       try {
         const res = createMockRes({asyncFinish: true});
@@ -582,7 +588,12 @@ describe('[Module] http/compress', () => {
         assert.equal(callbackErr.message, 'write after end');
         assert.ok(res.writableEnded, 'response should have ended via error handler');
       } finally {
-        zlib.createGzip = origCreateGzip;
+        Object.defineProperty(zlib, 'createGzip', {
+          configurable: true,
+          enumerable: true,
+          writable: false,
+          value: origCreateGzip
+        });
       }
     });
 
