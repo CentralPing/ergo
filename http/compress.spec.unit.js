@@ -59,6 +59,15 @@ describe('[Module] http/compress', () => {
       assert.equal(resSkip.end.name, 'compressedEnd');
       resSkip.setHeader('Content-Type', 'text/plain');
       resSkip.end(below);
+      assert.ok(
+        resSkip.writableEnded,
+        'default-threshold skip must call origEnd (not early-return)'
+      );
+      assert.equal(
+        resSkip._body,
+        below,
+        'default-threshold skip must forward the chunk to origEnd'
+      );
       assert.equal(
         resSkip.getHeader('content-encoding'),
         undefined,
@@ -505,58 +514,76 @@ describe('[Module] http/compress', () => {
     it('invokes callback with Error on compressor error', async () => {
       // deliveringEndCallback proves the user cb ran inside origEnd's callback —
       // catches decoy origEnd(noop) + queueMicrotask(() => cb(err)).
-      const res = createMockRes({asyncFinish: true});
-      const compress = createCompress({threshold: 1});
-      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+      // Spy createGzip so we can assert callbackErr === compressor-emitted err (identity).
+      const origCreateGzip = zlib.createGzip;
+      /** @type {Error|undefined} */
+      let compressorEmittedErr;
+      zlib.createGzip = (...args) => {
+        const stream = origCreateGzip(...args);
+        stream.once('error', err => {
+          compressorEmittedErr = err;
+        });
+        return stream;
+      };
 
-      res.setHeader('Content-Type', 'application/json');
-      res.statusCode = 200;
+      try {
+        const res = createMockRes({asyncFinish: true});
+        const compress = createCompress({threshold: 1});
+        compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
 
-      const finished = onFinish(res);
-      let callbackErr;
-      let callbackCalled = false;
-      let endedWhenCallbackRan = false;
-      let finishBeforeCallback = false;
-      let deliveredViaEndCallback = false;
-      let callbackThis;
-      res.on('finish', () => {
-        if (!callbackCalled) finishBeforeCallback = true;
-      });
+        res.setHeader('Content-Type', 'application/json');
+        res.statusCode = 200;
 
-      res.write(JSON.stringify({data: 'x'.repeat(100)}));
-      // Non-arrow so `this` binding is observable (matches Writable.end receiver contract).
-      res.end(function (err) {
-        callbackCalled = true;
-        callbackErr = err;
-        callbackThis = this;
-        endedWhenCallbackRan = res.writableEnded;
-        deliveredViaEndCallback = res.deliveringEndCallback;
-      });
-      res.write('after-end');
+        const finished = onFinish(res);
+        let callbackErr;
+        let callbackCalled = false;
+        let endedWhenCallbackRan = false;
+        let finishBeforeCallback = false;
+        let deliveredViaEndCallback = false;
+        let callbackThis;
+        res.on('finish', () => {
+          if (!callbackCalled) finishBeforeCallback = true;
+        });
 
-      assert.equal(
-        callbackCalled,
-        false,
-        'end callback must not fire synchronously before response finish'
-      );
-      await finished;
-      assert.equal(callbackCalled, true, 'end callback should fire on error path');
-      assert.equal(finishBeforeCallback, true, 'finish must emit before end callback');
-      assert.equal(endedWhenCallbackRan, true, 'callback must run after response has ended');
-      assert.equal(
-        deliveredViaEndCallback,
-        true,
-        'error callback must run inside origEnd(cb), not via decoy/side-channel'
-      );
-      assert.equal(callbackThis, res, 'error-path end callback this must be the ServerResponse');
-      assert.ok(callbackErr instanceof Error, 'callback should receive an Error');
-      assert.equal(
-        callbackErr.code,
-        'ERR_STREAM_WRITE_AFTER_END',
-        'callback must receive the compressor-emitted error (not a substituted Error)'
-      );
-      assert.equal(callbackErr.message, 'write after end');
-      assert.ok(res.writableEnded, 'response should have ended via error handler');
+        res.write(JSON.stringify({data: 'x'.repeat(100)}));
+        // Non-arrow so `this` binding is observable (matches Writable.end receiver contract).
+        res.end(function (err) {
+          callbackCalled = true;
+          callbackErr = err;
+          callbackThis = this;
+          endedWhenCallbackRan = res.writableEnded;
+          deliveredViaEndCallback = res.deliveringEndCallback;
+        });
+        res.write('after-end');
+
+        assert.equal(
+          callbackCalled,
+          false,
+          'end callback must not fire synchronously before response finish'
+        );
+        await finished;
+        assert.equal(callbackCalled, true, 'end callback should fire on error path');
+        assert.equal(finishBeforeCallback, true, 'finish must emit before end callback');
+        assert.equal(endedWhenCallbackRan, true, 'callback must run after response has ended');
+        assert.equal(
+          deliveredViaEndCallback,
+          true,
+          'error callback must run inside origEnd(cb), not via decoy/side-channel'
+        );
+        assert.equal(callbackThis, res, 'error-path end callback this must be the ServerResponse');
+        assert.ok(callbackErr instanceof Error, 'callback should receive an Error');
+        assert.ok(compressorEmittedErr instanceof Error, 'compressor must have emitted an Error');
+        assert.equal(
+          callbackErr,
+          compressorEmittedErr,
+          'callback must receive the same Error instance the compressor emitted (not a substitute)'
+        );
+        assert.equal(callbackErr.code, 'ERR_STREAM_WRITE_AFTER_END');
+        assert.equal(callbackErr.message, 'write after end');
+        assert.ok(res.writableEnded, 'response should have ended via error handler');
+      } finally {
+        zlib.createGzip = origCreateGzip;
+      }
     });
 
     it('ends response even when error-path end callback throws', async () => {
@@ -728,6 +755,37 @@ describe('[Module] http/compress', () => {
         res.getHeader('content-encoding'),
         'gzip',
         'utf8 size 1200 is above threshold 1024 even with an explicit encoding arg'
+      );
+    });
+
+    it('uses utf16le encodingArg for threshold (not only latin1/binary aliases)', async () => {
+      // Catches a whitelist that only special-cases latin1/binary and otherwise measures utf8.
+      const res = createMockRes();
+      const compress = createCompress({threshold: 1024});
+      compress({headers: makeHeaders({'accept-encoding': 'gzip'})}, res);
+
+      assert.equal(res.end.name, 'compressedEnd');
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 200;
+      const str = 'a'.repeat(600);
+      assert.equal(Buffer.byteLength(str, 'utf8'), 600);
+      assert.equal(Buffer.byteLength(str, 'utf16le'), 1200);
+      const expected = Buffer.from(str, 'utf16le');
+
+      const finished = onFinish(res);
+      res.end(str, 'utf16le');
+      await finished;
+
+      assert.equal(
+        res.getHeader('content-encoding'),
+        'gzip',
+        'utf16le size 1200 must compress — encodingArg must reach Buffer.byteLength generically'
+      );
+      assert.ok(res._writeChunks.length > 0, 'compress path must write compressed chunks');
+      assert.deepEqual(
+        zlib.gunzipSync(Buffer.concat(res._writeChunks)),
+        expected,
+        'utf16le encodingArg must reach compressor.end (not dropped or remapped)'
       );
     });
 
