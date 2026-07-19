@@ -10,6 +10,7 @@
  */
 import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
+import {EventEmitter} from 'node:events';
 import zlib from 'node:zlib';
 import {createMockRes} from '../test/helpers.js';
 import createCompress from './compress.js';
@@ -514,23 +515,21 @@ describe('[Module] http/compress', () => {
     it('invokes callback with Error on compressor error', async () => {
       // deliveringEndCallback proves the user cb ran inside origEnd's callback —
       // catches decoy origEnd(noop) + queueMicrotask(() => cb(err)).
-      // Spy createGzip so we can assert callbackErr === compressor-emitted err (identity).
-      // node:zlib default export marks createGzip non-writable — use defineProperty.
-      const origCreateGzip = zlib.createGzip;
+      // Capture compressor-emitted Error via EventEmitter.emit (zlib streams extend EE).
+      // Do not redefine zlib.createGzip — Deno freezes that export (Node marks it non-writable).
+      const origEmit = EventEmitter.prototype.emit;
       /** @type {Error|undefined} */
       let compressorEmittedErr;
-      Object.defineProperty(zlib, 'createGzip', {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        value(...args) {
-          const stream = origCreateGzip.apply(this, args);
-          stream.once('error', err => {
-            compressorEmittedErr = err;
-          });
-          return stream;
+      EventEmitter.prototype.emit = function (type, ...args) {
+        if (
+          type === 'error' &&
+          args[0] instanceof Error &&
+          (args[0].code === 'ERR_STREAM_WRITE_AFTER_END' || args[0].message === 'write after end')
+        ) {
+          compressorEmittedErr = args[0];
         }
-      });
+        return origEmit.apply(this, [type, ...args]);
+      };
 
       try {
         const res = createMockRes({asyncFinish: true});
@@ -588,12 +587,7 @@ describe('[Module] http/compress', () => {
         assert.equal(callbackErr.message, 'write after end');
         assert.ok(res.writableEnded, 'response should have ended via error handler');
       } finally {
-        Object.defineProperty(zlib, 'createGzip', {
-          configurable: true,
-          enumerable: true,
-          writable: false,
-          value: origCreateGzip
-        });
+        EventEmitter.prototype.emit = origEmit;
       }
     });
 
