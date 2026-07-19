@@ -44,17 +44,27 @@ export function createMockReq(overrides = {}) {
  * Tracks headers and captures the body passed to end().
  *
  * @param {object} [overrides] - Optional overrides for the mock response
+ * @param {boolean} [overrides.asyncFinish=false] - When true, emit `finish` and invoke
+ *   the `end` callback on a microtask (closer to real `ServerResponse` ordering)
  * @returns {object} - Mock HTTP response-like object
  */
 export function createMockRes(overrides = {}) {
+  const {asyncFinish = false, ...rest} = overrides;
   const headers = {};
+  /** @type {{hasCallback: boolean, encoding: string|undefined, callback: Function|undefined}[]} */
+  const endInvocations = [];
   const res = Object.assign(new EventEmitter(), {
     statusCode: 200,
     headersSent: false,
     writableEnded: false,
     writable: true,
+    deliveringEndCallback: false,
     _headers: headers,
     _body: null,
+    /** Chunks passed to underlying `write` (for compress-path body round-trips). */
+    _writeChunks: [],
+    /** Record of underlying `end` calls (for asserting `origEnd` args / callback delivery). */
+    endInvocations,
     setHeader(name, value) {
       headers[name.toLowerCase()] = value;
     },
@@ -70,32 +80,88 @@ export function createMockRes(overrides = {}) {
     getHeaders() {
       return {...headers};
     },
-    write() {
+    write(chunk, encoding, cb) {
+      // Node Writable.write overloads: write(chunk[, encoding][, cb])
+      let writeChunk = chunk;
+      let writeEncoding = encoding;
+      let writeCb = cb;
+      if (typeof writeEncoding === 'function') {
+        writeCb = writeEncoding;
+        writeEncoding = undefined;
+      }
+      if (writeChunk != null) {
+        this._writeChunks.push(
+          Buffer.isBuffer(writeChunk)
+            ? writeChunk
+            : Buffer.from(writeChunk, typeof writeEncoding === 'string' ? writeEncoding : undefined)
+        );
+      }
+      if (typeof writeCb === 'function') writeCb();
       return true;
     },
-    writeHead(statusCode, ...rest) {
+    writeHead(statusCode, ...restArgs) {
       this.statusCode = statusCode;
-      const hdrs = typeof rest[rest.length - 1] === 'object' ? rest[rest.length - 1] : undefined;
+      const hdrs =
+        typeof restArgs[restArgs.length - 1] === 'object'
+          ? restArgs[restArgs.length - 1]
+          : undefined;
       if (hdrs) {
         for (const [k, v] of Object.entries(hdrs)) this.setHeader(k, v);
       }
       this.headersSent = true;
       return this;
     },
-    end(chunk) {
+    end(chunk, encoding, cb) {
+      // Node Writable.end overloads: end(cb) | end(chunk, cb) | end(chunk, encoding, cb)
+      let endChunk = chunk;
+      let endEncoding = encoding;
+      let endCb = cb;
+      if (typeof endChunk === 'function') {
+        endCb = endChunk;
+        endChunk = undefined;
+        endEncoding = undefined;
+      } else if (typeof endEncoding === 'function') {
+        endCb = endEncoding;
+        endEncoding = undefined;
+      }
+      endInvocations.push({
+        hasCallback: typeof endCb === 'function',
+        encoding: typeof endEncoding === 'string' ? endEncoding : undefined,
+        // Identity oracle: decoy `origEnd(() => endCb())` records a different function.
+        callback: typeof endCb === 'function' ? endCb : undefined
+      });
       if (!this.headersSent) {
         this.writeHead(this.statusCode);
       }
-      if (chunk != null) {
-        this._body = typeof chunk === 'string' ? chunk : Buffer.from(chunk).toString();
+      if (endChunk != null) {
+        this._body = typeof endChunk === 'string' ? endChunk : Buffer.from(endChunk).toString();
       }
+      // Match ServerResponse: writableEnded is true once end() is called; finish may be async.
       this.writableEnded = true;
-      this.emit('finish');
+      const complete = () => {
+        this.emit('finish');
+        if (typeof endCb === 'function') {
+          // Data property (not a getter): Object.assign copies getter *values*, so a
+          // getter would freeze as `false` at construction. Toggle on `this` instead.
+          this.deliveringEndCallback = true;
+          try {
+            // Match ServerResponse: end callback is invoked with `this` bound to the stream.
+            endCb.call(this);
+          } finally {
+            this.deliveringEndCallback = false;
+          }
+        }
+      };
+      if (asyncFinish) {
+        queueMicrotask(complete);
+      } else {
+        complete();
+      }
       return this;
     }
   });
 
-  return Object.assign(res, overrides);
+  return Object.assign(res, rest);
 }
 
 /**
