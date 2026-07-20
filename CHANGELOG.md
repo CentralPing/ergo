@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
   the authorizer contract. Update Bearer authorizers accordingly.
 
 - **`lib/authorization` multi-strategy `authenticate` is always a string.** (#290)
-  When no matching scheme is found, challenges are joined with `, ` (RFC 7235 §4.1)
+  When no matching scheme is found, challenges are joined with a comma and space (RFC 7235 §4.1)
   instead of returning `string[]`. Aligns with `http/authorization` header tuples
   (`[string, string][]`) and `send.js` `setHeader` semantics.
 
