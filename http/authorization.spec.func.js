@@ -18,7 +18,7 @@ describe('[Contract] http/authorization', () => {
             authorizer: async (_attrs, token) => {
               return token === 'valid-token'
                 ? {authorized: true, info: {userId: 'u1', token}}
-                : {authorized: false, info: {type: 'invalid_token'}};
+                : {authorized: false, info: {error: 'invalid_token'}};
             }
           },
           {

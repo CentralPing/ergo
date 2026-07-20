@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **BREAKING: Bearer authorizer failure `info` uses RFC 6750 property names.** (#256)
+  `type` / `desc` / `uri` are renamed to `error` / `error_description` / `error_uri`.
+  The internal `errorPropMap` translation layer is removed — wire attribute names match
+  the authorizer contract. Update Bearer authorizers accordingly.
+
+- **`lib/authorization` multi-strategy `authenticate` is always a string.** (#290)
+  When no matching scheme is found, challenges are joined with a comma and space (RFC 7235 §4.1)
+  instead of returning `string[]`. Aligns with `http/authorization` header tuples
+  (`[string, string][]`) and `send.js` `setHeader` semantics.
+
+- **`lib/authorization` scheme dispatch uses a null-prototype map instead of Proxy.** (#255)
+  Fixed `{basic, bearer, $default}` lookup via `??` — same defaulting as the former
+  Proxy `Object.hasOwn` trap, without Proxy overhead.
+
 - **`lib/csrf` validates `secret`/`uuid` with direct `typeof` checks.** (#269) Replaces
   TypeError-as-default-parameter sentinels and the `utils/type.js` import with the same
   `typeof x !== 'string'` → `throw new TypeError(...)` pattern used by `http/csrf` and other
