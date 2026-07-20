@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784590091721,
+  "lastUpdate": 1784591268998,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20130,6 +20130,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e40256224b9be7e13ca791b2ca09673566714c95",
+          "message": "fix: idempotency skip undefined + factory methods/keyGenerator validation (#319) (#423)\n\n* fix: idempotency skip undefined + factory methods/keyGenerator validation (#319)\n\nAlign skip paths with compose-with nullish contract and fail-fast at\nconstruction for methods/keyGenerator misconfiguration.\n\nCloses #319\nCloses #321\n\n* fix: address review findings for idempotency methods validation (#319)\n\nExtract methods TypeError message constant and add Set-clone isolation test.",
+          "timestamp": "2026-07-20T19:47:34-04:00",
+          "tree_id": "6436e78b1739bfa2bebfce3dc0d8ffb2f4e71a6e",
+          "url": "https://github.com/CentralPing/ergo/commit/e40256224b9be7e13ca791b2ca09673566714c95"
+        },
+        "date": 1784591268040,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.027,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
