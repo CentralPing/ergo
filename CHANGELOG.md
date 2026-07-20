@@ -48,6 +48,19 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`http/idempotency` skip paths return `undefined` instead of `{}`.** (#319)
+  Method-not-applicable and optional missing-key paths now use bare `return` so
+  compose-with leaves `acc.idempotency` unset (DECISIONS: `undefined`/`null` skip all
+  merges). Previously `return {}` wrote an empty object via `extractReturn`.
+  `IdempotencyResult` no longer includes `Record<string, never>`.
+
+- **`http/idempotency` validates `methods` and `keyGenerator` at construction.** (#321)
+  Throws `TypeError` when `methods` is not a non-empty Set or Array of non-empty strings
+  (rejects the `new Set('POST')` string footgun) or when `keyGenerator` is provided but
+  not a function. Matches the csrf / `IdempotencyStore` factory-time value-validation pattern.
+  Validated `methods` are always copied into a new `Set` so caller mutation after construction
+  cannot change middleware behavior.
+
 - **`http/compress` forwards the `Writable.end` callback on the compression path.** (#314)
   Previously `compressedEnd` dropped `cb` when piping through zlib and the compressor
   `'end'`/`'error'` handlers called `origEnd()` with no callback. The patched `res.end`

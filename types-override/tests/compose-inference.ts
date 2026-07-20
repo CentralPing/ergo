@@ -211,12 +211,10 @@ function testResultShapes() {
   const auth: AuthorizationResult = { user: { id: 1 } };
   const idempNew: IdempotencyResult = { key: 'k', fingerprint: 'f', complete: () => true, discard: () => {} };
   const idempReplay: IdempotencyResult = { replayed: true };
-  const idempSkip: IdempotencyResult = {};
   void prefer;
   void auth;
   void idempNew;
   void idempReplay;
-  void idempSkip;
 }
 
 // Suppress unused-variable warnings
