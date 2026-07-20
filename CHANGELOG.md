@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`STATUS_PROCESSING` / `STATUS_COMPLETE` exports from `lib/idempotency`.** (#271)
+  Named lifecycle constants for `IdempotencyStore` entry status. Middleware and
+  custom store consumers should compare against these instead of raw string
+  literals. Wire values remain `'processing'` / `'complete'` (additive, non-breaking).
+
 ### Changed
 
 - **BREAKING: Bearer authorizer failure `info` uses RFC 6750 property names.** (#256)

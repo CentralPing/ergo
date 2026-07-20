@@ -24,7 +24,12 @@
  *
  * @see {@link https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/ Idempotency-Key Header (IETF Draft)}
  */
-import {IdempotencyStore, parseIdempotencyKey, generateFingerprint} from '../lib/idempotency.js';
+import {
+  IdempotencyStore,
+  parseIdempotencyKey,
+  generateFingerprint,
+  STATUS_COMPLETE
+} from '../lib/idempotency.js';
 import {validateOptions} from '../lib/validate-options.js';
 
 const DEFAULT_METHODS = new Set(['POST', 'PATCH']);
@@ -104,7 +109,7 @@ export default function idempotency(options = {}) {
         };
       }
 
-      if (existing.status === 'complete' && existing.response) {
+      if (existing.status === STATUS_COMPLETE && existing.response) {
         return {
           value: {replayed: true},
           response: existing.response
