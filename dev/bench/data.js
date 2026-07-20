@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784576324778,
+  "lastUpdate": 1784576747833,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20021,6 +20021,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4cbfc4b9af0f4561bb5f23e8adc9d3f668659799",
+          "message": "refactor: named idempotency status constants and black-box store tests (#271, #273) (#419)\n\n* refactor: named idempotency status constants and black-box store tests (#271, #273)\n\nExport STATUS_PROCESSING/STATUS_COMPLETE for cross-module lifecycle\ncompares, and replace _completeKeys white-box tests with public-API\ncoverage of first-completed eviction and complete→set transitions.\n\n* test: re-express IdempotencyStore side-index coverage via public API (#273)\n\nAdd maxKeys overflow oracles for complete→delete and expired-complete TTL\nprune; assert response is cleared when re-setting a complete key.\n\n* test: strengthen IdempotencyStore black-box eviction oracles (#273)\n\nAssert delete clears the slot before capacity fill; prove TTL prune via\nno processing-eviction warning when refilling after expired completes;\nsurface re-set side-index ghosts via processing-eviction path.\n\n* test: require overflow inserts to accept the newest key (#273)\n\nAssert get('d')/get('g') after capacity-pressure sets so abort-on-full\nimplementations cannot vacuous-pass the live-count oracles.\n\n* test: assert FIFO eviction victims in black-box oracles (#271)\n\nStrengthen survivor-response and oldest-key eviction asserts so wrong\neviction order or corrupted complete responses cannot vacuous-pass.\n\n* test: cover get() lazy expiry of complete keys via public API (#273)\n\nRe-express the deleted white-box side-index get()-expiry case: after a\ncompleted entry expires via get(), capacity overflow must not exceed maxKeys.",
+          "timestamp": "2026-07-20T15:45:30-04:00",
+          "tree_id": "25988ae4c8b1a43f639940fb0310aeb1f123bd35",
+          "url": "https://github.com/CentralPing/ergo/commit/4cbfc4b9af0f4561bb5f23e8adc9d3f668659799"
+        },
+        "date": 1784576746464,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.028,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.008,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
