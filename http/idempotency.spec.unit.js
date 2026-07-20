@@ -17,11 +17,11 @@ describe('[Boundary] http/idempotency', () => {
     });
 
     it('skips GET requests', () => {
-      assert.deepEqual(mw(makeReq('GET', '"k1"'), {}, {}), {});
+      assert.equal(mw(makeReq('GET', '"k1"'), {}, {}), undefined);
     });
 
     it('skips DELETE requests', () => {
-      assert.deepEqual(mw(makeReq('DELETE', '"k1"'), {}, {}), {});
+      assert.equal(mw(makeReq('DELETE', '"k1"'), {}, {}), undefined);
     });
 
     it('processes POST requests', () => {
@@ -36,15 +36,79 @@ describe('[Boundary] http/idempotency', () => {
 
     it('respects custom methods option', () => {
       mw = idempotency({methods: ['PUT']});
-      assert.deepEqual(mw(makeReq('POST', '"k1"'), {}, {}), {});
+      assert.equal(mw(makeReq('POST', '"k1"'), {}, {}), undefined);
+      assert.notEqual(mw(makeReq('PUT', '"k1"'), {}, {}), undefined);
+    });
+
+    it('accepts methods as a Set', () => {
+      mw = idempotency({methods: new Set(['PUT'])});
+      assert.equal(mw(makeReq('POST', '"k1"'), {}, {}), undefined);
+      assert.notEqual(mw(makeReq('PUT', '"k1"'), {}, {}), undefined);
+    });
+
+    it('isolates methods Set from caller mutation after construction', () => {
+      const methods = new Set(['PUT']);
+      mw = idempotency({methods});
+      methods.add('GET');
+      methods.delete('PUT');
+      assert.equal(mw(makeReq('GET', '"k1"'), {}, {}), undefined);
       assert.notEqual(mw(makeReq('PUT', '"k1"'), {}, {}), undefined);
     });
   });
 
+  describe('construction-time validation', () => {
+    const methodsMsg =
+      'idempotency(): "methods" option must be a non-empty Set or Array of non-empty strings';
+    const keyGenMsg = 'idempotency(): "keyGenerator" option must be a function';
+
+    it('throws TypeError when methods is a string', () => {
+      assert.throws(() => idempotency({methods: 'POST'}), {name: 'TypeError', message: methodsMsg});
+    });
+
+    it('throws TypeError when methods is an empty array', () => {
+      assert.throws(() => idempotency({methods: []}), {name: 'TypeError', message: methodsMsg});
+    });
+
+    it('throws TypeError when methods is an empty Set', () => {
+      assert.throws(() => idempotency({methods: new Set()}), {
+        name: 'TypeError',
+        message: methodsMsg
+      });
+    });
+
+    it('throws TypeError when methods contains a non-string element', () => {
+      assert.throws(() => idempotency({methods: ['POST', 1]}), {
+        name: 'TypeError',
+        message: methodsMsg
+      });
+    });
+
+    it('throws TypeError when methods contains an empty string', () => {
+      assert.throws(() => idempotency({methods: ['POST', '']}), {
+        name: 'TypeError',
+        message: methodsMsg
+      });
+    });
+
+    it('throws TypeError when keyGenerator is not a function', () => {
+      assert.throws(() => idempotency({keyGenerator: 'not-a-fn'}), {
+        name: 'TypeError',
+        message: keyGenMsg
+      });
+    });
+
+    it('throws TypeError when keyGenerator is null', () => {
+      assert.throws(() => idempotency({keyGenerator: null}), {
+        name: 'TypeError',
+        message: keyGenMsg
+      });
+    });
+  });
+
   describe('required option', () => {
-    it('returns empty object when not required and key missing', () => {
+    it('returns undefined when not required and key missing', () => {
       mw = idempotency();
-      assert.deepEqual(mw(makeReq('POST'), {}, {}), {});
+      assert.equal(mw(makeReq('POST'), {}, {}), undefined);
     });
 
     it('returns 400 when required and key missing', () => {

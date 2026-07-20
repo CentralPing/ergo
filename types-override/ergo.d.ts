@@ -426,7 +426,6 @@ export interface TracingResult {
 
 /** Result stored at `acc.idempotency` by `[idempotency(), 'idempotency']`. */
 export type IdempotencyResult =
-  | Record<string, never>
   | {key: string; fingerprint: string; complete: (response: unknown) => boolean; discard: () => void}
   | {replayed: true};
 

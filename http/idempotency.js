@@ -48,23 +48,49 @@ const VALID_OPTIONS = new Set(['store', 'ttlMs', 'required', 'methods', 'keyGene
  * @param {boolean} [options.required=false] - When true, returns 400 if the header is missing
  *   on applicable methods
  * @param {Set<string>|string[]} [options.methods] - HTTP methods to apply idempotency to
- *   (default: POST, PATCH)
+ *   (default: POST, PATCH). When provided, must be a non-empty Set or Array of non-empty strings.
  * @param {function} [options.keyGenerator] - `(parsedKey, req, domainAcc) => string` transforms
  *   the parsed idempotency key into a scoped store key. Use to bind keys to an auth principal,
  *   route, or HTTP method for multi-tenant isolation. Defaults to identity (unscoped).
  *   Ensure the transform is collision-free — naive delimiter concatenation can alias distinct
  *   scopes if a component may itself contain the delimiter. Prefer `JSON.stringify([...parts])`
  *   or a fixed-length hash of the components.
+ * @throws {TypeError} If `methods` is provided but is not a non-empty Set or Array of
+ *   non-empty strings, or if `keyGenerator` is provided but is not a function
+ * @returns {function} - Middleware that returns `{value?, response?}` on participation, or
+ *   `undefined` when the method is not applicable or the key is absent and not required
  */
 export default function idempotency(options = {}) {
   validateOptions(options, VALID_OPTIONS, 'idempotency');
   const {store, ttlMs, required = false, methods, keyGenerator} = options;
+
+  if (methods !== undefined) {
+    const methodsErrorMsg =
+      'idempotency(): "methods" option must be a non-empty Set or Array of non-empty strings';
+    if (!(Array.isArray(methods) || methods instanceof Set)) {
+      throw new TypeError(methodsErrorMsg);
+    }
+    const size = Array.isArray(methods) ? methods.length : methods.size;
+    if (size < 1) {
+      throw new TypeError(methodsErrorMsg);
+    }
+    for (const method of methods) {
+      if (typeof method !== 'string' || method.length === 0) {
+        throw new TypeError(methodsErrorMsg);
+      }
+    }
+  }
+
+  if (keyGenerator !== undefined && typeof keyGenerator !== 'function') {
+    throw new TypeError('idempotency(): "keyGenerator" option must be a function');
+  }
+
   const _store = store ?? new IdempotencyStore(ttlMs ? {ttlMs} : undefined);
-  const _methods = methods instanceof Set ? methods : new Set(methods ?? DEFAULT_METHODS);
+  const _methods = new Set(methods ?? DEFAULT_METHODS);
   const _keyGen = keyGenerator ?? (key => key);
 
   const inner = function idempotencyMiddleware(req, _res, domainAcc) {
-    if (!_methods.has(req.method)) return {};
+    if (!_methods.has(req.method)) return;
 
     const rawHeader = req.headers?.['idempotency-key'];
     const key = parseIdempotencyKey(rawHeader);
@@ -87,7 +113,7 @@ export default function idempotency(options = {}) {
           }
         };
       }
-      return {};
+      return;
     }
 
     const resolvedKey = _keyGen(key, req, domainAcc);

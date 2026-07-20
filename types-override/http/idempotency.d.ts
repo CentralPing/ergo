@@ -7,8 +7,8 @@ declare function idempotency(
   res: import('node:http').ServerResponse,
   domainAcc: Record<string, unknown>
 ) =>
-  | IdempotencyResult
-  | {value: IdempotencyResult; response: unknown}
+  | void
+  | {value: IdempotencyResult; response?: unknown}
   | {response: {statusCode: number; detail: string}}) & {readonly setPath: 'idempotency'};
 
 export default idempotency;
