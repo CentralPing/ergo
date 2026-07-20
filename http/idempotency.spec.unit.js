@@ -45,6 +45,15 @@ describe('[Boundary] http/idempotency', () => {
       assert.equal(mw(makeReq('POST', '"k1"'), {}, {}), undefined);
       assert.notEqual(mw(makeReq('PUT', '"k1"'), {}, {}), undefined);
     });
+
+    it('isolates methods Set from caller mutation after construction', () => {
+      const methods = new Set(['PUT']);
+      mw = idempotency({methods});
+      methods.add('GET');
+      methods.delete('PUT');
+      assert.equal(mw(makeReq('GET', '"k1"'), {}, {}), undefined);
+      assert.notEqual(mw(makeReq('PUT', '"k1"'), {}, {}), undefined);
+    });
   });
 
   describe('construction-time validation', () => {

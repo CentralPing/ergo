@@ -65,22 +65,18 @@ export default function idempotency(options = {}) {
   const {store, ttlMs, required = false, methods, keyGenerator} = options;
 
   if (methods !== undefined) {
+    const methodsErrorMsg =
+      'idempotency(): "methods" option must be a non-empty Set or Array of non-empty strings';
     if (!(Array.isArray(methods) || methods instanceof Set)) {
-      throw new TypeError(
-        'idempotency(): "methods" option must be a non-empty Set or Array of non-empty strings'
-      );
+      throw new TypeError(methodsErrorMsg);
     }
     const size = Array.isArray(methods) ? methods.length : methods.size;
     if (size < 1) {
-      throw new TypeError(
-        'idempotency(): "methods" option must be a non-empty Set or Array of non-empty strings'
-      );
+      throw new TypeError(methodsErrorMsg);
     }
     for (const method of methods) {
       if (typeof method !== 'string' || method.length === 0) {
-        throw new TypeError(
-          'idempotency(): "methods" option must be a non-empty Set or Array of non-empty strings'
-        );
+        throw new TypeError(methodsErrorMsg);
       }
     }
   }
