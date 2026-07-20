@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784573916132,
+  "lastUpdate": 1784574979668,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -19906,6 +19906,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "8ba748fa2ba55aa467b50d99ce87adf033af6524",
+          "message": "refactor: named idempotency status constants and black-box store tests (#271, #273)",
+          "timestamp": "2026-07-20T14:59:39Z",
+          "url": "https://github.com/CentralPing/ergo/pull/419/commits/8ba748fa2ba55aa467b50d99ce87adf033af6524"
+        },
+        "date": 1784574978545,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.017,
             "unit": "us/op"
           },
           {
