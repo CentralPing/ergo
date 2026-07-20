@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784521513838,
+  "lastUpdate": 1784559537759,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -19772,6 +19772,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.013,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fcf5b52bf9945d0fe088ce06ae4645026c8dca3f",
+          "message": "refactor: authorization design cleanup (#255, #256, #290) (#418)\n\n* refactor: authorization design cleanup for Proxy, RFC 6750, authenticate (#255)\n\nReplace dispatchHelper Proxy with null-prototype schemeHandlers, rename Bearer\nfailure info to RFC 6750 property names, and normalize multi-challenge authenticate\nto a joined string at the lib producer.\n\n* fix: clear CHANGELOG MD038 on authenticate join separator (#255)",
+          "timestamp": "2026-07-20T10:58:34-04:00",
+          "tree_id": "857943eb92c553c4df98e8a137adb6896c9c182c",
+          "url": "https://github.com/CentralPing/ergo/commit/fcf5b52bf9945d0fe088ce06ae4645026c8dca3f"
+        },
+        "date": 1784559536861,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
