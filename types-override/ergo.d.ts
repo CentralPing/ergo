@@ -57,6 +57,10 @@ export type AjvFormatName =
 export interface AuthorizationStrategy {
   type: string;
   attributes?: Record<string, string>;
+  /**
+   * Scheme-specific credential check. On Bearer failure, `info` uses RFC 6750
+   * property names: `error`, `error_description`, `error_uri`.
+   */
   authorizer: (...args: any[]) => unknown;
 }
 

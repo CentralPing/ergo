@@ -67,7 +67,7 @@ describe('[Module] http/authorization', () => {
           attributes: {realm: 'API'},
           authorizer: async () => ({
             authorized: false,
-            info: {statusCode: 401, type: 'invalid_token'}
+            info: {error: 'invalid_token'}
           })
         }
       ]
@@ -78,6 +78,8 @@ describe('[Module] http/authorization', () => {
     const wwwAuth = result.response.headers.find(([name]) => name === 'WWW-Authenticate');
     assert.ok(wwwAuth, 'WWW-Authenticate header tuple present');
     assert.ok(typeof wwwAuth[1] === 'string' && wwwAuth[1].length > 0);
+    assert.ok(wwwAuth[1].includes('Bearer'));
+    assert.ok(wwwAuth[1].includes('error="invalid_token"'));
   });
 
   it('returns 401 when no Authorization header and strategy has authenticate', async () => {
@@ -96,5 +98,30 @@ describe('[Module] http/authorization', () => {
       Array.isArray(result.response.headers),
       'should include WWW-Authenticate from dispatcher'
     );
+  });
+
+  it('returns a single WWW-Authenticate string combining multi-strategy challenges', async () => {
+    const authorization = createAuthorization({
+      strategies: [
+        {
+          type: 'Basic',
+          attributes: {realm: 'Users'},
+          authorizer: async () => ({authorized: false, info: {}})
+        },
+        {
+          type: 'Bearer',
+          attributes: {realm: 'API'},
+          authorizer: async () => ({authorized: false, info: {}})
+        }
+      ]
+    });
+    const result = await authorization({headers: {}});
+    assert.equal(result.response.statusCode, 401);
+    const wwwAuth = result.response.headers.find(([name]) => name === 'WWW-Authenticate');
+    assert.ok(wwwAuth, 'WWW-Authenticate header tuple present');
+    assert.equal(typeof wwwAuth[1], 'string');
+    assert.ok(wwwAuth[1].includes('Basic'));
+    assert.ok(wwwAuth[1].includes('Bearer'));
+    assert.equal(result.response.headers.filter(([name]) => name === 'WWW-Authenticate').length, 1);
   });
 });
