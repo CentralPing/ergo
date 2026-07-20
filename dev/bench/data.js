@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784482924475,
+  "lastUpdate": 1784513486685,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -19663,6 +19663,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.006,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "87ef531af4ec42159cc5051e1054a68617d26513",
+          "message": "fix: restore compress Writable.end contract and named defaults (#311) (#405)\n\n* fix: restore compress Writable.end contract and named defaults (#311)\n\nExtract DEFAULT_THRESHOLD/DEFAULT_ENCODINGS, forward end callbacks through\nthe compression path with Node overload normalization, and measure threshold\nbyte length with the string encoding argument (#314, #317).\n\n* test: strengthen compress end-callback and threshold oracles (#311)\n\nAssert callback does not fire synchronously before compress finish,\nprove bypass/threshold paths exercise compressedEnd, and add utf8\nexplicit-encoding compress case to catch encoding-skip regressions.\n\n* fix: always origEnd after compress error callback (#311)\n\nWrap compressor error-path end callback in try/finally so a throwing\ncallback cannot skip response teardown; add regression coverage.\n\n* fix: swallow throwing compress error callbacks after delivery (#311)\n\nCatch end-callback throws after the compressor error is delivered so\nteardown always runs without uncaughtException races (Bun-safe test).\n\n* fix: deliver compress error callback after response teardown (#311)\n\nCall origEnd() before the end callback on compressor error so teardown\ncannot be skipped and callback ordering matches the success path.\n\n* fix: deliver compress error callback via origEnd finish (#311)\n\n* fix: document compress factory JSDoc and harden error-path oracles (#311)\n\n* test: prove compress end callbacks via origEnd delivery (#311)\n\n* test: assert compress end callbacks run inside origEnd delivery (#311)\n\n* test: fix mock deliveringEndCallback stuck false under Object.assign (#311)\n\nObject.assign copies getter return values, so isDeliveringEndCallback\nfroze as false at construction and CI failed the Writable.end oracle.\nUse a data property toggled during end-callback delivery instead.\n\n* test: assert bypass-path end callback via deliveringEndCallback (#311)\n\nCloses the residual decoy gap on the below-threshold path where\norigEnd(chunk, encoding) + direct cb() could still pass.\n\n* fix: complete compress factory JSDoc and latin1 encoding oracle (#311)\n\nAdd @returns on the factory per DECISIONS.md/JSDoc conventions, and\nrecord encoding on mock endInvocations so threshold bypass proves\norigEnd received the latin1 encodingArg.\n\n* fix: clarify compress error-catch comment and assert bypass body (#311)\n\nRephrase the empty catch to match actual behavior (user callback throws),\nand assert the below-threshold bypass forwards the chunk to origEnd.\n\n* test: strengthen threshold body and two-arg end-callback oracles (#311)\n\nAssert below-threshold skip forwards the chunk to origEnd, and that the\ntwo-arg compress-finish callback receives no error (parity with three-arg).\n\n* fix: return res from compressedEnd and bind error-path callback this (#311)\n\nMatch OutgoingMessage.end chaining and Writable.end receiver on the\ncompressor error path; strengthen bypass/threshold oracles accordingly.\n\n* test: strengthen end-callback identity and this-binding oracles (#311)\n\nNon-arrow receivers, endInvocations callback identity, and zlib error\ncode/message assertions close decoy-wrapper and substituted-Error gaps.\n\n* test: close two-arg success and latin1-above-threshold oracle gaps (#311)\n\nMirror three-arg identity/this oracles on (chunk, cb); assert latin1\nbodies ≥ threshold still compress.\n\n* test: close threshold boundary, latin1 round-trip, and binary alias oracles (#311)\n\nExact size===threshold compress, gunzip round-trip for encodingArg on\ncompress path, and binary below-threshold skip coverage.\n\n* test: assert DEFAULT_THRESHOLD and binary-above compress dual (#311)\n\nBehavioral createCompress() threshold oracle (1023 skip / 1024 compress)\nplus binary ≥ threshold Content-Encoding and gunzip round-trip.\n\n* test: harden compress DEFAULT_THRESHOLD, utf16le, error-identity oracles (#311)\n\n* test: spy zlib.createGzip via defineProperty for Deno/Node (#311)\n\n* test: capture compressor error identity via EventEmitter.emit (#311)",
+          "timestamp": "2026-07-19T19:34:43-04:00",
+          "tree_id": "87b903b6c395b2ad9e4fe797cb123d2cae7615e0",
+          "url": "https://github.com/CentralPing/ergo/commit/87ef531af4ec42159cc5051e1054a68617d26513"
+        },
+        "date": 1784513485125,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
             "unit": "us/op"
           }
         ]
