@@ -78,7 +78,7 @@ describe('[Module] http/rate-limit', () => {
   it('accepts a custom store', () => {
     const customStore = {
       hit() {
-        return {count: 999, resetMs: 1000};
+        return {count: 999, resetMs: 1000, resetAt: 1_001_000};
       }
     };
     const rateLimit = createRateLimit({max: 100, windowMs: 60000, store: customStore});

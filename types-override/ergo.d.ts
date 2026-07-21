@@ -243,7 +243,7 @@ export interface PreconditionOptions {
 export interface RateLimitOptions {
   max?: number;
   windowMs?: number;
-  store?: {hit(key: string, windowMs: number): {count: number; resetMs: number}};
+  store?: {hit(key: string, windowMs: number): {count: number; resetMs: number; resetAt: number}};
   keyGenerator?: (req: import('node:http').IncomingMessage) => string;
 }
 

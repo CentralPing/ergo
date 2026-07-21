@@ -13,6 +13,14 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **BREAKING: Rate-limit store `hit()` must return absolute `resetAt`.** (#263)
+  Pluggable stores now return `{count, resetMs, resetAt}` where `resetAt` is the
+  absolute window-reset time in milliseconds in the store's own clock domain.
+  `checkRateLimit` uses `resetAt` for `X-RateLimit-Reset` and no longer calls
+  `Date.now()`. Custom stores that previously returned only `{count, resetMs}` must
+  add `resetAt` (typically `now + resetMs` using the same clock that produced
+  `resetMs`). Non-finite `resetAt`/`resetMs` fail fast with `TypeError`.
+
 - **BREAKING: Bearer authorizer failure `info` uses RFC 6750 property names.** (#256)
   `type` / `desc` / `uri` are renamed to `error` / `error_description` / `error_uri`.
   The internal `errorPropMap` translation layer is removed — wire attribute names match
