@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784591268998,
+  "lastUpdate": 1784597590971,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20159,6 +20159,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.027,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "81ac720257b2d5b0dea5bc47de8a7cca2b2a2ca1",
+          "message": "fix: rate-limit store clock owns resetAt (#263)",
+          "timestamp": "2026-07-20T23:47:39Z",
+          "url": "https://github.com/CentralPing/ergo/pull/424/commits/81ac720257b2d5b0dea5bc47de8a7cca2b2a2ca1"
+        },
+        "date": 1784597590008,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.031,
             "unit": "us/op"
           },
           {
