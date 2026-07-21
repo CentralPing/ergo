@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784641126833,
+  "lastUpdate": 1784656020493,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20274,6 +20274,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a70a7d993ec3b420b39294f780f887530329df1e",
+          "message": "fix: rate-limit store clock owns resetAt (#263) (#424)\n\n* fix: rate-limit store clock owns resetAt (#263)\n\nExtend hit() with absolute resetAt from the store clock and remove\nDate.now() from checkRateLimit so X-RateLimit-Reset stays correct under\ninjectable MemoryStore clocks. Fail-fast on non-finite resetAt/resetMs.\n\n* test: harden resetAt oracles and document store contract (#263)\n\nStrengthen rate-limit review findings: mid-window resetAt pin,\nNumber.isFinite matrix, custom-store X-RateLimit-Reset wire-up,\nand http factory store JSDoc return shape.\n\n* test: exercise Math.ceil with non-aligned resetAt (#263)\n\nUse resetAt 9_000_001 and literal 9001 assertions so floor/trunc\nmutations cannot pass the custom-store and prefers-resetAt oracles.",
+          "timestamp": "2026-07-21T13:46:40-04:00",
+          "tree_id": "35fb2049fa70c80abb4fad5b51025cfb0436f713",
+          "url": "https://github.com/CentralPing/ergo/commit/a70a7d993ec3b420b39294f780f887530329df1e"
+        },
+        "date": 1784656018905,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
