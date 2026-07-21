@@ -78,13 +78,25 @@ describe('[Module] http/rate-limit', () => {
   it('accepts a custom store', () => {
     const customStore = {
       hit() {
-        return {count: 999, resetMs: 1000};
+        return {count: 999, resetMs: 1000, resetAt: 1_001_000};
       }
     };
     const rateLimit = createRateLimit({max: 100, windowMs: 60000, store: customStore});
 
     const result = rateLimit(mockReq());
     assert.equal(result.response.statusCode, 429);
+  });
+
+  it('wires custom-store resetAt into X-RateLimit-Reset when under the limit', () => {
+    const resetAt = 9_000_001;
+    const customStore = {
+      hit() {
+        return {count: 1, resetMs: 5_000, resetAt};
+      }
+    };
+    const rateLimit = createRateLimit({max: 100, windowMs: 60000, store: customStore});
+    const headers = Object.fromEntries(rateLimit(mockReq()).response.headers);
+    assert.equal(headers['X-RateLimit-Reset'], '9001');
   });
 
   it('uses default options when none provided', () => {

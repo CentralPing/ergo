@@ -36,7 +36,8 @@ const VALID_OPTIONS = new Set(['max', 'windowMs', 'store', 'keyGenerator']);
  * @param {object} [options]
  * @param {number} [options.max=100] - Maximum requests per window
  * @param {number} [options.windowMs=60000] - Window size in milliseconds (default: 1 minute)
- * @param {object} [options.store] - Pluggable store (must implement `hit(key, windowMs)`)
+ * @param {object} [options.store] - Pluggable store implementing
+ *   `hit(key, windowMs) => {count: number, resetMs: number, resetAt: number}`
  * @param {function} [options.keyGenerator] - `(req) => string` client identifier (default: remote IP)
  */
 export default function rateLimit(options = {}) {
