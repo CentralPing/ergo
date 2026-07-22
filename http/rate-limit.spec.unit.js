@@ -12,7 +12,8 @@ describe('[Module] http/rate-limit', () => {
     const headers = Object.fromEntries(headerTuples);
     assert.equal(headers['X-RateLimit-Limit'], limit);
     assert.equal(headers['X-RateLimit-Remaining'], remaining);
-    assert.ok(Number(headers['X-RateLimit-Reset']) > 0);
+    const reset = Number(headers['X-RateLimit-Reset']);
+    assert.ok(Number.isFinite(reset) && reset > 0);
   }
 
   it('returns rate-limit headers under the limit', () => {
@@ -40,7 +41,7 @@ describe('[Module] http/rate-limit', () => {
 
     const result = rateLimit(req);
     assert.equal(result.response.statusCode, 429);
-    assert.ok(typeof result.response.retryAfter === 'number');
+    assert.ok(Number.isFinite(result.response.retryAfter) && result.response.retryAfter > 0);
     assertRateLimitHeaders(result.response.headers, {limit: '2', remaining: '0'});
   });
 
@@ -51,7 +52,7 @@ describe('[Module] http/rate-limit', () => {
 
     const result = rateLimit(req);
     assert.equal(result.response.statusCode, 429);
-    assert.ok(result.response.retryAfter > 0);
+    assert.ok(Number.isFinite(result.response.retryAfter) && result.response.retryAfter > 0);
     assertRateLimitHeaders(result.response.headers, {limit: '1', remaining: '0'});
   });
 
@@ -104,7 +105,9 @@ describe('[Module] http/rate-limit', () => {
     assert.equal(hitCalls[0][0], '127.0.0.1');
     assert.equal(hitCalls[0][1], 60000);
     assert.equal(result.response.statusCode, 429);
+    assert.equal(result.response.retryAfter, 1);
     assertRateLimitHeaders(result.response.headers, {limit: '100', remaining: '0'});
+    assert.equal(Object.fromEntries(result.response.headers)['X-RateLimit-Reset'], '1001');
   });
 
   it('wires custom-store resetAt into X-RateLimit-Reset when under the limit', () => {
@@ -115,8 +118,10 @@ describe('[Module] http/rate-limit', () => {
       }
     };
     const rateLimit = createRateLimit({max: 100, windowMs: 60000, store: customStore});
-    const headers = Object.fromEntries(rateLimit(mockReq()).response.headers);
-    assert.equal(headers['X-RateLimit-Reset'], '9001');
+    const result = rateLimit(mockReq());
+    assert.equal(result.response.statusCode, undefined);
+    assertRateLimitHeaders(result.response.headers, {limit: '100', remaining: '99'});
+    assert.equal(Object.fromEntries(result.response.headers)['X-RateLimit-Reset'], '9001');
   });
 
   it('uses default options when none provided', () => {
