@@ -56,6 +56,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`http/rate-limit` validates option values at construction and includes `X-RateLimit-*` on 429.** (#264, #265, #327)
+  Named defaults `DEFAULT_MAX_REQUESTS` / `DEFAULT_WINDOW_MS` replace magic-number destructuring.
+  Factory throws `TypeError` for invalid `max`, `windowMs`, `store`, or `keyGenerator` (keys-only
+  `validateOptions` was previously the only check). Limited responses now return the same three
+  `X-RateLimit-*` header tuples as allowed responses (parity with transport rate-limit).
+
 - **`http/idempotency` skip paths return `undefined` instead of `{}`.** (#319)
   Method-not-applicable and optional missing-key paths now use bare `return` so
   compose-with leaves `acc.idempotency` unset (DECISIONS: `undefined`/`null` skip all
