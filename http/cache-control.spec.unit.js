@@ -143,5 +143,15 @@ describe('[Module] http/cache-control', () => {
     assert.doesNotThrow(() =>
       createCacheControl({directives: 'no-store', public: true, private: true})
     );
+
+    assert.doesNotThrow(() =>
+      createCacheControl({directives: 'no-store', noStore: true, maxAge: 0})
+    );
+    const withNoStoreFreshness = createCacheControl({
+      directives: 'no-store',
+      noStore: true,
+      maxAge: 0
+    });
+    assert.equal(withNoStoreFreshness().response.headers[0][1], 'no-store');
   });
 });
