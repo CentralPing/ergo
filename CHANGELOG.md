@@ -56,6 +56,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`http/cache-control` validates structured options at construction and exports `DEFAULT_DIRECTIVES`.** (#296, #300, #302)
+  Named constant `DEFAULT_DIRECTIVES` (`'private, no-cache'`) replaces the magic-string fallback.
+  Factory throws `TypeError` when a delta-seconds option (`maxAge`, `sMaxAge`, `staleWhileRevalidate`,
+  `staleIfError`) is not a non-negative integer, when `public` and `private` are both set, or when
+  `noStore` is combined with freshness directives. Raw `directives` strings remain unvalidated.
+  Matches the csrf / rate-limit factory-time value-validation pattern.
+
 - **`http/rate-limit` validates option values at construction and includes `X-RateLimit-*` on 429.** (#264, #265, #327)
   Named defaults `DEFAULT_MAX_REQUESTS` / `DEFAULT_WINDOW_MS` replace magic-number destructuring.
   Factory throws `TypeError` for invalid `max`, `windowMs`, `store`, or `keyGenerator` (keys-only
