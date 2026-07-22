@@ -132,9 +132,16 @@ describe('[Module] http/cache-control', () => {
     }
   });
 
-  it('accepts contradictory raw directives without validation', () => {
-    const cacheControl = createCacheControl({directives: 'public, private'});
-    const [[, value]] = cacheControl().response.headers;
-    assert.equal(value, 'public, private');
+  it('accepts raw directives without structured validation', () => {
+    const contradictory = createCacheControl({directives: 'public, private'});
+    assert.equal(contradictory().response.headers[0][1], 'public, private');
+
+    assert.doesNotThrow(() => createCacheControl({directives: 'no-store', maxAge: -1}));
+    const withInvalidDelta = createCacheControl({directives: 'no-store', maxAge: -1});
+    assert.equal(withInvalidDelta().response.headers[0][1], 'no-store');
+
+    assert.doesNotThrow(() =>
+      createCacheControl({directives: 'no-store', public: true, private: true})
+    );
   });
 });
