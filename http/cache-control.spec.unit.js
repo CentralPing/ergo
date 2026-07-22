@@ -1,13 +1,17 @@
 import {describe, it} from 'node:test';
 import assert from 'node:assert/strict';
-import createCacheControl from './cache-control.js';
+import createCacheControl, {DEFAULT_DIRECTIVES} from './cache-control.js';
 
 describe('[Module] http/cache-control', () => {
-  it('returns {response: {headers}} with default "private, no-cache"', () => {
+  it('exports DEFAULT_DIRECTIVES as "private, no-cache"', () => {
+    assert.equal(DEFAULT_DIRECTIVES, 'private, no-cache');
+  });
+
+  it('returns {response: {headers}} with default DEFAULT_DIRECTIVES', () => {
     const cacheControl = createCacheControl();
     const result = cacheControl();
     assert.ok(result.response, 'should have a response property');
-    assert.deepEqual(result.response.headers, [['Cache-Control', 'private, no-cache']]);
+    assert.deepEqual(result.response.headers, [['Cache-Control', DEFAULT_DIRECTIVES]]);
   });
 
   it('accepts a raw directives string', () => {
@@ -84,15 +88,70 @@ describe('[Module] http/cache-control', () => {
     assert.equal(cacheControl(), cacheControl());
   });
 
-  it('falls back to default when all structured options are false/undefined', () => {
+  it('falls back to DEFAULT_DIRECTIVES when all structured options are false/undefined', () => {
     const cacheControl = createCacheControl({});
     const [[, value]] = cacheControl().response.headers;
-    assert.equal(value, 'private, no-cache');
+    assert.equal(value, DEFAULT_DIRECTIVES);
   });
 
   it('supports maxAge of 0', () => {
     const cacheControl = createCacheControl({noCache: true, maxAge: 0});
     const [[, value]] = cacheControl().response.headers;
     assert.ok(value.includes('max-age=0'));
+  });
+
+  it('throws TypeError when a delta-seconds option is not a non-negative integer', () => {
+    for (const name of ['maxAge', 'sMaxAge', 'staleWhileRevalidate', 'staleIfError']) {
+      for (const value of [-1, 1.5, NaN, Infinity, '3600', true, null]) {
+        assert.throws(() => createCacheControl({[name]: value}), {
+          name: 'TypeError',
+          message: new RegExp(`"${name}" option must be a non-negative integer`)
+        });
+      }
+    }
+  });
+
+  it('throws TypeError when public and private are both true', () => {
+    assert.throws(() => createCacheControl({public: true, private: true}), {
+      name: 'TypeError',
+      message: /"public" and "private" are mutually exclusive/
+    });
+  });
+
+  it('throws TypeError when noStore is combined with freshness directives', () => {
+    for (const opts of [
+      {noStore: true, maxAge: 0},
+      {noStore: true, sMaxAge: 60},
+      {noStore: true, staleWhileRevalidate: 30},
+      {noStore: true, staleIfError: 120}
+    ]) {
+      assert.throws(() => createCacheControl(opts), {
+        name: 'TypeError',
+        message: /"noStore" cannot be combined with freshness directives/
+      });
+    }
+  });
+
+  it('accepts raw directives without structured validation', () => {
+    const contradictory = createCacheControl({directives: 'public, private'});
+    assert.equal(contradictory().response.headers[0][1], 'public, private');
+
+    assert.doesNotThrow(() => createCacheControl({directives: 'no-store', maxAge: -1}));
+    const withInvalidDelta = createCacheControl({directives: 'no-store', maxAge: -1});
+    assert.equal(withInvalidDelta().response.headers[0][1], 'no-store');
+
+    assert.doesNotThrow(() =>
+      createCacheControl({directives: 'no-store', public: true, private: true})
+    );
+
+    assert.doesNotThrow(() =>
+      createCacheControl({directives: 'no-store', noStore: true, maxAge: 0})
+    );
+    const withNoStoreFreshness = createCacheControl({
+      directives: 'no-store',
+      noStore: true,
+      maxAge: 0
+    });
+    assert.equal(withNoStoreFreshness().response.headers[0][1], 'no-store');
   });
 });

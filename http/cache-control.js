@@ -4,6 +4,8 @@
  * Returns header tuples that set the `Cache-Control` response header. The directive
  * string is pre-computed at factory time for zero per-request cost. Accepts either
  * a raw directive string or structured options that are assembled into a directive.
+ * Structured options are validated at factory time (delta-seconds type/range and
+ * mutually exclusive combinations). Defaults to {@link DEFAULT_DIRECTIVES}.
  *
  * @module http/cache-control
  * @since 0.1.0
@@ -27,6 +29,13 @@
  */
 
 import {validateOptions} from '../lib/validate-options.js';
+
+/**
+ * Security-safe default Cache-Control directive string.
+ *
+ * @type {string}
+ */
+export const DEFAULT_DIRECTIVES = 'private, no-cache';
 
 /** @type {Set<string>} */
 const VALID_OPTIONS = new Set([
@@ -62,6 +71,9 @@ const VALID_OPTIONS = new Set([
  * @param {number} [options.sMaxAge] - `s-maxage` value in seconds
  * @param {number} [options.staleWhileRevalidate] - `stale-while-revalidate` value in seconds
  * @param {number} [options.staleIfError] - `stale-if-error` value in seconds
+ * @returns {function(): {response: {headers: [string, string][]}}} - Middleware that returns Cache-Control headers
+ * @throws {TypeError} When a structured delta-seconds option is not a non-negative integer, or when
+ *   `public`+`private` or `noStore`+freshness directives are combined
  */
 export default (options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'cacheControl');
@@ -80,9 +92,28 @@ export default (options = {}) => {
     staleWhileRevalidate,
     staleIfError
   } = options;
-  const value =
-    directives ??
-    buildDirectives({
+
+  let value;
+  if (directives == null) {
+    validateDeltaSeconds('maxAge', maxAge);
+    validateDeltaSeconds('sMaxAge', sMaxAge);
+    validateDeltaSeconds('staleWhileRevalidate', staleWhileRevalidate);
+    validateDeltaSeconds('staleIfError', staleIfError);
+
+    if (isPublic && isPrivate) {
+      throw new TypeError('cacheControl(): "public" and "private" are mutually exclusive');
+    }
+    if (
+      noStore &&
+      (maxAge !== undefined ||
+        sMaxAge !== undefined ||
+        staleWhileRevalidate !== undefined ||
+        staleIfError !== undefined)
+    ) {
+      throw new TypeError('cacheControl(): "noStore" cannot be combined with freshness directives');
+    }
+
+    value = buildDirectives({
       isPublic,
       isPrivate,
       noCache,
@@ -96,6 +127,9 @@ export default (options = {}) => {
       staleWhileRevalidate,
       staleIfError
     });
+  } else {
+    value = directives;
+  }
 
   const headerTuples = [['Cache-Control', value]];
   const response = {response: {headers: headerTuples}};
@@ -104,6 +138,19 @@ export default (options = {}) => {
     return response;
   };
 };
+
+/**
+ * Validates a Cache-Control delta-seconds option (RFC 9111 §1.2.2).
+ *
+ * @param {string} name - Option name for the error message
+ * @param {unknown} value - Option value (skipped when `undefined`)
+ * @throws {TypeError} When `value` is provided and is not a non-negative integer
+ */
+function validateDeltaSeconds(name, value) {
+  if (value !== undefined && !(Number.isInteger(value) && value >= 0)) {
+    throw new TypeError(`cacheControl(): "${name}" option must be a non-negative integer`);
+  }
+}
 
 /**
  * Assembles a Cache-Control directive string from structured options.
@@ -140,5 +187,5 @@ function buildDirectives({
   if (staleWhileRevalidate != null) parts.push(`stale-while-revalidate=${staleWhileRevalidate}`);
   if (staleIfError != null) parts.push(`stale-if-error=${staleIfError}`);
 
-  return parts.join(', ') || 'private, no-cache';
+  return parts.join(', ') || DEFAULT_DIRECTIVES;
 }
