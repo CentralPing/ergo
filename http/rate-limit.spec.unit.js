@@ -5,29 +5,43 @@ import createRateLimit from './rate-limit.js';
 describe('[Module] http/rate-limit', () => {
   const mockReq = (ip = '127.0.0.1') => ({socket: {remoteAddress: ip}});
 
+  /** @param {[string, string][]} headerTuples */
+  function assertRateLimitHeaders(headerTuples, {limit, remaining}) {
+    assert.ok(Array.isArray(headerTuples));
+    assert.equal(headerTuples.length, 3);
+    const headers = Object.fromEntries(headerTuples);
+    assert.equal(headers['X-RateLimit-Limit'], limit);
+    assert.equal(headers['X-RateLimit-Remaining'], remaining);
+    const reset = Number(headers['X-RateLimit-Reset']);
+    assert.ok(Number.isFinite(reset) && reset > 0);
+  }
+
+  /** @param {{response: {statusCode?: number, retryAfter?: number, headers: [string, string][]}}} result */
+  function assertAllowed(result) {
+    assert.equal(result.response.statusCode, undefined);
+    assert.equal(result.response.retryAfter, undefined);
+  }
+
   it('returns rate-limit headers under the limit', () => {
     const rateLimit = createRateLimit({max: 10, windowMs: 60000});
     const result = rateLimit(mockReq());
 
-    assert.ok(result?.response?.headers);
-    assert.equal(result.response.headers.length, 3);
-
-    const headers = Object.fromEntries(result.response.headers);
-    assert.equal(headers['X-RateLimit-Limit'], '10');
-    assert.ok(Number(headers['X-RateLimit-Remaining']) >= 0);
-    assert.ok(Number(headers['X-RateLimit-Reset']) > 0);
+    assertAllowed(result);
+    assertRateLimitHeaders(result.response.headers, {limit: '10', remaining: '9'});
   });
 
   it('decrements remaining on subsequent calls', () => {
     const rateLimit = createRateLimit({max: 5, windowMs: 60000});
     const req = mockReq();
-    rateLimit(req);
-    const result = rateLimit(req);
-    const remaining = Number(Object.fromEntries(result.response.headers)['X-RateLimit-Remaining']);
-    assert.equal(remaining, 3);
+    const first = rateLimit(req);
+    assertAllowed(first);
+    assertRateLimitHeaders(first.response.headers, {limit: '5', remaining: '4'});
+    const second = rateLimit(req);
+    assertAllowed(second);
+    assertRateLimitHeaders(second.response.headers, {limit: '5', remaining: '3'});
   });
 
-  it('returns 429 response when limit is exceeded', () => {
+  it('returns 429 response with rate-limit headers when limit is exceeded', () => {
     const rateLimit = createRateLimit({max: 2, windowMs: 60000});
     const req = mockReq();
     rateLimit(req);
@@ -35,56 +49,73 @@ describe('[Module] http/rate-limit', () => {
 
     const result = rateLimit(req);
     assert.equal(result.response.statusCode, 429);
-    assert.ok(typeof result.response.retryAfter === 'number');
+    assert.ok(Number.isFinite(result.response.retryAfter) && result.response.retryAfter > 0);
+    assertRateLimitHeaders(result.response.headers, {limit: '2', remaining: '0'});
   });
 
-  it('limited response includes positive retryAfter', () => {
+  it('limited response includes positive retryAfter and rate-limit headers', () => {
     const rateLimit = createRateLimit({max: 1, windowMs: 60000});
     const req = mockReq();
     rateLimit(req);
 
     const result = rateLimit(req);
     assert.equal(result.response.statusCode, 429);
-    assert.ok(result.response.retryAfter > 0);
+    assert.ok(Number.isFinite(result.response.retryAfter) && result.response.retryAfter > 0);
+    assertRateLimitHeaders(result.response.headers, {limit: '1', remaining: '0'});
   });
 
   it('tracks separate clients independently', () => {
     const rateLimit = createRateLimit({max: 1, windowMs: 60000});
     rateLimit(mockReq('10.0.0.1'));
-    // Second client should not be limited
     const result = rateLimit(mockReq('10.0.0.2'));
-    assert.ok(result?.response?.headers);
-    assert.ok(Array.isArray(result.response.headers));
+    assertAllowed(result);
+    assertRateLimitHeaders(result.response.headers, {limit: '1', remaining: '0'});
   });
 
   it('accepts a custom keyGenerator', () => {
+    /** @type {string[]} */
+    const keys = [];
     const rateLimit = createRateLimit({
       max: 1,
       windowMs: 60000,
-      keyGenerator: req => req.headers?.['x-api-key'] || 'anon'
+      keyGenerator: req => {
+        const key = req.headers?.['x-api-key'] || 'anon';
+        keys.push(key);
+        return key;
+      }
     });
 
     rateLimit({headers: {'x-api-key': 'key-a'}, socket: {}});
 
     const limited = rateLimit({headers: {'x-api-key': 'key-a'}, socket: {}});
     assert.equal(limited.response.statusCode, 429);
+    assertRateLimitHeaders(limited.response.headers, {limit: '1', remaining: '0'});
 
-    // Different key should not be limited
     const result = rateLimit({headers: {'x-api-key': 'key-b'}, socket: {}});
-    assert.ok(result?.response?.headers);
-    assert.ok(Array.isArray(result.response.headers));
+    assertAllowed(result);
+    assertRateLimitHeaders(result.response.headers, {limit: '1', remaining: '0'});
+    assert.deepEqual(keys, ['key-a', 'key-a', 'key-b']);
   });
 
-  it('accepts a custom store', () => {
+  it('accepts a custom store and includes rate-limit headers on 429', () => {
+    /** @type {[string, number][]} */
+    const hitCalls = [];
     const customStore = {
-      hit() {
+      hit(key, windowMs) {
+        hitCalls.push([key, windowMs]);
         return {count: 999, resetMs: 1000, resetAt: 1_001_000};
       }
     };
     const rateLimit = createRateLimit({max: 100, windowMs: 60000, store: customStore});
 
     const result = rateLimit(mockReq());
+    assert.equal(hitCalls.length, 1);
+    assert.equal(hitCalls[0][0], '127.0.0.1');
+    assert.equal(hitCalls[0][1], 60000);
     assert.equal(result.response.statusCode, 429);
+    assert.equal(result.response.retryAfter, 1);
+    assertRateLimitHeaders(result.response.headers, {limit: '100', remaining: '0'});
+    assert.equal(Object.fromEntries(result.response.headers)['X-RateLimit-Reset'], '1001');
   });
 
   it('wires custom-store resetAt into X-RateLimit-Reset when under the limit', () => {
@@ -95,14 +126,64 @@ describe('[Module] http/rate-limit', () => {
       }
     };
     const rateLimit = createRateLimit({max: 100, windowMs: 60000, store: customStore});
-    const headers = Object.fromEntries(rateLimit(mockReq()).response.headers);
-    assert.equal(headers['X-RateLimit-Reset'], '9001');
+    const result = rateLimit(mockReq());
+    assertAllowed(result);
+    assertRateLimitHeaders(result.response.headers, {limit: '100', remaining: '99'});
+    assert.equal(Object.fromEntries(result.response.headers)['X-RateLimit-Reset'], '9001');
   });
 
   it('uses default options when none provided', () => {
-    const rateLimit = createRateLimit();
+    /** @type {number[]} */
+    const windowArgs = [];
+    const store = {
+      hit(_key, windowMs) {
+        windowArgs.push(windowMs);
+        return {count: 1, resetMs: windowMs, resetAt: 1_000_000 + windowMs};
+      }
+    };
+    // Omit max/windowMs so factory defaults apply; store only observes windowMs.
+    const rateLimit = createRateLimit({store});
     const result = rateLimit(mockReq());
-    const headers = Object.fromEntries(result.response.headers);
-    assert.equal(headers['X-RateLimit-Limit'], '100');
+    assert.deepEqual(windowArgs, [60_000]);
+    assertAllowed(result);
+    assertRateLimitHeaders(result.response.headers, {limit: '100', remaining: '99'});
+  });
+
+  it('throws TypeError when max is not a positive integer', () => {
+    for (const max of [0, -1, 1.5, NaN, '10', null]) {
+      assert.throws(() => createRateLimit({max}), {
+        name: 'TypeError',
+        message: /"max" option must be a positive integer/
+      });
+    }
+  });
+
+  it('throws TypeError when windowMs is not a positive finite number', () => {
+    for (const windowMs of [0, -1, NaN, Infinity, '1000', null]) {
+      assert.throws(() => createRateLimit({windowMs}), {
+        name: 'TypeError',
+        message: /"windowMs" option must be a positive finite number/
+      });
+    }
+  });
+
+  it('throws TypeError when store is provided without a hit method', () => {
+    for (const store of [{}, null, {hit: 1}]) {
+      assert.throws(() => createRateLimit({store}), {
+        name: 'TypeError',
+        message: /"store" option must implement hit/
+      });
+    }
+  });
+
+  it('throws TypeError when keyGenerator is provided but not a function', () => {
+    assert.throws(() => createRateLimit({keyGenerator: 42}), {
+      name: 'TypeError',
+      message: /"keyGenerator" option must be a function/
+    });
+    assert.throws(() => createRateLimit({keyGenerator: null}), {
+      name: 'TypeError',
+      message: /"keyGenerator" option must be a function/
+    });
   });
 });
