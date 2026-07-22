@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784738935270,
+  "lastUpdate": 1784740528036,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20488,6 +20488,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ba28a3c07c24a08388cfa664abdc514e9ba7ee4a",
+          "message": "fix: rate-limit factory hardening (#264, #265, #327) (#426)\n\n* fix: rate-limit factory hardening (#264, #265, #327)\n\nNamed defaults, construction-time option value validation, and\nX-RateLimit-* headers on 429 responses for pipeline rate-limit parity\nwith the transport adapter.\n\n* fix: reject explicit null store in rateLimit factory\n\nAlign store validation with keyGenerator: only undefined may omit the\noption; null fails the hit() interface check (CodeRabbit on #426).\n\n* fix: harden rate-limit module test oracles (#264)\n\nAssert allowed responses lack statusCode after headers-on-429; require\nexact Remaining; spy keyGenerator and custom-store hit() invocations.\n\n* fix: tighten rate-limit test timing oracles (#264)\n\nRequire finite positive Reset/retryAfter and assert exact custom-store\nretryAfter/Reset values from fixture timings.\n\n* fix: assert allowed-path and default windowMs oracles (#264)\n\nassertAllowed() requires absent retryAfter on under-limit responses;\ndefault-options test observes DEFAULT_WINDOW_MS via injected store.",
+          "timestamp": "2026-07-22T13:15:04-04:00",
+          "tree_id": "0545d2186e621ca542a269e88fe6049552b44588",
+          "url": "https://github.com/CentralPing/ergo/commit/ba28a3c07c24a08388cfa664abdc514e9ba7ee4a"
+        },
+        "date": 1784740526293,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.018,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
