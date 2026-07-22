@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784753376640,
+  "lastUpdate": 1784756041348,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20632,6 +20632,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.009,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "607f8f287603b85da44b363e16e2d61bc35c65b0",
+          "message": "fix: harden cacheControl factory validation (#296, #300, #302) (#427)\n\n* fix: harden cacheControl factory validation (#296, #300, #302)\n\nExport DEFAULT_DIRECTIVES and throw TypeError at construction for invalid\ndelta-seconds and contradictory structured options; raw directives stay free.\n\n* test: assert raw directives bypass structured validation (#296)\n\n* test: cover noStore+freshness under raw directives bypass (#296)",
+          "timestamp": "2026-07-22T17:33:43-04:00",
+          "tree_id": "54233728928c9a9e2c2fe4a5e2699c036da12e9c",
+          "url": "https://github.com/CentralPing/ergo/commit/607f8f287603b85da44b363e16e2d61bc35c65b0"
+        },
+        "date": 1784756039692,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
