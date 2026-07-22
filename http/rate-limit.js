@@ -57,7 +57,7 @@ export default function rateLimit(options = {}) {
   if (!Number.isFinite(windowMs) || windowMs <= 0) {
     throw new TypeError('rateLimit(): "windowMs" option must be a positive finite number');
   }
-  if (store != null && typeof store.hit !== 'function') {
+  if (store !== undefined && typeof store?.hit !== 'function') {
     throw new TypeError('rateLimit(): "store" option must implement hit(key, windowMs)');
   }
   if (keyGenerator !== undefined && typeof keyGenerator !== 'function') {

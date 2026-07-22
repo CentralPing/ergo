@@ -138,10 +138,12 @@ describe('[Module] http/rate-limit', () => {
   });
 
   it('throws TypeError when store is provided without a hit method', () => {
-    assert.throws(() => createRateLimit({store: {}}), {
-      name: 'TypeError',
-      message: /"store" option must implement hit/
-    });
+    for (const store of [{}, null, {hit: 1}]) {
+      assert.throws(() => createRateLimit({store}), {
+        name: 'TypeError',
+        message: /"store" option must implement hit/
+      });
+    }
   });
 
   it('throws TypeError when keyGenerator is provided but not a function', () => {
