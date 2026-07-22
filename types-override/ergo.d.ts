@@ -258,10 +258,19 @@ export interface SecurityHeadersOptions {
         includeSubDomains?: boolean;
         preload?: boolean;
       };
-  xContentTypeOptions?: string | false;
-  xFrameOptions?: string | false;
-  referrerPolicy?: string | false;
-  xXssProtection?: string | false;
+  xContentTypeOptions?: 'nosniff' | true | false;
+  xFrameOptions?: 'DENY' | 'SAMEORIGIN' | false;
+  referrerPolicy?:
+    | 'no-referrer'
+    | 'no-referrer-when-downgrade'
+    | 'same-origin'
+    | 'origin'
+    | 'strict-origin'
+    | 'origin-when-cross-origin'
+    | 'strict-origin-when-cross-origin'
+    | 'unsafe-url'
+    | false;
+  xXssProtection?: '0' | '1' | '1; mode=block' | false;
   permissionsPolicy?: string | false;
 }
 

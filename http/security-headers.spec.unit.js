@@ -91,4 +91,31 @@ describe('[Module] http/security-headers', () => {
     });
     assert.equal(securityHeaders().response.headers.length, 0);
   });
+
+  it('throws TypeError for invalid option values at construction', () => {
+    assert.throws(() => createSecurityHeaders({xFrameOptions: 'INVALID'}), {
+      name: 'TypeError',
+      message: /"xFrameOptions"/
+    });
+    assert.throws(() => createSecurityHeaders({referrerPolicy: 'none'}), {
+      name: 'TypeError',
+      message: /"referrerPolicy"/
+    });
+    assert.throws(() => createSecurityHeaders({xContentTypeOptions: 'yes'}), {
+      name: 'TypeError',
+      message: /"xContentTypeOptions"/
+    });
+    assert.throws(() => createSecurityHeaders({xXssProtection: 'on'}), {
+      name: 'TypeError',
+      message: /"xXssProtection"/
+    });
+    assert.throws(() => createSecurityHeaders({contentSecurityPolicy: ''}), {
+      name: 'TypeError',
+      message: /"contentSecurityPolicy"/
+    });
+    assert.throws(() => createSecurityHeaders({strictTransportSecurity: {}}), {
+      name: 'TypeError',
+      message: /"strictTransportSecurity.maxAge"/
+    });
+  });
 });
