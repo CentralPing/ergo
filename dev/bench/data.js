@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784759336014,
+  "lastUpdate": 1784826478878,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20701,6 +20701,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "379d71fd1be1838d9b8b8b803b89039578af0130",
+          "message": "fix: harden security-headers enable guards and value validation (#283)",
+          "timestamp": "2026-07-22T21:33:49Z",
+          "url": "https://github.com/CentralPing/ergo/pull/428/commits/379d71fd1be1838d9b8b8b803b89039578af0130"
+        },
+        "date": 1784826476781,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.009,
             "unit": "us/op"
           },
           {
