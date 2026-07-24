@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784859510608,
+  "lastUpdate": 1784928841485,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20850,6 +20850,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "acd7a1868bd51f5e8e9628297bfed36dee1cd033",
+          "message": "chore(deps-dev): Bump prettier from 3.9.5 to 3.9.6 in the all-patches group",
+          "timestamp": "2026-07-24T02:18:16Z",
+          "url": "https://github.com/CentralPing/ergo/pull/429/commits/acd7a1868bd51f5e8e9628297bfed36dee1cd033"
+        },
+        "date": 1784928840157,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.029,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
