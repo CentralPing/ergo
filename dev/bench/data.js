@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784854930958,
+  "lastUpdate": 1784859510608,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20811,6 +20811,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6432e5c1a8abfbf21c33224ce6457ffb916bdd48",
+          "message": "fix: harden security-headers enable guards and value validation (#283) (#428)\n\n* fix: harden security-headers enable guards and value validation (#283)\n\nExport DEFAULT_HSTS_MAX_AGE_SECONDS, unify Pattern A enable guards, and\nfail closed on invalid header option values at construction time.\n\nCloses #283\nCloses #284\nCloses #331\n\n* fix: align security-headers JSDoc and harden tests (#283)\n\nCorrect Object-form maxAge docs and enum @param unions to match\nruntime validation; assert exact HSTS strings, DEL CTL, and maxAge 0.\n\n* fix: address CodeRabbit findings on security-headers (#283)\n\nBoolean-coerce isEnabled, document HSTS object defaults with a test,\nand reuse SecurityHeadersOptions in lib types-override.\n\n* fix: add CR/LF CTL rejection samples for structural headers (#283)",
+          "timestamp": "2026-07-23T22:18:11-04:00",
+          "tree_id": "d467484cc32d8e2fae09ea190e4322234b5e2afe",
+          "url": "https://github.com/CentralPing/ergo/commit/6432e5c1a8abfbf21c33224ce6457ffb916bdd48"
+        },
+        "date": 1784859509636,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.02,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
