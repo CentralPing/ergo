@@ -145,7 +145,7 @@
     "lint-staged": "^17.0.3",
     "prettier": "^3.8.1",
     "simple-git-hooks": "^2.12.1",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "undici": "^8.5.0"
   },
   "c8": {
