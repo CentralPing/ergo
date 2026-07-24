@@ -6,12 +6,26 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`DEFAULT_HSTS_MAX_AGE_SECONDS` export from `lib/security-headers`.** (#284)
+  Named constant for the default HSTS `max-age` (one year = `31_536_000` seconds).
+  `buildHstsDirective` and JSDoc reference the constant; ergo-router transport should
+  import it instead of duplicating the magic number.
+
 - **`STATUS_PROCESSING` / `STATUS_COMPLETE` exports from `lib/idempotency`.** (#271)
   Named lifecycle constants for `IdempotencyStore` entry status. Middleware and
   custom store consumers should compare against these instead of raw string
   literals. Wire values remain `'processing'` / `'complete'` (additive, non-breaking).
 
 ### Changed
+
+- **BREAKING: `buildSecurityHeaderTuples` validates option values at construction.** (#283, #331)
+  Constrained headers (`xFrameOptions`, `referrerPolicy`, `xContentTypeOptions`,
+  `xXssProtection`) reject non-enum values with `TypeError`. Free-form directives
+  (CSP, Permissions-Policy, HSTS string) require a non-empty string without CTL
+  characters. HSTS object form requires a non-negative integer `maxAge` (empty `{}`
+  no longer silently defaults). Enable guards are unified to Pattern A
+  (`value !== false && value`); `String()` coercion on `xXssProtection` is removed.
+  Invalid undocumented inputs (`''`, `0`, `null`) throw instead of emitting or omitting.
 
 - **BREAKING: Rate-limit store `hit()` must return absolute `resetAt`.** (#263)
   Pluggable stores now return `{count, resetMs, resetAt}` where `resetAt` is the
