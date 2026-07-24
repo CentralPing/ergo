@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784928841485,
+  "lastUpdate": 1784928858840,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -20885,6 +20885,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.012,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "0da4e3d0d1c9a82abe7baeef356704c50b472398",
+          "message": "chore(deps-dev): Bump typescript from 6.0.3 to 7.0.2 in the dev-major group",
+          "timestamp": "2026-07-24T02:18:16Z",
+          "url": "https://github.com/CentralPing/ergo/pull/430/commits/0da4e3d0d1c9a82abe7baeef356704c50b472398"
+        },
+        "date": 1784928857697,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.026,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
