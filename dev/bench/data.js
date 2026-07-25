@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784996846413,
+  "lastUpdate": 1785002220279,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21234,6 +21234,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "be059dafb7bc7c23aef718b7d476d2b249037a2f",
+          "message": "refactor: extract resolveTimingConfig for timing option DRY (#304) (#432)\n\n* refactor: extract resolveTimingConfig for timing option DRY (#304)\n\nColocate boolean|{header?,precision?} interpretation with the shared\nresponse-time primitive so handler and ergo-router cannot drift.\n\n* test: strengthen resolveTimingConfig ?? oracles (#304)",
+          "timestamp": "2026-07-25T13:56:44-04:00",
+          "tree_id": "bc6fae84b37213b65c4de17b991036ce293ff1b3",
+          "url": "https://github.com/CentralPing/ergo/commit/be059dafb7bc7c23aef718b7d476d2b249037a2f"
+        },
+        "date": 1785002218667,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.018,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
             "unit": "us/op"
           },
           {
