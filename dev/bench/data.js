@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784992074090,
+  "lastUpdate": 1784995452039,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21120,6 +21120,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.025,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d5114a69cee5a5ba3edc9e64c0e54e8e18ccd6ba",
+          "message": "chore(deps-dev): Bump typescript from 6.0.3 to 7.0.2 in the dev-major group across 1 directory (#430)\n\n* chore(deps-dev): Bump typescript\n\nBumps the dev-major group with 1 update in the / directory: [typescript](https://github.com/microsoft/TypeScript).\n\n\nUpdates `typescript` from 6.0.3 to 7.0.2\n- [Release notes](https://github.com/microsoft/TypeScript/releases)\n- [Commits](https://github.com/microsoft/TypeScript/commits)\n\n---\nupdated-dependencies:\n- dependency-name: typescript\n  dependency-version: 7.0.2\n  dependency-type: direct:development\n  update-type: version-update:semver-major\n  dependency-group: dev-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\n* fix: make TypeScript 7 check-types pass (#430)\n\nBump @centralping/ergo-wire to v0.1.0-beta.3 so GitHub installs ship\ndeclarations, and add types-override/utils/compose.d.ts to avoid TS7\nduplicate withOptions emit (TS2403).\n\n---------\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Jason Cust <JasonCust@users.noreply.github.com>\nCo-authored-by: Jason Cust <jason.cust@gmail.com>",
+          "timestamp": "2026-07-25T12:03:53-04:00",
+          "tree_id": "fc94ce46458128201db26e90e5cb845bfd0db8c5",
+          "url": "https://github.com/CentralPing/ergo/commit/d5114a69cee5a5ba3edc9e64c0e54e8e18ccd6ba"
+        },
+        "date": 1784995451059,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
             "unit": "us/op"
           },
           {
