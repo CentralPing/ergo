@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784995452039,
+  "lastUpdate": 1784995571601,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21169,6 +21169,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "0e7034dd3c35bbbc383482bd914f4914c75799ba",
+          "message": "refactor: extract resolveTimingConfig for timing option DRY (#304)",
+          "timestamp": "2026-07-25T16:03:58Z",
+          "url": "https://github.com/CentralPing/ergo/pull/432/commits/0e7034dd3c35bbbc383482bd914f4914c75799ba"
+        },
+        "date": 1784995570402,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.009,
             "unit": "us/op"
           }
         ]
