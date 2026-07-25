@@ -34,10 +34,7 @@ import {STATUS_CODES} from 'node:http';
 import {accumulator} from '../utils/compose.js';
 import {createResponseAcc} from '../utils/compose-with.js';
 import attachInstance from '../lib/attach-instance.js';
-import applyResponseTiming, {
-  DEFAULT_TIMING_HEADER,
-  DEFAULT_TIMING_PRECISION
-} from '../lib/response-time.js';
+import applyResponseTiming, {resolveTimingConfig} from '../lib/response-time.js';
 import {statusFromHttp} from '../lib/tracing.js';
 import {ATTR_HTTP_RESPONSE_STATUS_CODE} from '../lib/otel-attributes.js';
 import buildResponseInfo from '../lib/response-info.js';
@@ -113,21 +110,16 @@ export default (pipeline, options = {}) => {
   );
   const send = createSend(sendOptions);
 
-  const timingHeader =
-    timing && typeof timing === 'object'
-      ? (timing.header ?? DEFAULT_TIMING_HEADER)
-      : DEFAULT_TIMING_HEADER;
-  const timingPrecision =
-    timing && typeof timing === 'object'
-      ? (timing.precision ?? DEFAULT_TIMING_PRECISION)
-      : DEFAULT_TIMING_PRECISION;
+  const timingConfig = resolveTimingConfig(timing);
 
   return async (req, res) => {
     const startTime = performance.now();
     const domainAcc = accumulator();
     const responseAcc = createResponseAcc();
     if (debug) responseAcc._trace = {steps: [], breakAt: undefined};
-    if (timing) applyResponseTiming(res, timingHeader, timingPrecision);
+    if (timingConfig) {
+      applyResponseTiming(res, timingConfig.header, timingConfig.precision);
+    }
 
     try {
       await pipeline(req, res, responseAcc, domainAcc);
