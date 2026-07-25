@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **`resolveTimingConfig` export from `lib/response-time`.** (#304)
+  Pure factory-time resolver for the `timing` option (`boolean | {header?, precision?}`).
+  Returns `{header, precision}` or `undefined` when disabled. Consumed by `http/handler.js`
+  and ergo-router `auto-wrap.js` so option interpretation lives with the timing primitive.
+
 - **`DEFAULT_HSTS_MAX_AGE_SECONDS` export from `lib/security-headers`.** (#284)
   Named constant for the default HSTS `max-age` (one year = `31_536_000` seconds).
   `buildHstsDirective` and JSDoc reference the constant; ergo-router transport should
