@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`handler()` throws TypeError at construction when `pipeline` or `onResponse` is not a function.** (#309)
+  Factory previously accepted invalid types and deferred failure to the first request
+  (`pipeline` → perpetual 500; truthy non-function `onResponse` → silently swallowed).
+  Matches the rate-limit / idempotency construction-time value-validation pattern.
+
 ## [0.9.0] - 2026-07-25
 
 ### Added

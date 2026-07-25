@@ -5,6 +5,25 @@ import createHandler from './handler.js';
 import {DEFAULT_REDACTED_HEADERS} from '../lib/redact-headers.js';
 
 describe('[Module] http/handler', () => {
+  it('throws TypeError when pipeline is not a function', () => {
+    for (const pipeline of [undefined, null, 'x', 1, {}]) {
+      assert.throws(() => createHandler(pipeline), {
+        name: 'TypeError',
+        message: /first argument must be a function/
+      });
+    }
+  });
+
+  it('throws TypeError when onResponse is provided but not a function', () => {
+    const pipeline = async () => {};
+    for (const onResponse of [42, 'log', null]) {
+      assert.throws(() => createHandler(pipeline, {onResponse}), {
+        name: 'TypeError',
+        message: /"onResponse" option must be a function/
+      });
+    }
+  });
+
   it('creates both accumulators and passes them to the pipeline', async () => {
     let receivedArgs;
     // handler calls pipeline(req, res, responseAcc, domainAcc) to match
