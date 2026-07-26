@@ -94,6 +94,7 @@ const VALID_OPTIONS = new Set([
  *   through a compiled schema projector that strips undeclared properties before serialization.
  *   Only applies to Object bodies with `statusCode < 400`. Resolution order: exact match →
  *   range → default.
+ * @throws {TypeError} When pipeline is not a function, or when onResponse is provided but is not a function
  */
 export default (pipeline, options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'handler');
@@ -105,6 +106,14 @@ export default (pipeline, options = {}) => {
     timing = false,
     ...rest
   } = options;
+
+  if (typeof pipeline !== 'function') {
+    throw new TypeError('handler(): first argument must be a function (pipeline)');
+  }
+  if (onResponse !== undefined && typeof onResponse !== 'function') {
+    throw new TypeError('handler(): "onResponse" option must be a function');
+  }
+
   const sendOptions = Object.fromEntries(
     Object.entries(rest).filter(([k]) => SEND_VALID_OPTIONS.has(k))
   );
