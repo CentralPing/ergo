@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785011882349,
+  "lastUpdate": 1785079868499,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21387,6 +21387,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "efc6e19f9c11faf22edcebf73a054f919332fb5c",
+          "message": "fix: validate handler pipeline and onResponse at construction (#309) (#436)\n\nFail fast with TypeError when pipeline or onResponse is not a function,\nmatching the rate-limit/idempotency factory validation pattern.",
+          "timestamp": "2026-07-26T11:30:48-04:00",
+          "tree_id": "260d0a4ae54653947b5b79b50a79d197a0c9fea0",
+          "url": "https://github.com/CentralPing/ergo/commit/efc6e19f9c11faf22edcebf73a054f919332fb5c"
+        },
+        "date": 1785079867337,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.012,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.004,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.006,
             "unit": "us/op"
           }
         ]
