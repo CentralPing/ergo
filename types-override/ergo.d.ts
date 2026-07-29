@@ -300,7 +300,7 @@ export interface SendOptions {
 /** Options for `timeout()` — request timeout middleware. */
 export interface TimeoutOptions {
   ms?: number;
-  statusCode?: number;
+  statusCode?: 408 | 504;
 }
 
 /** Options for `tracing()` — OpenTelemetry pipeline tracing middleware. */
