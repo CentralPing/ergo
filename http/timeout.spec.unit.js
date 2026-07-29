@@ -20,6 +20,40 @@ describe('[Module] http/timeout', () => {
     assert.doesNotThrow(() => timeout(mockReq(), mockRes(), {}, responseAcc));
   });
 
+  it('constructs with valid statusCode enum members', () => {
+    assert.doesNotThrow(() => createTimeout({ms: 1, statusCode: 408}));
+    assert.doesNotThrow(() => createTimeout({ms: 1, statusCode: 504}));
+  });
+
+  it('throws TypeError when ms is not a positive finite number', () => {
+    for (const ms of [0, -1, NaN, Infinity, '1000', null]) {
+      assert.throws(() => createTimeout({ms}), {
+        name: 'TypeError',
+        message: /"ms" option must be a positive finite number/
+      });
+    }
+  });
+
+  it('throws TypeError when ms exceeds Node setTimeout max delay', () => {
+    assert.throws(() => createTimeout({ms: 2_147_483_648}), {
+      name: 'TypeError',
+      message: /"ms" option must not exceed 2147483647/
+    });
+  });
+
+  it('constructs at the Node setTimeout max delay', () => {
+    assert.doesNotThrow(() => createTimeout({ms: 2_147_483_647}));
+  });
+
+  it('throws TypeError when statusCode is not 408 or 504', () => {
+    for (const statusCode of [200, 999, 408.5, '408', null]) {
+      assert.throws(() => createTimeout({statusCode}), {
+        name: 'TypeError',
+        message: /"statusCode" option must be 408 or 504/
+      });
+    }
+  });
+
   it('sets responseAcc.statusCode to 408 and destroys request when timeout fires', async () => {
     const timeout = createTimeout({ms: 1});
     const responseAcc = createResponseAcc();

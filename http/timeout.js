@@ -21,6 +21,9 @@
  *   {fn: timeout({ms: 10000, statusCode: 504}), setPath: 'timeout'},
  *   (req, res, acc) => ({response: {body: await slowCall(), statusCode: 200}})
  * );
+ *
+ * @see {@link https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.9 RFC 9110 Section 15.5.9 - 408 Request Timeout}
+ * @see {@link https://www.rfc-editor.org/rfc/rfc9110.html#section-15.6.5 RFC 9110 Section 15.6.5 - 504 Gateway Timeout}
  */
 
 import {validateOptions} from '../lib/validate-options.js';
@@ -28,16 +31,45 @@ import {validateOptions} from '../lib/validate-options.js';
 /** @type {Set<string>} */
 const VALID_OPTIONS = new Set(['ms', 'statusCode']);
 
+const DEFAULT_TIMEOUT_MS = 30_000;
+/** Node.js `setTimeout` max delay (signed 32-bit); larger values clamp to 1 ms. */
+const MAX_TIMEOUT_MS = 2_147_483_647;
+const STATUS_CODE_REQUEST_TIMEOUT = 408;
+const STATUS_CODE_GATEWAY_TIMEOUT = 504;
+const DEFAULT_STATUS_CODE = STATUS_CODE_REQUEST_TIMEOUT;
+const VALID_TIMEOUT_STATUS_CODES = new Set([
+  STATUS_CODE_REQUEST_TIMEOUT,
+  STATUS_CODE_GATEWAY_TIMEOUT
+]);
+
 /**
  * Creates a request timeout middleware.
  *
  * @param {object} [options] - Timeout configuration
- * @param {number} [options.ms=30000] - Timeout in milliseconds
- * @param {number} [options.statusCode=408] - HTTP status code on timeout (408 or 504)
+ * @param {number} [options.ms=DEFAULT_TIMEOUT_MS] - Timeout in milliseconds
+ *   (positive finite, at most `MAX_TIMEOUT_MS`)
+ * @param {408|504} [options.statusCode=DEFAULT_STATUS_CODE] - HTTP status code on timeout
+ *   (`STATUS_CODE_REQUEST_TIMEOUT` or `STATUS_CODE_GATEWAY_TIMEOUT`)
+ * @returns {function(import('node:http').IncomingMessage, import('node:http').ServerResponse, object, object): void} -
+ *   Side-effect middleware that arms a deadline timer against `responseAcc`
+ * @throws {TypeError} When `ms` or `statusCode` fail construction-time validation
  */
 export default (options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'timeout');
-  const {ms = 30000, statusCode = 408} = options;
+  const {ms = DEFAULT_TIMEOUT_MS, statusCode = DEFAULT_STATUS_CODE} = options;
+
+  if (!Number.isFinite(ms) || ms <= 0) {
+    throw new TypeError('timeout(): "ms" option must be a positive finite number');
+  }
+  if (ms > MAX_TIMEOUT_MS) {
+    throw new TypeError(`timeout(): "ms" option must not exceed ${MAX_TIMEOUT_MS}`);
+  }
+  if (!VALID_TIMEOUT_STATUS_CODES.has(statusCode)) {
+    throw new TypeError(
+      `timeout(): "statusCode" option must be ${STATUS_CODE_REQUEST_TIMEOUT} or ${STATUS_CODE_GATEWAY_TIMEOUT}`
+    );
+  }
+
   return function timeoutMiddleware(req, res, domainAcc, responseAcc) {
     const timer = setTimeout(() => {
       if (!req.destroyed) {

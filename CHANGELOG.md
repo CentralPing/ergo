@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`http/timeout` validates option values at construction and names default constants.** (#303, #306)
+  Named defaults `DEFAULT_TIMEOUT_MS` / `DEFAULT_STATUS_CODE` (via `STATUS_CODE_REQUEST_TIMEOUT` /
+  `STATUS_CODE_GATEWAY_TIMEOUT`) replace magic-number destructuring. Factory throws `TypeError`
+  when `ms` is not a positive finite number, when `ms` exceeds `MAX_TIMEOUT_MS` (Node
+  `setTimeout` signed 32-bit max — larger values clamp to 1 ms), or when `statusCode` is not
+  `408` or `504` (keys-only `validateOptions` was previously the only check). Matches the
+  rate-limit factory-time value-validation pattern.
+
 - **`handler()` throws TypeError at construction when `pipeline` or `onResponse` is not a function.** (#309)
   Factory previously accepted invalid types and deferred failure to the first request
   (`pipeline` → perpetual 500; truthy non-function `onResponse` → silently swallowed).
