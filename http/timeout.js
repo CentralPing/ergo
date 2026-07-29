@@ -32,6 +32,8 @@ import {validateOptions} from '../lib/validate-options.js';
 const VALID_OPTIONS = new Set(['ms', 'statusCode']);
 
 const DEFAULT_TIMEOUT_MS = 30_000;
+/** Node.js `setTimeout` max delay (signed 32-bit); larger values clamp to 1 ms. */
+const MAX_TIMEOUT_MS = 2_147_483_647;
 const STATUS_CODE_REQUEST_TIMEOUT = 408;
 const STATUS_CODE_GATEWAY_TIMEOUT = 504;
 const DEFAULT_STATUS_CODE = STATUS_CODE_REQUEST_TIMEOUT;
@@ -45,6 +47,7 @@ const VALID_TIMEOUT_STATUS_CODES = new Set([
  *
  * @param {object} [options] - Timeout configuration
  * @param {number} [options.ms=DEFAULT_TIMEOUT_MS] - Timeout in milliseconds
+ *   (positive finite, at most `MAX_TIMEOUT_MS`)
  * @param {408|504} [options.statusCode=DEFAULT_STATUS_CODE] - HTTP status code on timeout
  *   (`STATUS_CODE_REQUEST_TIMEOUT` or `STATUS_CODE_GATEWAY_TIMEOUT`)
  * @returns {function(import('node:http').IncomingMessage, import('node:http').ServerResponse, object, object): void} -
@@ -57,6 +60,9 @@ export default (options = {}) => {
 
   if (!Number.isFinite(ms) || ms <= 0) {
     throw new TypeError('timeout(): "ms" option must be a positive finite number');
+  }
+  if (ms > MAX_TIMEOUT_MS) {
+    throw new TypeError(`timeout(): "ms" option must not exceed ${MAX_TIMEOUT_MS}`);
   }
   if (!VALID_TIMEOUT_STATUS_CODES.has(statusCode)) {
     throw new TypeError(

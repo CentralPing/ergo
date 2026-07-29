@@ -34,6 +34,17 @@ describe('[Module] http/timeout', () => {
     }
   });
 
+  it('throws TypeError when ms exceeds Node setTimeout max delay', () => {
+    assert.throws(() => createTimeout({ms: 2_147_483_648}), {
+      name: 'TypeError',
+      message: /"ms" option must not exceed 2147483647/
+    });
+  });
+
+  it('constructs at the Node setTimeout max delay', () => {
+    assert.doesNotThrow(() => createTimeout({ms: 2_147_483_647}));
+  });
+
   it('throws TypeError when statusCode is not 408 or 504', () => {
     for (const statusCode of [200, 999, 408.5, '408', null]) {
       assert.throws(() => createTimeout({statusCode}), {
