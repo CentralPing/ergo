@@ -68,14 +68,18 @@ const host = Object.freeze({
  * @param {function} [options.error] - Log function for errors (default: console.error)
  * @param {function} [options.uuid] - Fallback UUID generator used only when no upstream request ID
  *   is found on the response or request headers (default: crypto.randomUUID)
- * @param {string} [options.headerRequestIdName] - Request ID header name (default: 'x-request-id')
- * @param {string} [options.headerRequestIpName] - Client IP header name (default: 'x-real-ip')
+ * @param {string} [options.headerRequestIdName] - Request ID header name (default: 'x-request-id').
+ *   Normalized to lowercase at construction for `req.headers` lookup (Node lowercases incoming
+ *   header keys; RFC 9110 §5.1 field names are case-insensitive).
+ * @param {string} [options.headerRequestIpName] - Client IP header name (default: 'x-real-ip').
+ *   Normalized to lowercase at construction (same rationale as `headerRequestIdName`).
  * @param {boolean} [options.redactErrors=true] - When true, error log entries use generic HTTP
  *   status text (from `STATUS_CODES`) instead of `err.message`, and suppress `stack` and
  *   `originalError`. This prevents sensitive error details from leaking into log output.
  *   Independent of `handler()`'s `redactErrors` option (which controls HTTP response bodies).
  * @param {Set<string>} [options.redactHeaders] - Header names to replace with '[REDACTED]' in logs
  *   (default: authorization, proxy-authorization, cookie, set-cookie)
+ * @throws {TypeError} When `headerRequestIdName` or `headerRequestIpName` is provided and not a string
  */
 export default (options = {}) => {
   validateOptions(options, VALID_OPTIONS, 'logger');
@@ -85,11 +89,19 @@ export default (options = {}) => {
     /* eslint-disable-next-line no-console */
     error: logError = console.error,
     uuid = randomUUID,
-    headerRequestIdName = 'x-request-id',
-    headerRequestIpName = 'x-real-ip',
+    headerRequestIdName: headerRequestIdNameOpt = 'x-request-id',
+    headerRequestIpName: headerRequestIpNameOpt = 'x-real-ip',
     redactErrors = true,
     redactHeaders = new Set(DEFAULT_REDACTED_HEADERS)
   } = options;
+  if (typeof headerRequestIdNameOpt !== 'string') {
+    throw new TypeError('logger(): "headerRequestIdName" option must be a string');
+  }
+  if (typeof headerRequestIpNameOpt !== 'string') {
+    throw new TypeError('logger(): "headerRequestIpName" option must be a string');
+  }
+  const headerRequestIdName = headerRequestIdNameOpt.toLowerCase();
+  const headerRequestIpName = headerRequestIpNameOpt.toLowerCase();
   const inner = function loggerMiddleware(req, res, acc) {
     const time = performance.now();
     const timestamp = Date.now();
