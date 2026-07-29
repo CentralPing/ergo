@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785342345273,
+  "lastUpdate": 1785348910684,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21496,6 +21496,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e8b1fe28bf584b423f42290499f9426b3b878e87",
+          "message": "fix: name timeout defaults and validate options at construction (#303) (#440)\n\n* fix: name timeout defaults and validate options at construction (#303)\n\nCloses #303\nCloses #306\n\n* fix: reject timeout ms above Node setTimeout max delay",
+          "timestamp": "2026-07-29T14:14:49-04:00",
+          "tree_id": "e40f85fa5ae743be8629972dd5037abd91f64da8",
+          "url": "https://github.com/CentralPing/ergo/commit/e8b1fe28bf584b423f42290499f9426b3b878e87"
+        },
+        "date": 1785348909332,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
