@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785352751392,
+  "lastUpdate": 1785357679185,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21595,6 +21595,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.024,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0aad5f9435679c3b8857415b07ab3f9100037420",
+          "message": "fix: lowercase logger header name options at construction (#316) (#443)\n\n* fix: lowercase logger header name options at construction (#316)\n\nNormalize headerRequestIdName/headerRequestIpName so req.headers lookups\nmatch Node's lowercased keys; reject non-string values with TypeError.\n\n* fix: strengthen logger case×custom header option tests (#316)",
+          "timestamp": "2026-07-29T16:41:04-04:00",
+          "tree_id": "d4e70bf9660557f5e3990f645fffd9ec67814bb3",
+          "url": "https://github.com/CentralPing/ergo/commit/0aad5f9435679c3b8857415b07ab3f9100037420"
+        },
+        "date": 1785357678146,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.023,
             "unit": "us/op"
           },
           {
