@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **`logger()` lowercases header name options at construction.** (#316)
+  `headerRequestIdName` / `headerRequestIpName` are normalized with `.toLowerCase()` so
+  `req.headers[...]` lookups match Node's lowercased incoming header keys (RFC 9110 §5.1).
+  Mixed-case values such as `'X-Request-Id'` no longer silently miss the proxy header and
+  fall through to UUID / missing IP. Non-string values throw `TypeError` at construction
+  (`logger(): "…" option must be a string`), matching the rate-limit / timeout / handler
+  factory-time value-validation pattern.
+
 - **`http/timeout` validates option values at construction and names default constants.** (#303, #306)
   Named defaults `DEFAULT_TIMEOUT_MS` / `DEFAULT_STATUS_CODE` (via `STATUS_CODE_REQUEST_TIMEOUT` /
   `STATUS_CODE_GATEWAY_TIMEOUT`) replace magic-number destructuring. Factory throws `TypeError`

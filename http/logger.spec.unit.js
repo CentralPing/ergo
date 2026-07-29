@@ -82,6 +82,30 @@ describe('[Module] http/logger', () => {
     assert.ok(res._headers['x-trace-id'], 'should set custom header name');
   });
 
+  it('normalizes mixed-case headerRequestIdName for req.headers lookup', () => {
+    const logger = createLogger({
+      log: () => {},
+      error: () => {},
+      headerRequestIdName: 'X-Request-Id'
+    });
+    const req = makeReq({headers: {'x-request-id': 'proxy-id'}});
+    const res = makeRes();
+    const info = logger(req, res);
+    assert.equal(info.requestId, 'proxy-id');
+    assert.equal(res._headers['x-request-id'], 'proxy-id');
+  });
+
+  it('throws TypeError when headerRequestIdName is not a string', () => {
+    assert.throws(() => createLogger({log: () => {}, error: () => {}, headerRequestIdName: 1}), {
+      name: 'TypeError',
+      message: 'logger(): "headerRequestIdName" option must be a string'
+    });
+    assert.throws(() => createLogger({log: () => {}, error: () => {}, headerRequestIdName: null}), {
+      name: 'TypeError',
+      message: 'logger(): "headerRequestIdName" option must be a string'
+    });
+  });
+
   it('returns flattened info shape to pipeline accumulator', () => {
     const logger = createLogger({log: () => {}, error: () => {}});
     const req = makeReq({
@@ -337,6 +361,29 @@ describe('[Module] http/logger', () => {
     const res = makeRes();
     const info = logger(req, res);
     assert.equal(info.ip, '10.0.0.5');
+  });
+
+  it('normalizes mixed-case headerRequestIpName for req.headers lookup', () => {
+    const logger = createLogger({
+      log: () => {},
+      error: () => {},
+      headerRequestIpName: 'X-Real-IP'
+    });
+    const req = makeReq({headers: {'x-real-ip': '203.0.113.10'}});
+    const res = makeRes();
+    const info = logger(req, res);
+    assert.equal(info.ip, '203.0.113.10');
+  });
+
+  it('throws TypeError when headerRequestIpName is not a string', () => {
+    assert.throws(() => createLogger({log: () => {}, error: () => {}, headerRequestIpName: 1}), {
+      name: 'TypeError',
+      message: 'logger(): "headerRequestIpName" option must be a string'
+    });
+    assert.throws(() => createLogger({log: () => {}, error: () => {}, headerRequestIpName: null}), {
+      name: 'TypeError',
+      message: 'logger(): "headerRequestIpName" option must be a string'
+    });
   });
 
   it('host object is frozen and shared across requests', () => {
