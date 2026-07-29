@@ -86,13 +86,13 @@ describe('[Module] http/logger', () => {
     const logger = createLogger({
       log: () => {},
       error: () => {},
-      headerRequestIdName: 'X-Request-Id'
+      headerRequestIdName: 'X-Trace-Id'
     });
-    const req = makeReq({headers: {'x-request-id': 'proxy-id'}});
+    const req = makeReq({headers: {'x-trace-id': 'proxy-id'}});
     const res = makeRes();
     const info = logger(req, res);
     assert.equal(info.requestId, 'proxy-id');
-    assert.equal(res._headers['x-request-id'], 'proxy-id');
+    assert.equal(res._headers['x-trace-id'], 'proxy-id');
   });
 
   it('throws TypeError when headerRequestIdName is not a string', () => {
@@ -367,9 +367,9 @@ describe('[Module] http/logger', () => {
     const logger = createLogger({
       log: () => {},
       error: () => {},
-      headerRequestIpName: 'X-Real-IP'
+      headerRequestIpName: 'X-Forwarded-For'
     });
-    const req = makeReq({headers: {'x-real-ip': '203.0.113.10'}});
+    const req = makeReq({headers: {'x-forwarded-for': '203.0.113.10'}});
     const res = makeRes();
     const info = logger(req, res);
     assert.equal(info.ip, '203.0.113.10');
