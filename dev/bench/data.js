@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785522327018,
+  "lastUpdate": 1785526526623,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21669,6 +21669,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: negotiation (cors + accepts)",
             "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "JasonCust@users.noreply.github.com",
+            "name": "Jason Cust",
+            "username": "JasonCust"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4778b35985f642861f4aef8b6f7990ce5150109a",
+          "message": "chore: disable CodeRabbit auto_review (#447) (#448)\n\nAlign package .coderabbit.yaml with gold-standard full-review-only\npolicy and the corrected meta-repo config (dot-cursor#48).",
+          "timestamp": "2026-07-31T15:35:05-04:00",
+          "tree_id": "d83ba68bd084a22051770b0f787fc4da2c2f62d1",
+          "url": "https://github.com/CentralPing/ergo/commit/4778b35985f642861f4aef8b6f7990ce5150109a"
+        },
+        "date": 1785526524432,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
             "unit": "us/op"
           },
           {
