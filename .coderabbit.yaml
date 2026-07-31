@@ -57,7 +57,7 @@ reviews:
         ergo.d.ts. Verify overloaded signatures align with source function signatures.
 
   auto_review:
-    enabled: true
+    enabled: false
     auto_incremental_review: false
     drafts: false
     ignore_title_keywords:
