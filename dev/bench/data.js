@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785533677868,
+  "lastUpdate": 1785533689836,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21783,6 +21783,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.009,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "a9c18a0bd312bfa18cabddc71e78b43147e15551",
+          "message": "chore(deps-dev): Bump c8 from 11.0.0 to 12.0.0 in the dev-major group",
+          "timestamp": "2026-07-31T19:35:15Z",
+          "url": "https://github.com/CentralPing/ergo/pull/451/commits/a9c18a0bd312bfa18cabddc71e78b43147e15551"
+        },
+        "date": 1785533688794,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.019,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
             "unit": "us/op"
           },
           {
