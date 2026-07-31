@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785526526623,
+  "lastUpdate": 1785533659087,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21718,6 +21718,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "dcda5e2cfe49a25b2adae6861e036f0e43edcb51",
+          "message": "chore(deps-dev): Bump @types/node from 26.1.1 to 26.1.2 in the all-patches group",
+          "timestamp": "2026-07-31T19:35:15Z",
+          "url": "https://github.com/CentralPing/ergo/pull/449/commits/dcda5e2cfe49a25b2adae6861e036f0e43edcb51"
+        },
+        "date": 1785533658059,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.021,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.008,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.013,
             "unit": "us/op"
           }
         ]
