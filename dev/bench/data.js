@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785533908127,
+  "lastUpdate": 1785618019574,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -21928,6 +21928,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6fba7170afba66e66d8900b5f4daa5401daf72ae",
+          "message": "chore(deps-dev): Bump the dev-minor group across 1 directory with 4 updates (#450)\n\nBumps the dev-minor group with 4 updates in the / directory: [@opentelemetry/sdk-trace-node](https://github.com/open-telemetry/opentelemetry-js), [eslint](https://github.com/eslint/eslint), [lint-staged](https://github.com/lint-staged/lint-staged) and [undici](https://github.com/nodejs/undici).\n\n\nUpdates `@opentelemetry/sdk-trace-node` from 2.9.0 to 2.10.0\n- [Release notes](https://github.com/open-telemetry/opentelemetry-js/releases)\n- [Changelog](https://github.com/open-telemetry/opentelemetry-js/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/open-telemetry/opentelemetry-js/compare/v2.9.0...v2.10.0)\n\nUpdates `eslint` from 10.7.0 to 10.8.0\n- [Release notes](https://github.com/eslint/eslint/releases)\n- [Commits](https://github.com/eslint/eslint/compare/v10.7.0...v10.8.0)\n\nUpdates `lint-staged` from 17.0.8 to 17.2.0\n- [Release notes](https://github.com/lint-staged/lint-staged/releases)\n- [Changelog](https://github.com/lint-staged/lint-staged/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/lint-staged/lint-staged/compare/v17.0.8...v17.2.0)\n\nUpdates `undici` from 8.7.0 to 8.9.0\n- [Release notes](https://github.com/nodejs/undici/releases)\n- [Commits](https://github.com/nodejs/undici/compare/v8.7.0...v8.9.0)\n\n---\nupdated-dependencies:\n- dependency-name: \"@opentelemetry/sdk-trace-node\"\n  dependency-version: 2.10.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: eslint\n  dependency-version: 10.8.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: lint-staged\n  dependency-version: 17.2.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: undici\n  dependency-version: 8.9.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-01T16:59:58-04:00",
+          "tree_id": "9c44699016e624230efb8edfe59d830b6d7c21db",
+          "url": "https://github.com/CentralPing/ergo/commit/6fba7170afba66e66d8900b5f4daa5401daf72ae"
+        },
+        "date": 1785618018531,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.018,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.008,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.012,
             "unit": "us/op"
           }
         ]
