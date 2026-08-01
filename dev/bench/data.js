@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785618149412,
+  "lastUpdate": 1785624158616,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -22037,6 +22037,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ca571310f5b11478ebded1c4522a8c5e33959e5b",
+          "message": "chore(deps-dev): Bump c8 in the dev-major group across 1 directory (#451)\n\nBumps the dev-major group with 1 update in the / directory: [c8](https://github.com/bcoe/c8).\n\n\nUpdates `c8` from 11.0.0 to 12.0.0\n- [Release notes](https://github.com/bcoe/c8/releases)\n- [Changelog](https://github.com/bcoe/c8/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/bcoe/c8/compare/v11.0.0...v12.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: c8\n  dependency-version: 12.0.0\n  dependency-type: direct:development\n  update-type: version-update:semver-major\n  dependency-group: dev-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-01T18:42:16-04:00",
+          "tree_id": "6fd86ce79d3a5dc0f320b177640110aa6ab28039",
+          "url": "https://github.com/CentralPing/ergo/commit/ca571310f5b11478ebded1c4522a8c5e33959e5b"
+        },
+        "date": 1785624157037,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.014,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.005,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
