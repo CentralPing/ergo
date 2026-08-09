@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1786310108609,
+  "lastUpdate": 1786310271466,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -22181,6 +22181,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c2fc710204e96217e78757b6e151aaa52c4085a1",
+          "message": "chore(deps-dev): Bump the dev-minor group with 2 updates (#453)\n\nBumps the dev-minor group with 2 updates: [globals](https://github.com/sindresorhus/globals) and [lint-staged](https://github.com/lint-staged/lint-staged).\n\n\nUpdates `globals` from 17.7.0 to 17.8.0\n- [Release notes](https://github.com/sindresorhus/globals/releases)\n- [Commits](https://github.com/sindresorhus/globals/compare/v17.7.0...v17.8.0)\n\nUpdates `lint-staged` from 17.2.0 to 17.3.0\n- [Release notes](https://github.com/lint-staged/lint-staged/releases)\n- [Changelog](https://github.com/lint-staged/lint-staged/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/lint-staged/lint-staged/compare/v17.2.0...v17.3.0)\n\n---\nupdated-dependencies:\n- dependency-name: globals\n  dependency-version: 17.8.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: lint-staged\n  dependency-version: 17.3.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Jason Cust <JasonCust@users.noreply.github.com>",
+          "timestamp": "2026-08-09T17:17:29-04:00",
+          "tree_id": "f096da14bebacba14fde5532b5215b08da9d18f4",
+          "url": "https://github.com/CentralPing/ergo/commit/c2fc710204e96217e78757b6e151aaa52c4085a1"
+        },
+        "date": 1786310269551,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.029,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.014,
             "unit": "us/op"
           }
         ]
