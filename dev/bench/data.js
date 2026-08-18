@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1786743523716,
+  "lastUpdate": 1787056438540,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -22320,6 +22320,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.006,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7594708966c4c11b3db566242436bdf7a83449eb",
+          "message": "chore(deps-dev): Bump the dev-minor group across 1 directory with 3 updates (#456)\n\nBumps the dev-minor group with 3 updates in the / directory: [@types/node](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/HEAD/types/node), [globals](https://github.com/sindresorhus/globals) and [undici](https://github.com/nodejs/undici).\n\n\nUpdates `@types/node` from 26.1.2 to 26.2.0\n- [Release notes](https://github.com/DefinitelyTyped/DefinitelyTyped/releases)\n- [Commits](https://github.com/DefinitelyTyped/DefinitelyTyped/commits/HEAD/types/node)\n\nUpdates `globals` from 17.8.0 to 17.9.0\n- [Release notes](https://github.com/sindresorhus/globals/releases)\n- [Commits](https://github.com/sindresorhus/globals/compare/v17.8.0...v17.9.0)\n\nUpdates `undici` from 8.9.0 to 8.10.0\n- [Release notes](https://github.com/nodejs/undici/releases)\n- [Commits](https://github.com/nodejs/undici/compare/v8.9.0...v8.10.0)\n\n---\nupdated-dependencies:\n- dependency-name: \"@types/node\"\n  dependency-version: 26.2.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: globals\n  dependency-version: 17.9.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: undici\n  dependency-version: 8.10.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-08-18T08:33:43-04:00",
+          "tree_id": "1b2eb6ec0defff4ebfb46e08cc32ed06ef8bf244",
+          "url": "https://github.com/CentralPing/ergo/commit/7594708966c4c11b3db566242436bdf7a83449eb"
+        },
+        "date": 1787056437215,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.008,
             "unit": "us/op"
           },
           {
