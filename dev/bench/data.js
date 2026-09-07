@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788557860754,
+  "lastUpdate": 1788781499712,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -22674,6 +22674,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.008,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "ff52214cc153e364ca7a6acf9b0264f6acb1d1a1",
+          "message": "chore(deps): Bump negotiator from 1.0.0 to 1.1.0 in the prod-minor group across 1 directory",
+          "timestamp": "2026-09-04T21:40:48Z",
+          "url": "https://github.com/CentralPing/ergo/pull/463/commits/ff52214cc153e364ca7a6acf9b0264f6acb1d1a1"
+        },
+        "date": 1788781498447,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.022,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
