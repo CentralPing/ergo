@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788781499712,
+  "lastUpdate": 1788781578399,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -22714,6 +22714,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.011,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1698fc3752931f34e0fa9204584090f43c4bf992",
+          "message": "chore(deps): Bump negotiator in the prod-minor group across 1 directory (#463)\n\nBumps the prod-minor group with 1 update in the / directory: [negotiator](https://github.com/jshttp/negotiator).\n\n\nUpdates `negotiator` from 1.0.0 to 1.1.0\n- [Release notes](https://github.com/jshttp/negotiator/releases)\n- [Commits](https://github.com/jshttp/negotiator/compare/v1.0.0...v1.1.0)\n\n---\nupdated-dependencies:\n- dependency-name: negotiator\n  dependency-version: 1.1.0\n  dependency-type: direct:production\n  update-type: version-update:semver-minor\n  dependency-group: prod-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-09-07T11:45:50Z",
+          "tree_id": "05435af9f922635d30a2bba953bdba208852a50e",
+          "url": "https://github.com/CentralPing/ergo/commit/1698fc3752931f34e0fa9204584090f43c4bf992"
+        },
+        "date": 1788781576903,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.012,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.003,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.008,
             "unit": "us/op"
           }
         ]
