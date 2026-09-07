@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788781578399,
+  "lastUpdate": 1788781609895,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -22753,6 +22753,41 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: full pipeline (negotiate + auth + execute)",
             "value": 0.008,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "bc5dfb87efbd8f1b4d7e602e446ae43c3f99a1a3",
+          "message": "chore(deps-dev): Bump the dev-minor group across 1 directory with 5 updates",
+          "timestamp": "2026-09-07T11:45:55Z",
+          "url": "https://github.com/CentralPing/ergo/pull/464/commits/bc5dfb87efbd8f1b4d7e602e446ae43c3f99a1a3"
+        },
+        "date": 1788781607960,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.027,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
             "unit": "us/op"
           }
         ]
