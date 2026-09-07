@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788781609895,
+  "lastUpdate": 1788781676204,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -22783,6 +22783,45 @@ window.BENCHMARK_DATA = {
           {
             "name": "compose: authorization (bearer)",
             "value": 0.007,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.01,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f7a15e2e48cc1109c876b9b406e93684edf084f9",
+          "message": "chore(deps-dev): Bump the dev-minor group across 1 directory with 5 updates (#464)\n\nBumps the dev-minor group with 5 updates in the / directory:\n\n| Package | From | To |\n| --- | --- | --- |\n| [@types/node](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/HEAD/types/node) | `26.2.0` | `26.4.0` |\n| [eslint](https://github.com/eslint/eslint) | `10.8.1` | `10.9.1` |\n| [globals](https://github.com/sindresorhus/globals) | `17.9.0` | `17.11.0` |\n| [lint-staged](https://github.com/lint-staged/lint-staged) | `17.3.0` | `17.4.1` |\n| [simple-git-hooks](https://github.com/toplenboren/simple-git-hooks) | `2.13.1` | `2.14.0` |\n\n\n\nUpdates `@types/node` from 26.2.0 to 26.4.0\n- [Release notes](https://github.com/DefinitelyTyped/DefinitelyTyped/releases)\n- [Commits](https://github.com/DefinitelyTyped/DefinitelyTyped/commits/HEAD/types/node)\n\nUpdates `eslint` from 10.8.1 to 10.9.1\n- [Release notes](https://github.com/eslint/eslint/releases)\n- [Commits](https://github.com/eslint/eslint/compare/v10.8.1...v10.9.1)\n\nUpdates `globals` from 17.9.0 to 17.11.0\n- [Release notes](https://github.com/sindresorhus/globals/releases)\n- [Commits](https://github.com/sindresorhus/globals/compare/v17.9.0...v17.11.0)\n\nUpdates `lint-staged` from 17.3.0 to 17.4.1\n- [Release notes](https://github.com/lint-staged/lint-staged/releases)\n- [Changelog](https://github.com/lint-staged/lint-staged/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/lint-staged/lint-staged/compare/v17.3.0...v17.4.1)\n\nUpdates `simple-git-hooks` from 2.13.1 to 2.14.0\n- [Release notes](https://github.com/toplenboren/simple-git-hooks/releases)\n- [Changelog](https://github.com/toplenboren/simple-git-hooks/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/toplenboren/simple-git-hooks/compare/2.13.1...2.14.0)\n\n---\nupdated-dependencies:\n- dependency-name: \"@types/node\"\n  dependency-version: 26.4.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: eslint\n  dependency-version: 10.9.1\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: globals\n  dependency-version: 17.11.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: lint-staged\n  dependency-version: 17.4.1\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n- dependency-name: simple-git-hooks\n  dependency-version: 2.14.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n  dependency-group: dev-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-09-07T11:47:40Z",
+          "tree_id": "2ec3d00fa558b3c4d2baa1ae6e30d469b2d49ecd",
+          "url": "https://github.com/CentralPing/ergo/commit/f7a15e2e48cc1109c876b9b406e93684edf084f9"
+        },
+        "date": 1788781674778,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.027,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.006,
             "unit": "us/op"
           },
           {
