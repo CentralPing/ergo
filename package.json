@@ -121,7 +121,7 @@
     "@opentelemetry/api": "^1.0.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "content-type": "^2.0.0",
+    "content-type": "^3.0.0",
     "etag": "^1.8.1",
     "negotiator": "^1.0.0"
   },
