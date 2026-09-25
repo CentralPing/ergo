@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789767655558,
+  "lastUpdate": 1790372045320,
   "repoUrl": "https://github.com/CentralPing/ergo",
   "entries": {
     "Benchmark": [
@@ -23092,6 +23092,41 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/CentralPing/ergo/pull/471/commits/cdfea0666a946a12d3d55f57717272d10e3eb4de"
         },
         "date": 1789767653886,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "compose: negotiation (cors + accepts)",
+            "value": 0.015,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: authorization (bearer)",
+            "value": 0.004,
+            "unit": "us/op"
+          },
+          {
+            "name": "compose: full pipeline (negotiate + auth + execute)",
+            "value": 0.007,
+            "unit": "us/op"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "committer": {
+            "name": "CentralPing",
+            "username": "CentralPing"
+          },
+          "id": "7074ec6fc2b6c4ba8fc85493a521cc1b732d708d",
+          "message": "chore(deps): Bump content-type from 2.1.0 to 3.1.0 in the prod-major group across 1 directory",
+          "timestamp": "2026-09-18T21:38:30Z",
+          "url": "https://github.com/CentralPing/ergo/pull/468/commits/7074ec6fc2b6c4ba8fc85493a521cc1b732d708d"
+        },
+        "date": 1790372043872,
         "tool": "customSmallerIsBetter",
         "benches": [
           {
